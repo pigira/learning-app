@@ -1,0 +1,23 @@
+{
+  "numero": 15,
+  "titre": "Tâches planifiées et background jobs",
+  "description": "BackgroundTasks FastAPI et APScheduler : rafraîchir des données sans bloquer l'utilisateur.",
+  "objectifs": [
+    "Distinguer tâche d'arrière-plan (déclenchée) et tâche planifiée (récurrente)",
+    "Utiliser BackgroundTasks (FastAPI) et APScheduler (interval/cron)",
+    "Fiabiliser : gestion d'erreurs, logs, idempotence, non-chevauchement"
+  ],
+  "points_theorie": [
+    "FastAPI BackgroundTasks : cas d'usage (répondre vite, travailler après)",
+    "APScheduler : schedulers, déclencheurs interval et cron, timezone Europe/Amsterdam",
+    "Cycle de vie : démarrage/arrêt propre avec le lifespan FastAPI",
+    "Erreurs dans les jobs : logging, ne jamais laisser mourir en silence",
+    "Idempotence : un job rejouable sans dégât (upsert, clés uniques)",
+    "Éviter le chevauchement (max_instances, verrous) et le logging structuré des runs"
+  ],
+  "projets_cibles": [
+    "Finance",
+    "Cuisine"
+  ],
+  "statut": "complet"
+}

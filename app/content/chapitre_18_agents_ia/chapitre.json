@@ -1,0 +1,23 @@
+{
+  "numero": 18,
+  "titre": "Conception d'agents IA",
+  "description": "Du function calling à l'agent : boucle ReAct, orchestration multi-outils, contraintes et garde-fous.",
+  "objectifs": [
+    "Structurer une boucle agent (raisonner → agir → observer) robuste",
+    "Orchestrer plusieurs outils avec état intermédiaire et mémoire de travail",
+    "Encoder des contraintes utilisateur dures/souples et poser des garde-fous (arrêt, coûts, validation)"
+  ],
+  "points_theorie": [
+    "Du chatbot à l'agent : quand une boucle d'outils devient un agent",
+    "Pattern ReAct : alternance raisonnement/action, trace d'exécution",
+    "Conception des outils : granularité, descriptions, schémas d'entrée stricts",
+    "Mémoire de travail : état accumulé entre les tours, résumé du contexte",
+    "Contraintes : dures (allergies — code) vs souples (préférences — prompt) ; qui vérifie quoi",
+    "Garde-fous : nombre max de tours, budget tokens, validation des sorties, humain dans la boucle",
+    "Évaluation : jeu de scénarios de test, critères de réussite"
+  ],
+  "projets_cibles": [
+    "Cuisine"
+  ],
+  "statut": "complet"
+}

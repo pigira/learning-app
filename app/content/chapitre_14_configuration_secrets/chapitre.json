@@ -1,0 +1,22 @@
+{
+  "numero": 14,
+  "titre": "Configuration et secrets",
+  "description": "pydantic-settings, .env et multi-environnements : les clés API hors du code, pour de bon.",
+  "objectifs": [
+    "Externaliser toute configuration du code (12-factor)",
+    "Centraliser et valider la config avec pydantic-settings",
+    "Gérer plusieurs environnements (dev/prod) et protéger les secrets"
+  ],
+  "points_theorie": [
+    "Variables d'environnement : lecture (os.environ), définition (export, VS Code)",
+    "Fichiers .env et python-dotenv ; .env dans .gitignore, .env.example versionné",
+    "pydantic-settings : BaseSettings, types validés, valeurs par défaut, préfixes",
+    "SecretStr : éviter la fuite dans les logs et les repr",
+    "Multi-environnements : .env.dev/.env.prod, variable d'aiguillage",
+    "Que faire d'une clé compromise (rotation) ; scan de repo (gitleaks, aperçu)"
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "complet"
+}

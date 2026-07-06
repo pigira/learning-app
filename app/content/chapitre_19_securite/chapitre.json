@@ -1,0 +1,23 @@
+{
+  "numero": 19,
+  "titre": "Sécurité applicative de base",
+  "description": "Valider les entrées, paramétrer le SQL, protéger les secrets et le front : les réflexes minimum.",
+  "objectifs": [
+    "Valider systématiquement toute entrée externe (Pydantic strict)",
+    "Éliminer les injections (SQL paramétré) et les XSS (échappement templates)",
+    "Garder les secrets côté serveur et configurer CORS/headers proprement"
+  ],
+  "points_theorie": [
+    "Modèle de menace d'une app locale/perso : de quoi se protège-t-on vraiment",
+    "Validation d'entrée : Pydantic (bornes, formats, extra='forbid'), taille des payloads",
+    "Injection SQL : démonstration, requêtes paramétrées, jamais de SQL en f-string",
+    "XSS : échappement Jinja2 (autoescape), innerHTML vs textContent côté JS",
+    "Secrets : jamais dans le front ni dans git ; le serveur comme proxy des API externes",
+    "CORS : à quoi ça sert, configuration FastAPI raisonnable",
+    "Dépendances : pip audit, mise à jour ; traversée de chemin sur les uploads"
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "complet"
+}

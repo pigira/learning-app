@@ -1,0 +1,90 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Cours et moyennes mobiles (Matplotlib)",
+    "consigne": "Sur IWDA (générateur du chapitre 11) :\n\n1. Trace le cours + moyennes mobiles 20 j et 50 j sur un seul Axes : cours en trait plein, MM en pointillés, chaque série dans la légende.\n2. Surligne la période du max drawdown avec `axvspan` (pic → creux, rouge translucide) et annote le creux (flèche + texte avec la valeur du drawdown).\n3. Habille : titre porteur de message, axe Y « Cours (€) », grille discrète.\n4. Exporte en `iwda_mm.png` (dpi=150) ET vérifie le fichier (taille > 0, ouvre-le).\n5. Question : pourquoi la MM50 « rate »-t-elle le début de la chute alors que la MM20 la suit de plus près ?",
+    "indices": [
+      "Les moyennes mobiles : `v.rolling(20).mean()` et `v.rolling(50).mean()` — trace-les avec `linestyle=\"--\"` et `linestyle=\":\"`.",
+      "Récupère pic et creux comme au chapitre 11 (`cummax`, `idxmin`, `loc[:creux].idxmax()`), puis `ax.axvspan(pic, creux, color=\"red\", alpha=0.15)`.",
+      "L'annotation : `ax.annotate(f\"{max_dd:.0%}\", xy=(creux, v.loc[creux]), xytext=(creux, v.loc[creux]*0.88), arrowprops={\"arrowstyle\": \"->\"})`."
+    ],
+    "ressources": [
+      {
+        "titre": "Matplotlib — Quick start guide",
+        "url": "https://matplotlib.org/stable/users/explain/quick_start.html"
+      },
+      {
+        "titre": "Matplotlib — annotate",
+        "url": "https://matplotlib.org/stable/users/explain/text/annotations.html"
+      }
+    ],
+    "solution": "```python\nimport matplotlib.pyplot as plt\nfrom donnees import generer_cours          # chapitre 11\n\nv = generer_cours()[\"IWDA\"]\nmm20, mm50 = v.rolling(20).mean(), v.rolling(50).mean()\n\n# Anatomie du drawdown (chapitre 11)\ndd = v / v.cummax() - 1\ncreux = dd.idxmin()\npic = v.loc[:creux].idxmax()\nmax_dd = dd.min()\n\nfig, ax = plt.subplots(figsize=(11, 5))\nax.plot(v.index, v, label=\"IWDA\", linewidth=1.1, color=\"#1f77b4\")\nax.plot(mm20.index, mm20, label=\"MM 20 j\", linestyle=\"--\", color=\"#ff7f0e\")\nax.plot(mm50.index, mm50, label=\"MM 50 j\", linestyle=\":\", color=\"#2ca02c\")\n\nax.axvspan(pic, creux, color=\"red\", alpha=0.15)\nax.annotate(f\"{max_dd:.0%}\", xy=(creux, v.loc[creux]),\n            xytext=(creux, v.loc[creux] * 0.88),\n            arrowprops={\"arrowstyle\": \"->\"}, ha=\"center\")\n\nax.set_title(f\"IWDA : {max_dd:.0%} de drawdown entre {pic:%b %Y} et {creux:%b %Y}\")\nax.set_ylabel(\"Cours (€)\")\nax.legend()\nax.grid(True, alpha=0.3)\nfig.tight_layout()\nfig.savefig(\"iwda_mm.png\", dpi=150)\n\nfrom pathlib import Path\nassert Path(\"iwda_mm.png\").stat().st_size > 10_000    # le PNG existe et pèse\n```\n\nRéponse à la question 5 : une moyenne mobile est un filtre passe-bas à retard — elle moyenne les n derniers jours, donc elle « traîne » derrière le présent d'environ n/2 jours. La MM50 lisse plus (tendance de fond) mais réagit avec ~25 jours de retard ; la MM20 colle mieux au prix mais garde du bruit. C'est le même arbitrage réactivité/stabilité que le ratio ACWR du chapitre 11 (7 j vs 28 j) — toutes les fenêtres glissantes obéissent à cette loi.\n\nPoint de méthode : le TITRE porte la conclusion (« -X % de drawdown entre... »), pas la description. Un lecteur pressé qui ne lit que le titre repart avec le message."
+  },
+  {
+    "id": "ex02",
+    "titre": "Profil de séance : subplots à axe partagé",
+    "consigne": "Simule une séance d'intervalles (60 min, un point par seconde... 10 s suffisent : 360 points) : FC qui monte en plateaux (5 blocs effort/récup) et puissance en créneaux nets + bruit.\n\n1. Deux subplots verticaux `sharex=True`, ratio 2:1 : FC en haut, puissance en bas.\n2. Colore l'arrière-plan du graphique FC selon les 5 zones cardiaques (`axhspan` × 5, couleurs du vert au rouge, alpha faible) — bornes calculées depuis fc_max=185.\n3. Marque chaque début de bloc d'effort d'une ligne verticale pointillée (sur LES DEUX axes — c'est le but du sharex).\n4. Habillage complet + export PNG.\n5. Question : quel avantage concret le `sharex=True` apporte-t-il ici, au-delà de l'esthétique ?",
+    "indices": [
+      "Génération simple des créneaux : `puissance = np.where(effort, 260, 140) + rng.normal(0, 12, n)` où `effort` est un masque booléen construit par blocs (`(t // 72) % 2 == 0` pour alterner toutes les 72 s).",
+      "Les 5 bandes : boucle sur `[(0.5, 0.6, \"#4caf50\"), (0.6, 0.7, \"#8bc34a\"), ...]` avec `ax1.axhspan(lo*185, hi*185, color=c, alpha=0.12)`.",
+      "Ligne sur les deux axes : `for ax in (ax1, ax2): ax.axvline(debut, linestyle=\":\", color=\"grey\", alpha=0.6)`."
+    ],
+    "ressources": [
+      {
+        "titre": "Matplotlib — subplots",
+        "url": "https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html"
+      },
+      {
+        "titre": "Matplotlib — axhspan / axvline",
+        "url": "https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.axhspan.html"
+      }
+    ],
+    "solution": "```python\nimport matplotlib.pyplot as plt\nimport numpy as np\n\nrng = np.random.default_rng(3)\nn = 360                                          # 1 point / 10 s sur 60 min\nt = np.arange(n) * 10 / 60                       # axe en minutes\neffort = ((np.arange(n) // 36) % 2 == 0) & (np.arange(n) < 300)   # 5 blocs de 6 min\n\nfc = np.where(effort, 168, 132) + rng.normal(0, 3, n)\nfc = np.convolve(fc, np.ones(6) / 6, mode=\"same\")          # inertie cardiaque\npuissance = np.where(effort, 260, 140) + rng.normal(0, 12, n)\n\nFC_MAX = 185\nZONES = [(0.50, 0.60, \"#4caf50\"), (0.60, 0.70, \"#8bc34a\"),\n         (0.70, 0.80, \"#ffc107\"), (0.80, 0.90, \"#ff9800\"), (0.90, 1.02, \"#f44336\")]\n\nfig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 7), sharex=True,\n                               height_ratios=[2, 1])\n\nfor lo, hi, couleur in ZONES:                    # 2. bandes de zones\n    ax1.axhspan(lo * FC_MAX, hi * FC_MAX, color=couleur, alpha=0.12)\nax1.plot(t, fc, color=\"#c62828\", linewidth=1.2)\nax1.set_ylabel(\"FC (bpm)\")\nax1.set_ylim(100, 190)\n\nax2.plot(t, puissance, color=\"#1565c0\", linewidth=0.9)\nax2.set_ylabel(\"Puissance (W)\")\nax2.set_xlabel(\"Temps (min)\")\n\ndebuts_effort = t[np.flatnonzero(np.diff(effort.astype(int)) == 1) + 1]\nfor debut in [t[0], *debuts_effort]:             # 3. sur les DEUX axes\n    for ax in (ax1, ax2):\n        ax.axvline(debut, linestyle=\":\", color=\"grey\", alpha=0.6)\n\nax1.set_title(\"Séance intervalles 5 × 6 min — FC et puissance\")\nfor ax in (ax1, ax2):\n    ax.grid(True, alpha=0.25)\nfig.tight_layout()\nfig.savefig(\"seance_intervalles.png\", dpi=150)\n```\n\nRéponse à la question 5 : `sharex=True` garantit l'**alignement vertical exact** des deux chronologies — le décalage FC/puissance devient LISIBLE : la puissance monte instantanément au début du bloc (créneau net), la FC met ~30-60 s à suivre (l'inertie cardiaque, simulée ici par le lissage). Ce décalage est une vraie information physiologique ; sans axe partagé (deux graphiques indépendants, échelles X légèrement différentes), il serait invisible ou trompeur. Et en usage interactif, zoomer sur l'un zoome l'autre.\n\nC'est exactement le graphique que produira le parseur .fit du chapitre 16 sur tes vraies séances."
+  },
+  {
+    "id": "ex03",
+    "titre": "Passer à Plotly : interactif et HTML autonome",
+    "consigne": "Reprends la comparaison IWDA/EMIM/WSML du chapitre 11 :\n\n1. `px.line` sur la base 100 (période commune). Info-bulle enrichie : la valeur base 100 ET la date au format long.\n2. Ajoute la zone du max drawdown d'IWDA avec `add_vrect` et une ligne de référence à 100 avec `add_hline`.\n3. Teste l'interactivité : zoom sur 3 mois, isole une série en cliquant la légende, réinitialise (double-clic).\n4. Exporte `comparaison.html` avec `include_plotlyjs=\"cdn\"` : ouvre le fichier dans le navigateur SANS serveur, vérifie le poids du fichier (léger) vs `include_plotlyjs=True` (autonome hors-ligne, ~3 Mo) — quand choisir l'un ou l'autre ?\n5. Refais le même graphique en 3 lignes avec `df.plot(backend=\"plotly\")`... non disponible partout : utilise plutôt `px.line(df)` directement sur le DataFrame à colonnes multiples — observe ce que px fait de l'index et des noms de colonnes.",
+    "indices": [
+      "px sur DataFrame « large » : `px.line(base100)` fonctionne directement — l'index devient x, chaque colonne une trace, le nom des colonnes la légende. Le reset_index/melt n'est nécessaire que pour les cas plus fins.",
+      "`fig.add_vrect(x0=str(pic.date()), x1=str(creux.date()), fillcolor=\"red\", opacity=0.15, line_width=0, annotation_text=\"drawdown IWDA\")`.",
+      "CDN vs autonome : cdn = fichier de ~20 ko mais nécessite Internet à l'OUVERTURE ; True = ~3,5 Mo mais fonctionne dans l'avion. Pour un rapport archivé longtemps : autonome (le CDN peut changer)."
+    ],
+    "ressources": [
+      {
+        "titre": "Plotly Express — line charts",
+        "url": "https://plotly.com/python/line-charts/"
+      },
+      {
+        "titre": "Plotly — interactive HTML export",
+        "url": "https://plotly.com/python/interactive-html-export/"
+      }
+    ],
+    "solution": "```python\nimport plotly.express as px\nfrom rapport import base_100, generer_cours       # projet du chapitre 11\n\ncours = generer_cours()\nb100 = base_100(cours)\n\n# 1. La figure — px consomme le DataFrame « large » directement\nfig = px.line(\n    b100,\n    title=\"IWDA / EMIM / WSML — base 100 (période commune)\",\n    labels={\"value\": \"Base 100\", \"index\": \"\", \"variable\": \"\"},\n)\nfig.update_traces(hovertemplate=\"%{y:.1f}<br>%{x|%d %b %Y}\")   # 1. info-bulle\n\n# 2. Annotations\nv = cours[\"IWDA\"].dropna()\ndd = v / v.cummax() - 1\ncreux = dd.idxmin()\npic = v.loc[:creux].idxmax()\nfig.add_hline(y=100, line_dash=\"dot\", line_color=\"grey\")\nfig.add_vrect(x0=pic, x1=creux, fillcolor=\"red\", opacity=0.12, line_width=0,\n              annotation_text=\"drawdown IWDA\", annotation_position=\"top left\")\n\n# 4. Exports\nfig.write_html(\"comparaison.html\", include_plotlyjs=\"cdn\")       # ~25 ko\nfig.write_html(\"comparaison_autonome.html\", include_plotlyjs=True)  # ~3.5 Mo\n\nfrom pathlib import Path\nleger = Path(\"comparaison.html\").stat().st_size\nlourd = Path(\"comparaison_autonome.html\").stat().st_size\nprint(f\"cdn : {leger/1024:.0f} ko — autonome : {lourd/1024/1024:.1f} Mo\")\n```\n\nCe qu'il faut avoir observé en manipulant :\n\n- Le survol donne les valeurs exactes — ce que le PNG de l'exercice 1 ne fera jamais ; le clic-légende isole une série (précieux à 3+ ETF) ; le double-clic réinitialise le zoom.\n- `px.line(df)` sur un DataFrame « large » : index → x, colonnes → traces. Pour des données plus complexes (couleur par catégorie, facettes), il faudra le format « long » (`df.melt()`) — les deux formats sont à connaître.\n- Le choix CDN/autonome est un choix de CONTEXTE : dashboard consulté en ligne → cdn ; rapport archivé ou lu hors connexion → autonome. Piège réel : un rapport « cdn » archivé 5 ans peut ne plus s'ouvrir correctement si la version CDN a divergé.\n\nLe HTML produit se partage par simple fichier — c'est déjà un livrable de dashboard, avant même Streamlit."
+  },
+  {
+    "id": "ex04",
+    "titre": "Barres, distributions : le bilan Enduro visualisé",
+    "consigne": "Sur les sorties du pipeline du chapitre 10 (`bilan_sports.csv`, `volume_hebdo.csv`, `seances.csv` — ou regénère) :\n\n1. Barres horizontales Matplotlib : heures totales par sport, triées, valeur affichée au bout de chaque barre (`bar_label`).\n2. Barres EMPILÉES du volume hebdo : une barre par semaine, un segment par sport — directement depuis le tableau croisé (`df.plot.bar(stacked=True, ax=ax)`).\n3. Histogramme des allures de course (`hist`, ~12 bins) avec la médiane en ligne verticale annotée.\n4. La version Plotly du (2) : `px.bar` sur le format LONG (melt du tableau croisé) — compare le code et le résultat.\n5. Question : pourquoi des barres (et pas des courbes) pour le volume hebdomadaire, alors que c'est une série temporelle ?",
+    "indices": [
+      "`bar_label` : `barres = ax.barh(...)` puis `ax.bar_label(barres, fmt=\"%.1f h\", padding=3)`. Le tri : `bilan.sort_values(\"total_h\")` AVANT de tracer (barh trace de bas en haut).",
+      "Le melt : `long = croise.reset_index().melt(id_vars=\"semaine\", var_name=\"sport\", value_name=\"heures\")` puis `px.bar(long, x=\"semaine\", y=\"heures\", color=\"sport\")` — l'empilement est le défaut de px.bar.",
+      "Question 5 : chaque semaine est un TOTAL discret et indépendant (on ne « passe » pas continûment de 5 h à 7 h entre deux semaines) — la courbe suggérerait une continuité qui n'existe pas, et l'empilement montre la composition, ce qu'une courbe ne sait pas faire proprement."
+    ],
+    "ressources": [
+      {
+        "titre": "Matplotlib — bar_label",
+        "url": "https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar_label.html"
+      },
+      {
+        "titre": "pandas — DataFrame.plot",
+        "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.html"
+      },
+      {
+        "titre": "Plotly Express — bar charts",
+        "url": "https://plotly.com/python/bar-charts/"
+      }
+    ],
+    "solution": "```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport plotly.express as px\n\nbilan = pd.read_csv(\"data/propre/bilan_sports.csv\", index_col=\"sport\")\ncroise = pd.read_csv(\"data/propre/volume_hebdo.csv\", index_col=\"semaine\")\nseances = pd.read_csv(\"data/propre/seances.csv\", parse_dates=[\"date\"])\n\n# 1. Barres horizontales triées + valeurs\nfig, ax = plt.subplots(figsize=(8, 4))\ntri = bilan[\"total_h\"].sort_values()\nbarres = ax.barh(tri.index, tri.values, color=\"#1976d2\")\nax.bar_label(barres, fmt=\"%.1f h\", padding=3)\nax.set_title(\"Volume total par sport\")\nax.set_xlabel(\"Heures\")\nfig.tight_layout()\nfig.savefig(\"volume_par_sport.png\", dpi=150)\n\n# 2. Barres empilées hebdo — pandas .plot sait faire\nfig, ax = plt.subplots(figsize=(10, 4.5))\ncroise.plot.bar(stacked=True, ax=ax, width=0.8)\nax.set_title(\"Volume hebdomadaire par sport\")\nax.set_ylabel(\"Heures\")\nax.legend(title=\"\")\nax.grid(True, axis=\"y\", alpha=0.3)\nfig.tight_layout()\nfig.savefig(\"volume_hebdo.png\", dpi=150)\n\n# 3. Distribution des allures de course\nallures = seances.loc[seances[\"sport\"] == \"course\", \"allure_min_km\"].dropna()\nfig, ax = plt.subplots(figsize=(8, 4))\nax.hist(allures, bins=12, color=\"#66bb6a\", edgecolor=\"white\")\nmediane = allures.median()\nax.axvline(mediane, color=\"black\", linestyle=\"--\")\nax.annotate(f\"médiane {int(mediane)}:{int(mediane % 1 * 60):02d} /km\",\n            xy=(mediane, ax.get_ylim()[1] * 0.9), xytext=(mediane * 1.02, ax.get_ylim()[1] * 0.9))\nax.set_title(\"Distribution des allures (course)\")\nax.set_xlabel(\"Allure (min/km)\")\nfig.tight_layout()\nfig.savefig(\"allures.png\", dpi=150)\n\n# 4. Version Plotly : format long\nlong = croise.reset_index().melt(id_vars=\"semaine\", var_name=\"sport\",\n                                 value_name=\"heures\")\nfig_px = px.bar(long, x=\"semaine\", y=\"heures\", color=\"sport\",\n                title=\"Volume hebdomadaire par sport\")\nfig_px.write_html(\"volume_hebdo.html\", include_plotlyjs=\"cdn\")\n```\n\nRéponse à la question 5 : le volume hebdo est une donnée **discrète et agrégée** — chaque barre est un total fermé, il n'existe pas de valeur « entre » deux semaines. Une courbe impliquerait visuellement une interpolation continue (mensonge doux), et surtout elle ne peut pas montrer la COMPOSITION (course + vélo + natation empilés). Règle générale : continu mesuré → courbe ; totaux par période ou par catégorie → barres.\n\nÀ noter aussi le passage large → long (`melt`) pour Plotly : Matplotlib+pandas digèrent le tableau croisé tel quel, px préfère une ligne par observation. Les deux formats du même tableau — savoir pivoter dans les deux sens (melt/pivot ou unstack) débloque tous les cas."
+  }
+]

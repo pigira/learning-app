@@ -1,0 +1,33 @@
+{
+  "titre": "Persistance JSON du portefeuille",
+  "consigne": "Le portefeuille orienté objet du chapitre 3 perd tout à la fermeture. Ajoute-lui une persistance JSON complète et robuste, dans un module `stockage.py` séparé :\n\n- `sauvegarder(portefeuille, chemin: Path) -> None` : sérialise les positions (`to_dict` de chaque Position — ajoute la méthode si besoin via `asdict`), **écriture atomique**, et **copie de secours** : avant d'écraser une sauvegarde existante, la version précédente est copiée en `.bak`.\n- `charger(chemin: Path) -> Portefeuille` : fichier absent → portefeuille vide + message informatif ; JSON corrompu → exception `SauvegardeCorrompue` chaînée qui **mentionne l'existence du .bak** dans son message ; JSON valide mais schéma inattendu (clé manquante) → même exception.\n- Un petit scénario de démonstration : créer, sauvegarder, recharger, comparer ; puis corrompre le fichier et vérifier la récupération via le .bak.\n\nContrainte d'architecture : `stockage.py` importe le modèle (Position, Portefeuille) — jamais l'inverse. Le modèle ne sait pas qu'il est persisté.",
+  "etapes": [
+    "Ajoute au modèle du chapitre 3 ce qui manque : `Position.to_dict()` (via `dataclasses.asdict`) et `Portefeuille.to_liste()` / `Portefeuille.from_liste(data)` (déjà présent). Vérifie le round-trip en mémoire AVANT de toucher aux fichiers : `Portefeuille.from_liste(ptf.to_liste())`.",
+    "Écris `stockage.py` : l'exception `SauvegardeCorrompue`, puis `sauvegarder` version minimale (json.dump direct), puis `charger` version minimale. Fais tourner le scénario nominal.",
+    "Blinde `charger` : les trois cas (absent / JSON invalide / schéma invalide — provoque ce dernier avec un JSON valide mais sans la clé `isin`, qui fera échouer `Position(**d)` sur un TypeError à chaîner aussi).",
+    "Ajoute l'écriture atomique (exercice 4) dans `sauvegarder`.",
+    "Ajoute la rotation .bak : si `chemin` existe déjà, copie-le en `chemin.with_suffix('.bak')` (avec `shutil.copy2`) AVANT le replace.",
+    "Scénario de récupération : sauvegarde v1, sauvegarde v2 (v1 part en .bak), corromps le fichier principal, montre que `charger` échoue avec un message orientant vers le .bak, et recharge depuis le .bak.",
+    "Bonus : une fonction `restaurer_bak(chemin)` qui automatise cette récupération (avec confirmation)."
+  ],
+  "indices": [
+    "Ordre dans `sauvegarder` : 1) écrire le .tmp complet, 2) si la cible existe → `shutil.copy2(chemin, chemin.with_suffix('.bak'))`, 3) `tmp.replace(chemin)`. Ainsi, même un crash entre 2 et 3 laisse cible ET bak valides.",
+    "Le schéma invalide : `Position(**d)` lève `TypeError` sur clé manquante/en trop. Attrape `(TypeError, KeyError)` autour de la reconstruction et chaîne : `raise SauvegardeCorrompue(f\"schéma inattendu dans {chemin} : {exc}\") from exc`.",
+    "Message utile : `f\"{chemin} corrompu ({exc}). Une copie de secours existe : {bak}\" if bak.exists() else ...` — une erreur qui dit QUOI FAIRE vaut dix fois une erreur qui dit juste ce qui a cassé."
+  ],
+  "ressources": [
+    {
+      "titre": "json — documentation officielle (fr)",
+      "url": "https://docs.python.org/fr/3/library/json.html"
+    },
+    {
+      "titre": "shutil — documentation officielle (fr)",
+      "url": "https://docs.python.org/fr/3/library/shutil.html"
+    },
+    {
+      "titre": "Python's pathlib Module (Real Python)",
+      "url": "https://realpython.com/python-pathlib/"
+    }
+  ],
+  "solution": "```python\n# stockage.py\n\"\"\"Persistance JSON du portefeuille — le modèle ne connaît pas ce module.\"\"\"\nimport json\nimport shutil\nfrom pathlib import Path\n\nfrom portefeuille import Portefeuille   # le modèle du chapitre 3\n\n\nclass SauvegardeCorrompue(Exception):\n    pass\n\n\ndef sauvegarder(ptf: Portefeuille, chemin: Path) -> None:\n    donnees = [p.to_dict() for p in ptf]        # __iter__ du chapitre 3\n    tmp = chemin.with_suffix(\".tmp\")\n    with open(tmp, \"w\", encoding=\"utf-8\") as f:\n        json.dump(donnees, f, ensure_ascii=False, indent=2)\n\n    if chemin.exists():                          # rotation de la copie de secours\n        shutil.copy2(chemin, chemin.with_suffix(\".bak\"))\n    tmp.replace(chemin)                          # bascule atomique\n\n\ndef charger(chemin: Path) -> Portefeuille:\n    try:\n        texte = chemin.read_text(encoding=\"utf-8\")\n    except FileNotFoundError:\n        print(f\"({chemin} absent : nouveau portefeuille)\")\n        return Portefeuille()\n\n    bak = chemin.with_suffix(\".bak\")\n    aide = f\" Copie de secours disponible : {bak}\" if bak.exists() else \"\"\n\n    try:\n        donnees = json.loads(texte)\n    except json.JSONDecodeError as exc:\n        raise SauvegardeCorrompue(f\"{chemin} : JSON invalide ({exc}).{aide}\") from exc\n\n    try:\n        return Portefeuille.from_liste(donnees)\n    except (TypeError, KeyError) as exc:\n        raise SauvegardeCorrompue(f\"{chemin} : schéma inattendu ({exc}).{aide}\") from exc\n```\n\nCôté modèle, seul ajout (dans `Position`) :\n\n```python\nfrom dataclasses import asdict\n\n    def to_dict(self) -> dict:\n        return asdict(self)\n```\n\nScénario de démonstration :\n\n```python\nfrom pathlib import Path\n\nfrom portefeuille import Portefeuille, Position, DONNEES\nfrom stockage import SauvegardeCorrompue, charger, sauvegarder\n\nchemin = Path(\"portefeuille.json\")\n\n# v1 puis v2 (v1 part en .bak)\nptf = Portefeuille.from_liste(DONNEES)\nsauvegarder(ptf, chemin)\nptf.ajouter(Position(\"IE00B3RBWM25\", \"VWRL\", 10, 100.0, 108.4))\nsauvegarder(ptf, chemin)\n\nrecharge = charger(chemin)\nassert len(recharge) == len(ptf)\nassert abs(recharge.valeur_totale - ptf.valeur_totale) < 1e-9\n\n# Corruption puis récupération\nchemin.write_text(chemin.read_text(encoding=\"utf-8\")[:25], encoding=\"utf-8\")\ntry:\n    charger(chemin)\nexcept SauvegardeCorrompue as exc:\n    print(f\"Détecté : {exc}\")                    # ... Copie de secours disponible : .bak\n    secours = charger(chemin.with_suffix(\".bak\"))\n    print(f\"Récupéré depuis .bak : {len(secours)} positions (v1)\")\n```\n\nCe qui fait la qualité de cette persistance :\n\n- **Trois cas d'échec, trois comportements distincts** : absent (défaut silencieux), corrompu (exception + piste de récupération), schéma inattendu (exception chaînée — un TypeError brut aurait été incompréhensible).\n- **Aucune fenêtre de perte** : à tout instant il existe sur le disque au moins un fichier valide (cible ou .tmp complet ou .bak).\n- **Dépendance à sens unique** : le modèle reste ignorant de sa persistance — on pourra remplacer JSON par SQLite (chapitre 6) sans toucher une ligne de `portefeuille.py`."
+}

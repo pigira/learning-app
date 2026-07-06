@@ -1,0 +1,22 @@
+{
+  "numero": 16,
+  "titre": "Parsing de fichiers binaires (.fit)",
+  "description": "bytes, struct et fitparse : extraire les métriques d'une séance depuis un fichier Garmin.",
+  "objectifs": [
+    "Manipuler bytes et comprendre la lecture binaire (endianness, offsets)",
+    "Décoder des structures avec le module struct",
+    "Extraire les données d'un fichier .fit (records, laps) et les convertir en DataFrame"
+  ],
+  "points_theorie": [
+    "bytes vs str : encodage, affichage hexadécimal, lecture en mode 'rb'",
+    "struct.unpack : formats (<, >, B, H, I, f), tailles, offsets",
+    "Anatomie du format FIT : header, records, définitions de messages, CRC",
+    "fitparse (ou garmin-fit-sdk) : messages record/lap/session, champs et unités",
+    "Pièges d'unités : semicircles → degrés, vitesse m/s → min/km, timestamps FIT",
+    "Du flux de records au DataFrame : construction, index temporel, valeurs manquantes (capteurs)"
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "complet"
+}

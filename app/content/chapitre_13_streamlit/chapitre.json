@@ -1,0 +1,25 @@
+{
+  "numero": 13,
+  "titre": "Streamlit",
+  "description": "Des DataFrames à l'app interactive : widgets, cache, layout et session_state.",
+  "objectifs": [
+    "Comprendre le modèle d'exécution Streamlit (re-run complet à chaque interaction)",
+    "Construire une app avec widgets, layout (sidebar, colonnes) et graphiques",
+    "Utiliser cache_data et session_state à bon escient"
+  ],
+  "points_theorie": [
+    "Modèle mental : le script entier se ré-exécute à chaque interaction",
+    "Widgets : selectbox, slider, date_input, file_uploader, button",
+    "Affichage : st.dataframe, st.metric, st.line_chart, intégration Plotly",
+    "Layout : sidebar, columns, tabs, expander",
+    "@st.cache_data : quoi cacher, invalidation",
+    "st.session_state : conserver un état entre les re-runs",
+    "Lancement et structure d'une app multi-fichiers"
+  ],
+  "projets_cibles": [
+    "Finance",
+    "Enduro",
+    "Cuisine"
+  ],
+  "statut": "complet"
+}

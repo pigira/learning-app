@@ -1,0 +1,17 @@
+{
+  "numero": 0,
+  "titre": "Setup de l'environnement (macOS)",
+  "description": "Terminal, Homebrew, Python 3.12, venv/pip, VS Code et debugger : la base de travail de tout le parcours.",
+  "objectifs": [
+    "Naviguer et manipuler fichiers/dossiers au terminal macOS, permissions comprises",
+    "Installer Python via Homebrew sans toucher au Python système",
+    "Créer et utiliser un environnement virtuel par projet (venv + pip + requirements.txt)",
+    "Configurer VS Code (extensions Python, interpréteur, terminal intégré) et utiliser le debugger",
+    "Structurer un projet Python propre et appliquer les règles PEP 8 de base"
+  ],
+  "points_theorie": [],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "complet"
+}

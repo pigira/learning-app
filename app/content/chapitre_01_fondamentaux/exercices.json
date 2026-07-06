@@ -1,0 +1,128 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Allure et vitesse d'une sortie course",
+    "consigne": "Une sortie course : `distance_km = 10.0`, temps = 52 minutes et 30 secondes (stocke minutes et secondes dans deux variables `int`).\n\nCalcule et affiche avec des f-strings :\n\n1. La vitesse moyenne en km/h, avec 2 décimales : `Vitesse : 11.43 km/h`\n2. L'allure en min/km au format course à pied : `Allure : 5:15 min/km` (les secondes toujours sur 2 chiffres — teste aussi avec 52 min 00 s pour vérifier le `5:15` → `5:12`... à toi de trouver des valeurs qui produisent des secondes < 10).\n\nContrainte : le découpage minutes/secondes de l'allure doit utiliser `//` et `%` (ou `divmod`).",
+    "indices": [
+      "Convertis tout en secondes d'abord : `temps_s = minutes * 60 + secondes`. La vitesse est `distance / temps_en_heures`, donc `distance_km / (temps_s / 3600)`.",
+      "L'allure en secondes par km : `temps_s / distance_km`. Ensuite `allure_min = int(allure_s // 60)` et `allure_sec = int(allure_s % 60)`.",
+      "Le format `{allure_sec:02d}` impose 2 chiffres (`5:07` et pas `5:7`). Il exige un `int`, d'où les conversions."
+    ],
+    "ressources": [
+      {
+        "titre": "Les f-strings — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/inputoutput.html"
+      },
+      {
+        "titre": "Mini-langage de spécification de format (fr)",
+        "url": "https://docs.python.org/fr/3/library/string.html#formatspec"
+      }
+    ],
+    "solution": "```python\ndistance_km = 10.0\nminutes = 52\nsecondes = 30\n\ntemps_s = minutes * 60 + secondes          # 3150 s\n\n# Vitesse : distance / temps en heures\nvitesse_kmh = distance_km / (temps_s / 3600)\n\n# Allure : secondes par km, découpées en min:sec\nallure_s = temps_s / distance_km           # 315.0 s/km\nallure_min = int(allure_s // 60)           # 5\nallure_sec = int(allure_s % 60)            # 15\n\nprint(f\"Vitesse : {vitesse_kmh:.2f} km/h\")   # Vitesse : 11.43 km/h\nprint(f\"Allure  : {allure_min}:{allure_sec:02d} min/km\")   # Allure  : 5:15 min/km\n```\n\nPoints clés :\n\n- `/` renvoie toujours un `float` : `temps_s / 3600` vaut 0.875, pas 0 comme en C.\n- `//` et `%` font le couple quotient/reste — `divmod(allure_s, 60)` renvoie les deux d'un coup.\n- `{valeur:02d}` : `d` exige un entier, `02` complète à 2 chiffres avec des zéros. Avec 52 min 00 s : allure 312 s/km → `5:12`."
+  },
+  {
+    "id": "ex02",
+    "titre": "Zones cardiaques",
+    "consigne": "La fréquence cardiaque maximale théorique est `fc_max = 220 - age`. Les zones d'entraînement, en % de FCmax :\n\n| Zone | Intensité |\n|---|---|\n| 1 | moins de 60 % |\n| 2 | 60 à 70 % |\n| 3 | 70 à 80 % |\n| 4 | 80 à 90 % |\n| 5 | 90 % et plus |\n\nPour un athlète de 35 ans, écris une fonction `zone(fc, fc_max)` qui renvoie le numéro de zone (les bornes basses sont incluses : 70 % exactement = zone 3). Puis, pour les FC `110, 135, 152, 165, 178`, affiche une ligne du type :\n\n```\nFC 152 → zone 4 (82 % de FCmax)\n```\n\nLe pourcentage est affiché sans décimale.",
+    "indices": [
+      "Calcule `ratio = fc / fc_max` une seule fois, puis enchaîne les `if/elif` — du plus haut au plus bas, ou avec des comparaisons chaînées : `0.6 <= ratio < 0.7`.",
+      "Une fonction qui `return` dans chaque branche n'a pas besoin de `else` final : le premier `return` vrai sort de la fonction.",
+      "Pour l'affichage : le format `{ratio:.0%}` multiplie par 100 et colle le signe % tout seul."
+    ],
+    "ressources": [
+      {
+        "titre": "L'instruction if — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/controlflow.html"
+      },
+      {
+        "titre": "Conditional Statements in Python (Real Python)",
+        "url": "https://realpython.com/python-conditional-statements/"
+      }
+    ],
+    "solution": "```python\ndef zone(fc, fc_max):\n    ratio = fc / fc_max\n    if ratio >= 0.9:\n        return 5\n    if ratio >= 0.8:\n        return 4\n    if ratio >= 0.7:\n        return 3\n    if ratio >= 0.6:\n        return 2\n    return 1\n\n\nage = 35\nfc_max = 220 - age    # 185\n\nfor fc in [110, 135, 152, 165, 178]:\n    ratio = fc / fc_max\n    print(f\"FC {fc} → zone {zone(fc, fc_max)} ({ratio:.0%} de FCmax)\")\n```\n\nSortie :\n\n```\nFC 110 → zone 1 (59% de FCmax)\nFC 135 → zone 3 (73% de FCmax)\nFC 152 → zone 4 (82% de FCmax)\nFC 165 → zone 4 (89% de FCmax)\nFC 178 → zone 5 (96% de FCmax)\n```\n\nDeux styles valides : la cascade de `return` (ci-dessus, du plus haut au plus bas — pas besoin de bornes doubles) ou les comparaisons chaînées `0.6 <= ratio < 0.7`, propres à Python. Les deux évitent le `&&` mental du C."
+  },
+  {
+    "id": "ex03",
+    "titre": "Intérêts composés",
+    "consigne": "Point de départ : capital de 10 000 €, rendement annuel de 6 %, versement de 2 000 € en fin de chaque année.\n\n1. Avec une boucle `for`, affiche la valeur du portefeuille à la fin de chacune des 10 premières années, au format :\n\n```\nAnnée  3 : 18 247,20 €\n```\n\n(numéro d'année aligné sur 2 caractères ; montant avec 2 décimales — pour le séparateur de milliers, utilise le format `:,.2f` puis remplace la virgule par une espace et le point par une virgule si tu veux le format français exact, ou garde `18,247.20` si tu préfères simple).\n\n2. Avec une boucle `while`, calcule combien d'années il faut pour dépasser 100 000 €.",
+    "indices": [
+      "Chaque année : `valeur = valeur * (1 + taux) + versement`. Attention à l'ordre : les intérêts portent sur la valeur de début d'année, le versement arrive après.",
+      "`range(1, 11)` donne les années 1 à 10. Alignement : `{annee:>2}`. Milliers : `{valeur:,.2f}`.",
+      "Pour le seuil : `while valeur < 100_000:` avec un compteur incrémenté dans la boucle. `100_000` est un littéral lisible, identique à `100000`."
+    ],
+    "ressources": [
+      {
+        "titre": "Boucles for et while — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/controlflow.html"
+      },
+      {
+        "titre": "Mini-langage de format (séparateur de milliers) (fr)",
+        "url": "https://docs.python.org/fr/3/library/string.html#formatspec"
+      }
+    ],
+    "solution": "```python\nCAPITAL_INITIAL = 10_000\nTAUX = 0.06\nVERSEMENT = 2_000\n\n# 1. Projection sur 10 ans\nvaleur = CAPITAL_INITIAL\nfor annee in range(1, 11):\n    valeur = valeur * (1 + TAUX) + VERSEMENT\n    affiche = f\"{valeur:,.2f}\".replace(\",\", \" \").replace(\".\", \",\")\n    print(f\"Année {annee:>2} : {affiche} €\")\n\n# 2. Nombre d'années pour dépasser 100 000 €\nvaleur = CAPITAL_INITIAL\nannees = 0\nwhile valeur < 100_000:\n    valeur = valeur * (1 + TAUX) + VERSEMENT\n    annees += 1\nprint(f\"Seuil des 100 000 € dépassé après {annees} ans \"\n      f\"({valeur:,.0f} €)\")\n```\n\nSortie (extrait) :\n\n```\nAnnée  1 : 12 600,00 €\nAnnée  2 : 15 356,00 €\n...\nAnnée 10 : 44 274,63 €\nSeuil des 100 000 € dépassé après 18 ans (104,000 €... valeur exacte selon l'arrondi)\n```\n\nÀ noter : `+=` remplace le `++` du C ; les constantes sont en MAJUSCULES ; `100_000` améliore la lisibilité des grands nombres. Le `.replace()` en chaîne est un idiome courant pour franciser un format numérique."
+  },
+  {
+    "id": "ex04",
+    "titre": "Convertisseur de cuisine",
+    "consigne": "Les recettes américaines utilisent des *cups* et des °F. Écris trois fonctions :\n\n1. `cups_vers_ml(cups, taille_cup=240.0)` — une cup US standard fait 240 ml, mais le paramètre doit être ajustable.\n2. `fahrenheit_vers_celsius(temp_f)` — formule : (°F − 32) × 5/9.\n3. `minutes_vers_h_min(minutes)` — renvoie **deux valeurs** : heures et minutes restantes.\n\nPuis utilise-les :\n\n- affiche la conversion de 1.5 cups en ml, puis la même chose avec une cup métrique de 250 ml (**appel par mot-clé**) ;\n- affiche 350 °F en °C (1 décimale) ;\n- affiche 200 minutes au format `3 h 20` en récupérant les deux valeurs de retour dans deux variables.",
+    "indices": [
+      "Le paramètre avec valeur par défaut s'écrit dans la signature : `def cups_vers_ml(cups, taille_cup=240.0):`. À l'appel : `cups_vers_ml(1.5, taille_cup=250)`.",
+      "Retour multiple : `return heures, minutes` — c'est un tuple. À l'appel : `h, m = minutes_vers_h_min(200)`.",
+      "`divmod(200, 60)` renvoie directement `(3, 20)` : quotient et reste en un appel."
+    ],
+    "ressources": [
+      {
+        "titre": "Définir des fonctions — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/controlflow.html#defining-functions"
+      },
+      {
+        "titre": "Defining Your Own Python Function (Real Python)",
+        "url": "https://realpython.com/defining-your-own-python-function/"
+      }
+    ],
+    "solution": "```python\ndef cups_vers_ml(cups, taille_cup=240.0):\n    return cups * taille_cup\n\n\ndef fahrenheit_vers_celsius(temp_f):\n    return (temp_f - 32) * 5 / 9\n\n\ndef minutes_vers_h_min(minutes):\n    heures, restant = divmod(minutes, 60)\n    return heures, restant          # retour multiple = tuple\n\n\nprint(f\"1.5 cups US       : {cups_vers_ml(1.5):.0f} ml\")            # 360 ml\nprint(f\"1.5 cups métriques : {cups_vers_ml(1.5, taille_cup=250):.0f} ml\")  # 375 ml\nprint(f\"350 °F = {fahrenheit_vers_celsius(350):.1f} °C\")            # 176.7 °C\n\nh, m = minutes_vers_h_min(200)      # déballage du tuple\nprint(f\"200 min = {h} h {m:02d}\")   # 3 h 20\n```\n\nCe trio illustre les trois mécanismes qui remplacent la surcharge de fonctions du C++ : valeur par défaut (`taille_cup`), appel par mot-clé (lisible et robuste au réordonnancement), et retour multiple par tuple (pas de paramètre de sortie par pointeur)."
+  },
+  {
+    "id": "ex05",
+    "titre": "Saisie robuste du nombre de portions",
+    "consigne": "Un script de recette demande à l'utilisateur pour combien de portions cuisiner. Écris la boucle de saisie :\n\n- demande « Nombre de portions (1-12) : » avec `input()` ;\n- si la saisie n'est pas un entier → message `Saisie invalide : entre un nombre entier.` et on redemande ;\n- si l'entier est hors de [1, 12] → message `Hors limites : entre 1 et 12.` et on redemande ;\n- sinon affiche `Recette ajustée pour N portions.` et le programme se termine.\n\nContrainte : les exceptions n'arrivent qu'au chapitre 4 — valide ici avec `str.isdigit()` (pense à `strip()` d'abord).",
+    "indices": [
+      "Structure : `while True:` + `break` quand la saisie est valide. C'est l'idiome Python de la boucle de saisie (pas de do-while).",
+      "`saisie.strip().isdigit()` n'est vrai que pour une suite de chiffres — ça élimine les vides, les négatifs et les décimaux d'un coup.",
+      "Ne convertis avec `int()` qu'APRÈS le test `isdigit()`, puis valide l'intervalle avec `1 <= portions <= 12` (comparaison chaînée)."
+    ],
+    "ressources": [
+      {
+        "titre": "Méthodes des chaînes (str.isdigit, str.strip) (fr)",
+        "url": "https://docs.python.org/fr/3/library/stdtypes.html#string-methods"
+      },
+      {
+        "titre": "La fonction input() (fr)",
+        "url": "https://docs.python.org/fr/3/library/functions.html#input"
+      }
+    ],
+    "solution": "```python\nwhile True:\n    saisie = input(\"Nombre de portions (1-12) : \").strip()\n    if not saisie.isdigit():\n        print(\"Saisie invalide : entre un nombre entier.\")\n        continue\n    portions = int(saisie)\n    if not 1 <= portions <= 12:\n        print(\"Hors limites : entre 1 et 12.\")\n        continue\n    break\n\nprint(f\"Recette ajustée pour {portions} portions.\")\n```\n\nAnatomie de l'idiome :\n\n- `while True` + `break` remplace le `do...while` inexistant : on tente, on valide, on sort.\n- `continue` court-circuite le reste du tour — chaque cas d'erreur est traité puis on redemande.\n- L'ordre des tests compte : `int(saisie)` planterait sur `\"abc\"`, donc `isdigit()` d'abord.\n- `1 <= portions <= 12` : comparaison chaînée, équivalent lisible de `portions >= 1 and portions <= 12`.\n\nLimite connue : `isdigit()` refuse `\" -3\"` mais aussi `\"+3\"` ou `\"3.0\"` — acceptable ici. La gestion générale (`try/except ValueError`) arrive au chapitre 4."
+  },
+  {
+    "id": "ex06",
+    "titre": "Mini-interpréteur de commandes (match/case)",
+    "consigne": "Écris une boucle interactive qui lit des commandes de gestion de garde-manger et les **reconnaît** (le stockage réel attendra le chapitre 2) :\n\n- `ajouter <qte> <ingredient>` → affiche `+3 tomates`\n- `retirer <qte> <ingredient>` → affiche `-2 oeufs`\n- `aide` → liste les commandes\n- `quitter` → sort de la boucle\n- tout le reste → `Commande inconnue (tape 'aide').`\n\nContraintes : découpe la saisie avec `.split()` et aiguille avec `match/case` sur la **structure** de la liste. La quantité doit être numérique : utilise une **garde** (`case [...] if ...`) ; `ajouter abc tomates` doit donc tomber dans « commande inconnue ».",
+    "indices": [
+      "`match mots:` où `mots = saisie.split()`. Un motif `case [\"ajouter\", qte, ingredient]:` ne matche que les listes de 3 éléments commençant par « ajouter », et capture les deux autres.",
+      "La garde s'écrit dans le motif : `case [\"ajouter\", qte, ingredient] if qte.isdigit():`. Si la garde échoue, Python essaie les motifs suivants.",
+      "Le motif attrape-tout final est `case _:`. Pour sortir de la boucle depuis un `case` : `break` (le `match` n'en a pas besoin, lui — pas de fallthrough)."
+    ],
+    "ressources": [
+      {
+        "titre": "match — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/controlflow.html#match-statements"
+      },
+      {
+        "titre": "PEP 636 — Structural Pattern Matching: Tutorial",
+        "url": "https://peps.python.org/pep-0636/"
+      }
+    ],
+    "solution": "```python\nAIDE = \"\"\"Commandes :\n  ajouter <qte> <ingredient>\n  retirer <qte> <ingredient>\n  aide\n  quitter\"\"\"\n\nwhile True:\n    mots = input(\"> \").strip().lower().split()\n\n    match mots:\n        case [\"quitter\"]:\n            print(\"Au revoir.\")\n            break\n        case [\"aide\"]:\n            print(AIDE)\n        case [\"ajouter\", qte, ingredient] if qte.isdigit():\n            print(f\"+{qte} {ingredient}\")\n        case [\"retirer\", qte, ingredient] if qte.isdigit():\n            print(f\"-{qte} {ingredient}\")\n        case _:\n            print(\"Commande inconnue (tape 'aide').\")\n```\n\nCe qui différencie `match` d'un `switch` C :\n\n- il **déstructure** : le motif `[\"ajouter\", qte, ingredient]` teste la forme ET capture les valeurs en une fois ;\n- les **gardes** (`if qte.isdigit()`) affinent un motif ; en cas d'échec, on passe au motif suivant — `ajouter abc tomates` finit bien dans `case _` ;\n- pas de fallthrough, donc pas de `break` par cas ;\n- `case _` est le `default`.\n\n`.lower()` avant `split()` rend les commandes insensibles à la casse — petit réflexe de robustesse gratuit."
+  }
+]

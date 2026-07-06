@@ -1,0 +1,25 @@
+{
+  "numero": 6,
+  "titre": "SQLite avancé",
+  "description": "Modélisation relationnelle, jointures, transactions, requêtes paramétrées et migrations Alembic.",
+  "objectifs": [
+    "Concevoir un schéma relationnel (1-N, N-N) avec clés étrangères et index",
+    "Écrire des requêtes paramétrées sûres (jamais de f-string dans du SQL) et des jointures",
+    "Utiliser les transactions pour garantir la cohérence, et Alembic pour faire évoluer le schéma"
+  ],
+  "points_theorie": [
+    "Module sqlite3 : connexion, curseur, row_factory, executemany",
+    "Modélisation : tables, clés primaires/étrangères, relations 1-N et N-N (table de liaison)",
+    "PRAGMA foreign_keys=ON (piège SQLite : désactivé par défaut)",
+    "Requêtes paramétrées (?) et injection SQL — lien avec le chapitre 19",
+    "JOIN (INNER/LEFT), GROUP BY, agrégats, index et EXPLAIN QUERY PLAN",
+    "Transactions : BEGIN/COMMIT/ROLLBACK, le with conn de sqlite3",
+    "Migrations : pourquoi, et mise en place d'Alembic sur une base SQLite"
+  ],
+  "projets_cibles": [
+    "Cuisine",
+    "Finance",
+    "Enduro"
+  ],
+  "statut": "complet"
+}

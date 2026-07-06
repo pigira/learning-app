@@ -1,0 +1,17 @@
+{
+  "numero": 2,
+  "titre": "Structures de données",
+  "description": "list, dict, set, tuple, slicing et comprehensions — les briques de toutes tes données applicatives.",
+  "objectifs": [
+    "Manipuler listes (méthodes, slicing, tri par clé) et tuples (unpacking) avec aisance",
+    "Comprendre les références et la mutabilité (pourquoi b = a ne copie pas)",
+    "Utiliser les dicts pour indexer, compter et agréger (get, items, idiome d'accumulation)",
+    "Penser en ensembles : unicité, intersection, différence, inclusion",
+    "Écrire des comprehensions lisibles (list, dict, set) et choisir la bonne structure sans hésiter"
+  ],
+  "points_theorie": [],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "complet"
+}

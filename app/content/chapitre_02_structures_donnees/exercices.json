@@ -1,0 +1,128 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Historique de cours d'un ETF",
+    "consigne": "Voici 10 cours de clôture consécutifs d'un ETF :\n\n```python\ncours = [98.30, 99.10, 97.85, 100.20, 101.05, 100.60, 102.30, 101.90, 103.45, 104.10]\n```\n\nCalcule et affiche :\n\n1. Le dernier cours et l'avant-dernier (indices négatifs).\n2. Les 5 derniers cours (slicing).\n3. Le plus haut et le plus bas de la période.\n4. La variation totale en % entre le premier et le dernier cours (2 décimales).\n5. La plus forte hausse d'un jour à l'autre : sa valeur en € **et** le jour où elle a eu lieu (indice dans la liste) — utilise `zip(cours, cours[1:])` et/ou `enumerate`.",
+    "indices": [
+      "`cours[-1]`, `cours[-2]`, `cours[-5:]` — les indices négatifs et le slice « depuis la fin » sont faits pour ça.",
+      "Variation : `(cours[-1] - cours[0]) / cours[0] * 100`, ou directement le format `:.2%` sur le ratio.",
+      "`zip(cours, cours[1:])` produit les paires (veille, jour). Pour garder l'indice : `for i, (veille, jour) in enumerate(zip(cours, cours[1:]), start=1):` puis compare à un maximum courant."
+    ],
+    "ressources": [
+      {
+        "titre": "Listes — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/datastructures.html"
+      },
+      {
+        "titre": "zip() et enumerate() (fr)",
+        "url": "https://docs.python.org/fr/3/library/functions.html"
+      }
+    ],
+    "solution": "```python\ncours = [98.30, 99.10, 97.85, 100.20, 101.05, 100.60, 102.30, 101.90, 103.45, 104.10]\n\n# 1. Fin de liste\nprint(f\"Dernier : {cours[-1]} € (avant-dernier : {cours[-2]} €)\")\n\n# 2. Slice depuis la fin\nprint(f\"5 derniers : {cours[-5:]}\")\n\n# 3. Extrêmes\nprint(f\"Plus haut : {max(cours)} € — plus bas : {min(cours)} €\")\n\n# 4. Variation totale\nvariation = (cours[-1] - cours[0]) / cours[0]\nprint(f\"Variation : {variation:.2%}\")          # 5.90%\n\n# 5. Plus forte hausse journalière\nmeilleure_hausse = 0.0\nmeilleur_jour = None\nfor jour, (veille, valeur) in enumerate(zip(cours, cours[1:]), start=1):\n    hausse = valeur - veille\n    if hausse > meilleure_hausse:\n        meilleure_hausse = hausse\n        meilleur_jour = jour\nprint(f\"Plus forte hausse : +{meilleure_hausse:.2f} € au jour {meilleur_jour}\")\n# +2.35 € au jour 3 (97.85 → 100.20)\n```\n\nÀ retenir : `zip(cours, cours[1:])` est LE motif « éléments consécutifs » — il reviendra pour les rendements journaliers (chapitre 11). `enumerate(..., start=1)` évite la gymnastique d'indices à la C."
+  },
+  {
+    "id": "ex02",
+    "titre": "Gestion du frigo",
+    "consigne": "```python\nfrigo = {\"oeufs\": 6, \"lait\": 1, \"beurre\": 250, \"tomates\": 4}\ncourses = {\"lait\": 2, \"farine\": 500, \"tomates\": 2}\nrecette = {\"oeufs\": 3, \"farine\": 200, \"lait\": 1}\n```\n\n1. **Retour de courses** : ajoute `courses` au frigo — les quantités s'additionnent si l'ingrédient existe déjà.\n2. **Cuisine** : vérifie d'abord que TOUS les ingrédients de `recette` sont disponibles en quantité suffisante ; si oui, décrémente le frigo, et supprime les clés tombées à 0. Si non, affiche ce qui manque.\n3. Affiche l'inventaire final trié par nom d'ingrédient, une ligne par ingrédient : `- farine : 300`.",
+    "indices": [
+      "Addition : `frigo[nom] = frigo.get(nom, 0) + qte` en bouclant sur `courses.items()` — `.get(nom, 0)` gère les nouveaux ingrédients sans KeyError.",
+      "Vérification AVANT modification : `all(frigo.get(nom, 0) >= qte for nom, qte in recette.items())` — ne commence jamais à décrémenter avant d'avoir tout validé.",
+      "Ne supprime pas des clés en itérant sur le dict qu'on modifie : décrémente d'abord, puis collecte `[nom for nom, qte in frigo.items() if qte == 0]` et `del` ensuite. Tri : `sorted(frigo.items())`."
+    ],
+    "ressources": [
+      {
+        "titre": "Dictionnaires — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/datastructures.html#dictionaries"
+      },
+      {
+        "titre": "Dictionaries in Python (Real Python)",
+        "url": "https://realpython.com/python-dicts/"
+      }
+    ],
+    "solution": "```python\nfrigo = {\"oeufs\": 6, \"lait\": 1, \"beurre\": 250, \"tomates\": 4}\ncourses = {\"lait\": 2, \"farine\": 500, \"tomates\": 2}\nrecette = {\"oeufs\": 3, \"farine\": 200, \"lait\": 1}\n\n# 1. Retour de courses : accumulation\nfor nom, qte in courses.items():\n    frigo[nom] = frigo.get(nom, 0) + qte\n# frigo : oeufs 6, lait 3, beurre 250, tomates 6, farine 500\n\n# 2. Cuisine : valider PUIS modifier\nmanquants = {\n    nom: qte - frigo.get(nom, 0)\n    for nom, qte in recette.items()\n    if frigo.get(nom, 0) < qte\n}\nif manquants:\n    print(f\"Ingrédients manquants : {manquants}\")\nelse:\n    for nom, qte in recette.items():\n        frigo[nom] -= qte\n    # Suppression des clés à 0 — jamais pendant l'itération sur frigo !\n    epuises = [nom for nom, qte in frigo.items() if qte == 0]\n    for nom in epuises:\n        del frigo[nom]\n\n# 3. Inventaire trié\nfor nom, qte in sorted(frigo.items()):\n    print(f\"- {nom} : {qte}\")\n```\n\nDeux règles générales illustrées ici :\n\n- **Valider avant de muter** : si la vérification échoue à mi-parcours, un frigo à moitié décrémenté serait incohérent (c'est l'intuition des transactions SQL du chapitre 6).\n- **Ne jamais modifier un dict pendant qu'on itère dessus** (RuntimeError) : on collecte les clés dans une liste, puis on supprime."
+  },
+  {
+    "id": "ex03",
+    "titre": "Ingrédients et allergènes",
+    "consigne": "```python\ncarbonara = {\"pates\", \"oeufs\", \"parmesan\", \"lardons\", \"poivre\"}\nomelette = {\"oeufs\", \"beurre\", \"parmesan\", \"poivre\"}\nsalade = {\"tomates\", \"concombre\", \"huile\", \"poivre\"}\n\nallergenes = {\"pates\", \"parmesan\", \"beurre\", \"lait\"}   # gluten/lactose simplifiés\nfrigo = {\"oeufs\", \"poivre\", \"parmesan\", \"tomates\", \"huile\"}\n```\n\nRéponds avec des **opérations d'ensembles** (pas de boucles) :\n\n1. Quels ingrédients sont communs aux trois recettes ?\n2. Quels ingrédients de la carbonara ne sont PAS dans l'omelette ?\n3. La salade est-elle 100 % sans allergène ? Et l'omelette ?\n4. Pour chaque recette, que manque-t-il dans le frigo pour la cuisiner ?\n5. Bonus : quelles recettes sont entièrement réalisables avec le frigo actuel ?",
+    "indices": [
+      "Intersection à trois : `carbonara & omelette & salade` — les opérateurs s'enchaînent.",
+      "« Sans allergène » = aucune intersection : `salade.isdisjoint(allergenes)` (ou `not (salade & allergenes)`).",
+      "« Ce qui manque » est une différence ORIENTÉE : `recette - frigo` (pas l'inverse). « Réalisable » = inclusion : `recette <= frigo`."
+    ],
+    "ressources": [
+      {
+        "titre": "Ensembles (set) — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/datastructures.html#sets"
+      },
+      {
+        "titre": "Sets in Python (Real Python)",
+        "url": "https://realpython.com/python-sets/"
+      }
+    ],
+    "solution": "```python\n# 1. Communs aux trois\nprint(carbonara & omelette & salade)          # {'poivre'}\n\n# 2. Dans la carbonara mais pas l'omelette (différence orientée)\nprint(carbonara - omelette)                   # {'pates', 'lardons'}\n\n# 3. Sans allergène = intersection vide\nprint(salade.isdisjoint(allergenes))          # True  → OK\nprint(omelette.isdisjoint(allergenes))        # False (parmesan, beurre)\n\n# 4. Ce qui manque au frigo, recette par recette\nfor nom, recette in [(\"carbonara\", carbonara), (\"omelette\", omelette), (\"salade\", salade)]:\n    print(f\"{nom} : manque {recette - frigo or 'rien'}\")\n# carbonara : manque {'pates', 'lardons'}\n# omelette  : manque {'beurre'}\n# salade    : manque {'concombre'}\n\n# 5. Réalisable = tous les ingrédients inclus dans le frigo\nfor nom, recette in [(\"carbonara\", carbonara), (\"omelette\", omelette), (\"salade\", salade)]:\n    if recette <= frigo:\n        print(f\"{nom} est réalisable\")\n# (aucune ici — ajoute 'beurre' au frigo et l'omelette passe)\n```\n\nL'essentiel : formuler la question en vocabulaire ensembliste AVANT de coder. « Que manque-t-il ? » → différence ; « est-ce compatible ? » → disjonction ; « puis-je ? » → inclusion. Ces trois opérations sont le cœur du moteur de recettes du projet de chapitre (et de l'app Cuisine).\n\nPetit détail : `recette - frigo or 'rien'` exploite la truthiness — un set vide est falsy, donc `or` bascule sur `'rien'`."
+  },
+  {
+    "id": "ex04",
+    "titre": "Filtrer un journal d'entraînement",
+    "consigne": "```python\nseances = [\n    {\"sport\": \"course\", \"duree_min\": 48, \"distance_km\": 9.2, \"fc_moy\": 152},\n    {\"sport\": \"velo\", \"duree_min\": 95, \"distance_km\": 32.5, \"fc_moy\": 138},\n    {\"sport\": \"course\", \"duree_min\": 30, \"distance_km\": 5.6, \"fc_moy\": 148},\n    {\"sport\": \"natation\", \"duree_min\": 40, \"distance_km\": 1.9, \"fc_moy\": 130},\n    {\"sport\": \"velo\", \"duree_min\": 120, \"distance_km\": 41.0, \"fc_moy\": 142},\n    {\"sport\": \"course\", \"duree_min\": 65, \"distance_km\": 12.1, \"fc_moy\": 158},\n]\n```\n\nUniquement avec des **comprehensions** (une par question) :\n\n1. La liste des séances de plus de 45 minutes.\n2. La liste des distances des sorties course.\n3. Le set des sports pratiqués.\n4. Un dict `{sport: nombre de séances}`.\n5. La FC moyenne des sorties vélo (comprehension + `sum`/`len`).",
+    "indices": [
+      "Filtre simple : `[s for s in seances if s[\"duree_min\"] > 45]`. Projection + filtre : `[s[\"distance_km\"] for s in seances if s[\"sport\"] == \"course\"]`.",
+      "Le dict de comptage peut se construire ainsi : d'abord le set des sports, puis `{sport: sum(1 for s in seances if s[\"sport\"] == sport) for sport in sports}`.",
+      "Pour la moyenne, stocke la liste intermédiaire (`fcs = [...]`) puis `sum(fcs) / len(fcs)` — ne recalcule pas la comprehension deux fois."
+    ],
+    "ressources": [
+      {
+        "titre": "Comprehensions de listes — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/datastructures.html#list-comprehensions"
+      },
+      {
+        "titre": "When to Use a List Comprehension in Python (Real Python)",
+        "url": "https://realpython.com/list-comprehension-python/"
+      }
+    ],
+    "solution": "```python\n# 1. Filtre\nlongues = [s for s in seances if s[\"duree_min\"] > 45]\n\n# 2. Projection + filtre\ndistances_course = [s[\"distance_km\"] for s in seances if s[\"sport\"] == \"course\"]\n# [9.2, 5.6, 12.1]\n\n# 3. Set comprehension : unicité gratuite\nsports = {s[\"sport\"] for s in seances}\n# {'course', 'velo', 'natation'}\n\n# 4. Dict comprehension de comptage\ncompte = {sport: sum(1 for s in seances if s[\"sport\"] == sport) for sport in sports}\n# {'course': 3, 'velo': 2, 'natation': 1}\n\n# 5. Moyenne sur un sous-ensemble\nfcs_velo = [s[\"fc_moy\"] for s in seances if s[\"sport\"] == \"velo\"]\nfc_moyenne = sum(fcs_velo) / len(fcs_velo)\nprint(f\"FC moyenne vélo : {fc_moyenne:.0f} bpm\")     # 140 bpm\n```\n\nRemarques :\n\n- Chaque comprehension se lit comme la phrase qu'elle implémente — c'est le critère : si tu ne peux pas la lire à voix haute, écris une boucle.\n- Le comptage (4) refait un passage complet par sport — O(n·k), acceptable ici. La version un-seul-passage est l'idiome d'accumulation vu à l'exercice 2 (ou `collections.Counter`, que tu peux aller regarder).\n- (5) garde la liste intermédiaire : lisible, et on évite de calculer deux fois."
+  },
+  {
+    "id": "ex05",
+    "titre": "Trier des recettes",
+    "consigne": "```python\nrecettes = [\n    {\"nom\": \"risotto\", \"temps_prep\": 15, \"temps_cuisson\": 30, \"difficulte\": 2},\n    {\"nom\": \"omelette\", \"temps_prep\": 5, \"temps_cuisson\": 5, \"difficulte\": 1},\n    {\"nom\": \"boeuf bourguignon\", \"temps_prep\": 30, \"temps_cuisson\": 180, \"difficulte\": 3},\n    {\"nom\": \"carbonara\", \"temps_prep\": 10, \"temps_cuisson\": 15, \"difficulte\": 1},\n    {\"nom\": \"ratatouille\", \"temps_prep\": 25, \"temps_cuisson\": 45, \"difficulte\": 2},\n]\n```\n\n1. Trie par temps total (prep + cuisson) croissant et affiche `nom (temps total min)`.\n2. Extrais le top 3 des plus rapides.\n3. Trie par difficulté croissante PUIS temps total croissant (une seule clé de tri).\n4. Trouve la recette la plus longue avec `max()` (sans trier).\n5. Question : pourquoi `recettes.sort(...)` serait ici un choix plus discutable que `sorted(recettes, ...)` ?",
+    "indices": [
+      "`sorted(recettes, key=lambda r: r[\"temps_prep\"] + r[\"temps_cuisson\"])` — la lambda calcule la clé de comparaison pour chaque élément.",
+      "Tri multi-critères : la clé renvoie un TUPLE, comparé élément par élément : `key=lambda r: (r[\"difficulte\"], r[\"temps_prep\"] + r[\"temps_cuisson\"])`.",
+      "`max(recettes, key=...)` prend la même clé qu'un tri — O(n) au lieu de O(n log n). Pour la question 5 : `sort()` modifie la liste d'origine (effet de bord)."
+    ],
+    "ressources": [
+      {
+        "titre": "Guide pratique du tri (fr)",
+        "url": "https://docs.python.org/fr/3/howto/sorting.html"
+      },
+      {
+        "titre": "How to Use sorted() and .sort() in Python (Real Python)",
+        "url": "https://realpython.com/python-sort/"
+      }
+    ],
+    "solution": "```python\ndef temps_total(recette):\n    return recette[\"temps_prep\"] + recette[\"temps_cuisson\"]\n\n\n# 1. Tri par temps total — une fonction nommée vaut une lambda, en plus lisible\npar_temps = sorted(recettes, key=temps_total)\nfor r in par_temps:\n    print(f\"{r['nom']} ({temps_total(r)} min)\")\n# omelette (10) < carbonara (25) < risotto (45) < ratatouille (70) < boeuf bourguignon (210)\n\n# 2. Top 3 : tri + slice\ntop3 = par_temps[:3]\n\n# 3. Clé composée : tuple (difficulté, temps)\npar_difficulte = sorted(recettes, key=lambda r: (r[\"difficulte\"], temps_total(r)))\n# omelette (1, 10), carbonara (1, 25), risotto (2, 45), ratatouille (2, 70), boeuf (3, 210)\n\n# 4. Extremum sans tri\nplus_longue = max(recettes, key=temps_total)\nprint(f\"La plus longue : {plus_longue['nom']}\")\n\n# 5. sorted() renvoie une NOUVELLE liste et laisse `recettes` intacte.\n#    recettes.sort() trierait en place : tout code qui dépend de l'ordre\n#    d'origine (ordre d'ajout, affichage précédent) serait silencieusement cassé.\n```\n\nÀ retenir : une clé de tri est une **fonction** ; dès qu'elle sert deux fois, nomme-la (`def temps_total`) au lieu de dupliquer une lambda. Le tuple-clé règle tous les tris multi-critères sans comparateur maison."
+  },
+  {
+    "id": "ex06",
+    "titre": "Dépenses par catégorie",
+    "consigne": "```python\ntransactions = [\n    {\"libelle\": \"supermarche\", \"montant\": 87.30, \"categorie\": \"courses\"},\n    {\"libelle\": \"restaurant italien\", \"montant\": 54.00, \"categorie\": \"sorties\"},\n    {\"libelle\": \"abonnement salle\", \"montant\": 35.00, \"categorie\": \"sport\"},\n    {\"libelle\": \"marche\", \"montant\": 23.50, \"categorie\": \"courses\"},\n    {\"libelle\": \"cinema\", \"montant\": 24.00, \"categorie\": \"sorties\"},\n    {\"libelle\": \"chaussures running\", \"montant\": 129.90, \"categorie\": \"sport\"},\n    {\"libelle\": \"boulangerie\", \"montant\": 8.40, \"categorie\": \"courses\"},\n    {\"libelle\": \"navigo\", \"montant\": 88.80, \"categorie\": \"transport\"},\n]\n```\n\n1. Construis `totaux`, le dict `{categorie: total}` (un seul passage sur les données).\n2. Quelle catégorie pèse le plus lourd ? (via `max`)\n3. Affiche la répartition en % du total, triée décroissante : `sport : 36.6 %`.\n4. Liste les libellés des transactions de plus de 50 €.",
+    "indices": [
+      "Un seul passage = l'idiome d'accumulation : `totaux[cat] = totaux.get(cat, 0) + t[\"montant\"]`.",
+      "`max(totaux.items(), key=lambda kv: kv[1])` renvoie le couple (catégorie, total) gagnant — `kv[1]` est la valeur.",
+      "Répartition : boucle sur `sorted(totaux.items(), key=lambda kv: kv[1], reverse=True)` et divise par `sum(totaux.values())`."
+    ],
+    "ressources": [
+      {
+        "titre": "Dictionnaires — méthodes (fr)",
+        "url": "https://docs.python.org/fr/3/library/stdtypes.html#mapping-types-dict"
+      },
+      {
+        "titre": "Guide pratique du tri (fr)",
+        "url": "https://docs.python.org/fr/3/howto/sorting.html"
+      }
+    ],
+    "solution": "```python\n# 1. Accumulation en un passage\ntotaux = {}\nfor t in transactions:\n    cat = t[\"categorie\"]\n    totaux[cat] = totaux.get(cat, 0) + t[\"montant\"]\n# {'courses': 119.2, 'sorties': 78.0, 'sport': 164.9, 'transport': 88.8}\n\n# 2. Catégorie dominante\ncat_max, montant_max = max(totaux.items(), key=lambda kv: kv[1])\nprint(f\"Plus gros poste : {cat_max} ({montant_max:.2f} €)\")\n\n# 3. Répartition triée décroissante\ntotal = sum(totaux.values())\nfor cat, montant in sorted(totaux.items(), key=lambda kv: kv[1], reverse=True):\n    print(f\"{cat} : {montant / total:.1%}\")\n# sport : 36.6 %  /  courses : 26.4 %  /  transport : 19.7 %  /  sorties : 17.3 %\n\n# 4. Grosses transactions\ngrosses = [t[\"libelle\"] for t in transactions if t[\"montant\"] > 50]\n# ['supermarche', 'restaurant italien', 'chaussures running', 'navigo']\n```\n\nCe motif — accumuler dans un dict, puis trier `items()` par valeur — est exactement ce que fera Pandas en une ligne (`groupby`) au chapitre 10. Le connaître à la main permet de comprendre ce que Pandas automatise, et de s'en passer quand c'est disproportionné."
+  }
+]

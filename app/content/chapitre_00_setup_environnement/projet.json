@@ -1,0 +1,34 @@
+{
+  "titre": "Squelette de projet propre, de zéro",
+  "consigne": "Monte un mini-projet `suivi_seances` complet et propre — le modèle de tous tes futurs projets. Le programme lit un petit CSV de séances d'entraînement et affiche un résumé.\n\nContenu attendu du CSV `data/seances.csv` (crée-le tel quel) :\n\n```\ndate,sport,duree_min,distance_km\n2026-06-01,course,42,8.1\n2026-06-03,velo,95,32.5\n2026-06-05,course,51,9.8\n2026-06-08,natation,40,1.9\n```\n\nLe script `src/main.py` doit lire ce fichier **sans librairie externe** (avec `open()` et `split(\",\")` — un avant-goût du chapitre 5) et afficher : le nombre de séances, la durée totale (en heures + minutes) et la distance totale. Le tout lancé et débuggé dans VS Code, avec venv, `.gitignore`, `requirements.txt` et `README.md`.",
+  "etapes": [
+    "Au terminal : crée le dossier `~/suivi_seances`, un venv `.venv` dedans, et active-le.",
+    "Crée l'arborescence : `src/`, `data/`, plus les fichiers `README.md`, `requirements.txt` et `.gitignore` (contenu : `.venv/`, `__pycache__/`, `.DS_Store`).",
+    "Crée `data/seances.csv` avec le contenu donné dans la consigne.",
+    "Ouvre le projet dans VS Code (`code .`), sélectionne l'interpréteur `.venv`.",
+    "Écris `src/main.py` : une fonction `lire_seances(chemin)` qui renvoie une liste de dicts (une entrée par ligne, clés issues de l'en-tête), une fonction `resumer(seances)` qui construit le texte du résumé, et le bloc `if __name__ == \"__main__\":` qui enchaîne les deux.",
+    "Exécute depuis le terminal intégré : `python3 src/main.py`. Corrige jusqu'à obtenir le bon résumé.",
+    "Pose un breakpoint dans la boucle de `lire_seances` et vérifie au debugger le contenu d'une ligne parsée (types compris : que valent `duree_min` et `distance_km` ?).",
+    "Termine : `pip freeze > requirements.txt` (vide, c'est normal : aucune dépendance) et rédige le README (but du projet, installation, lancement)."
+  ],
+  "indices": [
+    "Lecture du fichier : `with open(chemin, encoding=\"utf-8\") as f:` puis `lignes = f.read().splitlines()`. La première ligne est l'en-tête : `entetes = lignes[0].split(\",\")`.",
+    "Pour chaque ligne de données : `valeurs = ligne.split(\",\")` puis `dict(zip(entetes, valeurs))` fabrique le dict directement. Attention : tout est `str` à ce stade — convertis `duree_min` en `int(...)` et `distance_km` en `float(...)` avant d'additionner.",
+    "Durée totale en h/min : `heures, minutes = divmod(total_min, 60)`. Pour le résumé, une f-string multiligne (triple guillemets) suffit."
+  ],
+  "ressources": [
+    {
+      "titre": "venv — documentation officielle (fr)",
+      "url": "https://docs.python.org/fr/3/library/venv.html"
+    },
+    {
+      "titre": "Getting started with Python in VS Code",
+      "url": "https://code.visualstudio.com/docs/python/python-tutorial"
+    },
+    {
+      "titre": "PEP 8 — Style Guide",
+      "url": "https://peps.python.org/pep-0008/"
+    }
+  ],
+  "solution": "Arborescence finale :\n\n```\nsuivi_seances/\n├── .venv/\n├── .gitignore          # .venv/  __pycache__/  .DS_Store\n├── README.md\n├── requirements.txt    # vide pour l'instant\n├── data/\n│   └── seances.csv\n└── src/\n    └── main.py\n```\n\n`src/main.py` :\n\n```python\nCHEMIN_CSV = \"data/seances.csv\"\n\n\ndef lire_seances(chemin):\n    \"\"\"Lit le CSV et renvoie une liste de dicts typés.\"\"\"\n    with open(chemin, encoding=\"utf-8\") as f:\n        lignes = f.read().splitlines()\n\n    entetes = lignes[0].split(\",\")\n    seances = []\n    for ligne in lignes[1:]:\n        if not ligne:            # ignore une éventuelle ligne vide finale\n            continue\n        seance = dict(zip(entetes, ligne.split(\",\")))\n        # Le CSV ne contient que des str : conversion des champs numériques\n        seance[\"duree_min\"] = int(seance[\"duree_min\"])\n        seance[\"distance_km\"] = float(seance[\"distance_km\"])\n        seances.append(seance)\n    return seances\n\n\ndef resumer(seances):\n    total_min = sum(s[\"duree_min\"] for s in seances)\n    total_km = sum(s[\"distance_km\"] for s in seances)\n    heures, minutes = divmod(total_min, 60)\n    return (\n        f\"Séances   : {len(seances)}\\n\"\n        f\"Durée     : {heures} h {minutes:02d} min\\n\"\n        f\"Distance  : {total_km:.1f} km\"\n    )\n\n\nif __name__ == \"__main__\":\n    print(resumer(lire_seances(CHEMIN_CSV)))\n```\n\nSortie attendue :\n\n```\nSéances   : 4\nDurée     : 3 h 48 min\nDistance  : 52.3 km\n```\n\nAu debugger, un breakpoint dans la boucle montre `seance` avant/après conversion : `{'date': '2026-06-01', 'sport': 'course', 'duree_min': 42, 'distance_km': 8.1}` — noter que `date` et `sport` restent des `str`, c'est voulu.\n\nREADME minimal :\n\n```markdown\n# Suivi de séances\n\nRésumé (nombre, durée, distance) d'un journal d'entraînement CSV.\n\n## Installation\npython3 -m venv .venv && source .venv/bin/activate\n\n## Lancement\npython3 src/main.py\n```\n\nRemarque : lancer `python3 src/main.py` depuis la **racine** du projet est important — le chemin `data/seances.csv` est relatif au dossier courant. La gestion propre des chemins (pathlib) arrive au chapitre 5."
+}

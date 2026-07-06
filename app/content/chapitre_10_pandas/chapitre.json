@@ -1,0 +1,24 @@
+{
+  "numero": 10,
+  "titre": "Pandas",
+  "description": "DataFrame : sélection, filtres, groupby, jointures et nettoyage de données réelles.",
+  "objectifs": [
+    "Charger, inspecter et sélectionner des données (loc/iloc, filtres booléens)",
+    "Agréger avec groupby et croiser avec merge",
+    "Nettoyer un vrai jeu de données : NaN, types, doublons"
+  ],
+  "points_theorie": [
+    "Series et DataFrame : index, dtypes, head/info/describe",
+    "Sélection : colonnes, loc/iloc, filtres booléens, query",
+    "Colonnes dérivées, apply vs opérations vectorisées (et pourquoi préférer les secondes)",
+    "groupby : agg simple et multiple, named aggregation",
+    "merge/concat : jointures inner/left, clés, suffixes",
+    "Nettoyage : isna/fillna/dropna, astype, to_datetime, duplicated",
+    "I/O : read_csv (parse_dates, dtype), to_csv, lien SQLite (read_sql)"
+  ],
+  "projets_cibles": [
+    "Finance",
+    "Enduro"
+  ],
+  "statut": "complet"
+}

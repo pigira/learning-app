@@ -1,0 +1,17 @@
+{
+  "numero": 3,
+  "titre": "POO en Python",
+  "description": "Classes, dunders, propriétés, héritage, dataclasses et constructeurs alternatifs — modéliser tes objets métier.",
+  "objectifs": [
+    "Écrire des classes avec __init__, méthodes et __repr__ systématique",
+    "Brancher ses objets sur la syntaxe du langage avec les dunders (__eq__, __len__, __contains__)",
+    "Exposer des attributs calculés et validés avec @property et les setters",
+    "Utiliser l'héritage avec super() à bon escient, et la composition sinon",
+    "Modéliser les données avec @dataclass (defaults, default_factory, order, frozen) et les classmethods from_dict"
+  ],
+  "points_theorie": [],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "complet"
+}

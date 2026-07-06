@@ -1,0 +1,24 @@
+{
+  "numero": 9,
+  "titre": "Consommation d'API REST",
+  "description": "httpx, authentification, pagination, rate limiting et erreurs réseau : consommer des API réelles.",
+  "objectifs": [
+    "Maîtriser le cycle requête/réponse HTTP (verbes, statuts, headers, JSON)",
+    "S'authentifier (API key, Bearer, bases OAuth2) sans jamais exposer de secret",
+    "Gérer le monde réel : pagination, rate limiting, retries avec backoff"
+  ],
+  "points_theorie": [
+    "Anatomie HTTP : verbes, codes de statut (2xx/4xx/5xx), headers, corps JSON",
+    "httpx : get/post, params, raise_for_status, timeouts (toujours en mettre un)",
+    "Authentification : API key (header vs query), Bearer token, OAuth2 dans les grandes lignes",
+    "Pagination : offset/limit, par curseur, headers Link",
+    "Rate limiting : codes 429, header Retry-After, backoff exponentiel",
+    "Erreurs réseau : ConnectError, timeout, retries idempotents",
+    "Concevoir un client API réutilisable (classe, session, base_url)"
+  ],
+  "projets_cibles": [
+    "Cuisine",
+    "Finance"
+  ],
+  "statut": "complet"
+}

@@ -1,0 +1,111 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Séquentiel vs concurrent : mesurer le gain",
+    "consigne": "Sans réseau d'abord, pour isoler la mécanique :\n\n1. Écris `async def recuperer_cours(ticker: str) -> tuple[str, float]` qui simule un appel API : `await asyncio.sleep(0.5)` puis renvoie `(ticker, un cours factice)`.\n2. Version A — séquentielle : une boucle qui `await` chaque ticker l'un après l'autre, pour 8 tickers.\n3. Version B — concurrente : `asyncio.gather` sur les 8.\n4. Chronomètre les deux (le context manager `chrono` du chapitre 5 fonctionne tel quel autour d'un `asyncio.run`). Résultats attendus : ~4 s vs ~0.5 s — explique précisément d'où vient le facteur 8.\n5. Vérifie que les résultats de `gather` reviennent dans l'ordre des tickers passés, pas dans l'ordre d'achèvement (ajoute un sleep aléatoire pour t'en assurer).",
+    "indices": [
+      "Version A : `for t in tickers: resultats.append(await recuperer_cours(t))` — chaque await bloque la suite : les attentes s'ADDITIONNENT.",
+      "Version B : `await asyncio.gather(*(recuperer_cours(t) for t in tickers))` — les 8 sleeps courent en même temps : les attentes se RECOUVRENT.",
+      "Pour le point 5 : `await asyncio.sleep(random.uniform(0.1, 0.5))` — malgré des fins désordonnées, gather aligne les résultats sur l'ordre des arguments."
+    ],
+    "ressources": [
+      {
+        "titre": "asyncio — documentation officielle (fr)",
+        "url": "https://docs.python.org/fr/3/library/asyncio-task.html"
+      },
+      {
+        "titre": "Async IO in Python (Real Python)",
+        "url": "https://realpython.com/async-io-python/"
+      }
+    ],
+    "solution": "```python\nimport asyncio\nimport random\nimport time\nfrom contextlib import contextmanager\n\nTICKERS = [\"IWDA\", \"EMIM\", \"CSPX\", \"AGGH\", \"VWRL\", \"VUSA\", \"IUSN\", \"EUNL\"]\n\n\n@contextmanager\ndef chrono(label):\n    debut = time.perf_counter()\n    try:\n        yield\n    finally:\n        print(f\"[{label}] {time.perf_counter() - debut:.2f} s\")\n\n\nasync def recuperer_cours(ticker: str) -> tuple[str, float]:\n    await asyncio.sleep(random.uniform(0.3, 0.5))       # latence réseau simulée\n    return ticker, round(random.uniform(20, 500), 2)\n\n\nasync def sequentiel() -> list[tuple[str, float]]:\n    resultats = []\n    for t in TICKERS:\n        resultats.append(await recuperer_cours(t))      # attentes ADDITIONNÉES\n    return resultats\n\n\nasync def concurrent() -> list[tuple[str, float]]:\n    return await asyncio.gather(*(recuperer_cours(t) for t in TICKERS))\n\n\nwith chrono(\"séquentiel\"):\n    asyncio.run(sequentiel())          # ~3.2 s (somme des sleeps)\n\nwith chrono(\"concurrent\"):\n    resultats = asyncio.run(concurrent())   # ~0.5 s (le max des sleeps)\n\n# 5. L'ordre des résultats suit l'ordre des ARGUMENTS\nassert [t for t, _ in resultats] == TICKERS\nprint(\"ordre préservé ✓\")\n```\n\nD'où vient le facteur ~8 : en séquentiel, chaque `await` rend la main... à personne (rien d'autre à faire), le temps total = Σ des latences. En concurrent, les 8 coroutines sont toutes « en attente » EN MÊME TEMPS sur la même boucle : le temps total = max des latences. Le CPU n'a jamais travaillé plus — on a juste arrêté d'attendre bêtement.\n\nLa garantie d'ordre de `gather` est précieuse : `zip(TICKERS, resultats)` reste correct sans tri. Si tu veux traiter les résultats DÈS qu'ils arrivent (streaming), c'est `asyncio.as_completed` — à explorer en bonus."
+  },
+  {
+    "id": "ex02",
+    "titre": "httpx.AsyncClient : vraies requêtes concurrentes",
+    "consigne": "Passe au vrai réseau avec une API publique sans clé (PokeAPI : `https://pokeapi.co/api/v2/pokemon/{nom}`) :\n\n1. `async def fetch_pokemon(client, nom) -> dict` : GET, `raise_for_status`, renvoie `{\"nom\": ..., \"poids\": data[\"weight\"], \"types\": [...]}`.\n2. Récupère 10 pokémons : d'abord séquentiellement (toujours avec le client partagé), puis avec `gather`. Chronomètre.\n3. Contrainte : UN SEUL `AsyncClient` pour tout le programme, `timeout=10.0`, créé avec `async with`.\n4. Ajoute un pokémon inexistant dans la liste et observe : que devient le `gather` complet ? Corrige avec `return_exceptions=True` et produis un rapport `nom → poids | erreur`.",
+    "indices": [
+      "Structure : `async with httpx.AsyncClient(timeout=10.0) as client:` puis passe `client` à chaque coroutine — jamais de client créé dans la boucle.",
+      "Les types sont imbriqués : `[t[\"type\"][\"name\"] for t in data[\"types\"]]`.",
+      "Sans `return_exceptions`, le 404 (HTTPStatusError levé par raise_for_status) fait échouer TOUT le gather — les 9 résultats valides sont perdus. Avec, tu récupères 9 dicts + 1 exception à trier par `isinstance`."
+    ],
+    "ressources": [
+      {
+        "titre": "HTTPX — Async Support",
+        "url": "https://www.python-httpx.org/async/"
+      },
+      {
+        "titre": "PokeAPI — documentation",
+        "url": "https://pokeapi.co/docs/v2"
+      }
+    ],
+    "solution": "```python\nimport asyncio\nimport time\n\nimport httpx\n\nNOMS = [\"pikachu\", \"bulbasaur\", \"charmander\", \"squirtle\", \"eevee\",\n        \"snorlax\", \"gengar\", \"dragonite\", \"mewtwo\", \"missingno\"]   # le dernier : 404\n\n\nasync def fetch_pokemon(client: httpx.AsyncClient, nom: str) -> dict:\n    reponse = await client.get(f\"https://pokeapi.co/api/v2/pokemon/{nom}\")\n    reponse.raise_for_status()\n    data = reponse.json()\n    return {\n        \"nom\": nom,\n        \"poids\": data[\"weight\"],\n        \"types\": [t[\"type\"][\"name\"] for t in data[\"types\"]],\n    }\n\n\nasync def main() -> None:\n    async with httpx.AsyncClient(timeout=10.0) as client:\n        # Séquentiel\n        debut = time.perf_counter()\n        for nom in NOMS[:9]:\n            await fetch_pokemon(client, nom)\n        print(f\"séquentiel : {time.perf_counter() - debut:.2f} s\")\n\n        # Concurrent, tolérant aux échecs\n        debut = time.perf_counter()\n        resultats = await asyncio.gather(\n            *(fetch_pokemon(client, nom) for nom in NOMS),\n            return_exceptions=True,\n        )\n        print(f\"concurrent : {time.perf_counter() - debut:.2f} s\")\n\n        for nom, res in zip(NOMS, resultats):\n            if isinstance(res, httpx.HTTPStatusError):\n                print(f\"  {nom:<12} ERREUR HTTP {res.response.status_code}\")\n            elif isinstance(res, Exception):\n                print(f\"  {nom:<12} ERREUR {type(res).__name__} : {res}\")\n            else:\n                print(f\"  {nom:<12} {res['poids']:>5} — {', '.join(res['types'])}\")\n\n\nasyncio.run(main())\n```\n\nRésultats typiques : séquentiel ~2-3 s, concurrent ~0.3-0.5 s. Le rapport final :\n\n```\n  pikachu      60 — electric\n  ...\n  missingno    ERREUR HTTP 404\n```\n\nTrois points de rigueur :\n\n- Le client partagé réutilise les connexions TCP/TLS : recréer un client par requête peut coûter plus cher que la requête elle-même.\n- `return_exceptions=True` change le CONTRAT du gather : le tri des résultats devient TA responsabilité — d'où le `isinstance` systématique, du plus spécifique au plus général (même logique que les `except` du chapitre 4).\n- On distingue l'erreur HTTP (le serveur a répondu : 404) de l'erreur réseau (pas de réponse du tout) — cette distinction structure tout le chapitre 9."
+  },
+  {
+    "id": "ex03",
+    "titre": "Semaphore : la politesse imposée",
+    "consigne": "1. Simule 20 téléchargements (`asyncio.sleep(0.5)` chacun, avec un print horodaté `début n` / `fin n`).\n2. Lance-les tous avec `gather` SANS limite : observe dans les logs que les 20 « début » sortent en rafale.\n3. Ajoute un `asyncio.Semaphore(5)` : les logs doivent montrer des **vagues** de 5. Durée totale attendue : 20/5 × 0.5 = ~2 s.\n4. Trace le nombre de tâches actives : incrémente/décrémente un compteur global autour de la section critique et affiche son maximum en fin de programme (il doit valoir exactement 5).\n5. Question : pourquoi une API réelle t'impose-t-elle cette limite, et pourquoi la respecter côté client plutôt que d'encaisser les erreurs ?",
+    "indices": [
+      "Horodatage relatif : `t0 = time.perf_counter()` global, puis `print(f\"{time.perf_counter()-t0:5.2f}s début {n}\")`.",
+      "Le pattern exact : `async with sem:` autour du sleep — PAS autour de la création des tâches (elles doivent toutes exister pour faire la queue).",
+      "Compteur : `actives += 1; maxi = max(maxi, actives)` juste après l'entrée dans le sémaphore, `actives -= 1` dans un finally. En async mono-thread, pas besoin de verrou pour ce compteur (aucun await entre les deux lignes)."
+    ],
+    "ressources": [
+      {
+        "titre": "asyncio.Semaphore — documentation (fr)",
+        "url": "https://docs.python.org/fr/3/library/asyncio-sync.html#asyncio.Semaphore"
+      },
+      {
+        "titre": "Async IO in Python (Real Python)",
+        "url": "https://realpython.com/async-io-python/"
+      }
+    ],
+    "solution": "```python\nimport asyncio\nimport time\n\nt0 = time.perf_counter()\nactives = 0\nmax_actives = 0\n\n\ndef log(msg: str) -> None:\n    print(f\"{time.perf_counter() - t0:5.2f}s  {msg}\")\n\n\nasync def telecharger(sem: asyncio.Semaphore, n: int) -> None:\n    global actives, max_actives\n    async with sem:                       # file d'attente ici\n        actives += 1\n        max_actives = max(max_actives, actives)\n        log(f\"début {n:2d}  (actives : {actives})\")\n        try:\n            await asyncio.sleep(0.5)      # le « téléchargement »\n        finally:\n            actives -= 1\n            log(f\"fin   {n:2d}\")\n\n\nasync def main() -> None:\n    sem = asyncio.Semaphore(5)\n    await asyncio.gather(*(telecharger(sem, n) for n in range(1, 21)))\n    print(f\"durée totale : {time.perf_counter() - t0:.2f} s — max simultanées : {max_actives}\")\n\n\nasyncio.run(main())\n```\n\nSortie (extrait) — les vagues sont visibles à l'horodatage :\n\n```\n 0.00s  début  1  (actives : 1)\n 0.00s  début  5  (actives : 5)\n 0.50s  fin    1\n 0.50s  début  6  (actives : 5)\n ...\ndurée totale : 2.01 s — max simultanées : 5\n```\n\nLe compteur confirme : jamais plus de 5 actives. Noter que le remplacement est immédiat : dès qu'une tâche libère le jeton, la suivante démarre — pas de « vagues » rigides de 5, mais un débit constant de 5 en vol.\n\nRéponse à la question 5 : le serveur protège ses ressources (une API gratuite qui accepte 500 requêtes/s d'un seul client tombe pour tout le monde) ; les limites sont contractuelles (rate limits, chapitre 9). Les respecter côté client est doublement gagnant : tu évites le ban/les 429, et un flux régulier de 5 finit à peine plus tard qu'une rafale de 20 dont la moitié serait rejetée puis à re-tenter. Le Semaphore est la ceinture de sécurité de TOUT collecteur de données — il sera dans le projet."
+  },
+  {
+    "id": "ex04",
+    "titre": "Timeouts, échecs partiels, rapport fiable",
+    "consigne": "Objectif : un lot dont CHAQUE élément peut échouer (lent, cassé, inexistant) et qui produit quand même un rapport complet.\n\n1. Écris un petit serveur de test FastAPI (`serveur_test.py`, tu as déjà tout vu dans le moteur de cette app) : `GET /cours/{ticker}` répond en 0.2 s, sauf `SLOW` (3 s), `FLAKY` (500 une fois sur deux — un compteur global suffit) et ticker inconnu (404). Lance-le avec uvicorn sur le port 8100.\n2. Côté client : `fetch_un(client, ticker)` avec timeout de 1 s PAR requête, puis un lot de 8 tickers (dont SLOW, FLAKY, et un inconnu) via `gather(return_exceptions=True)`.\n3. Produis le rapport final : `{ticker: {\"statut\": \"ok\", \"cours\": ...} | {\"statut\": \"timeout\" | \"http_404\" | \"http_500\" | \"erreur\"}}` — chaque type d'échec correctement classé.\n4. Enveloppe le lot entier dans `asyncio.timeout(5)` : le SLOW à 3 s ne doit PAS le déclencher (il aura déjà échoué à 1 s), prouve-le.",
+    "indices": [
+      "Serveur : `@app.get(\"/cours/{ticker}\")` avec `await asyncio.sleep(...)` selon le ticker, `raise HTTPException(404)` pour l'inconnu, un `compteur[\"flaky\"] += 1` global pour alterner 500/200.",
+      "Les timeouts httpx lèvent `httpx.TimeoutException` (sous-classe de `httpx.TransportError`). Classement : `isinstance(res, httpx.TimeoutException)` puis `httpx.HTTPStatusError` (avec `res.response.status_code`) puis `Exception`.",
+      "Le classement en dict se fait APRÈS le gather, dans une fonction pure `classer(ticker, res) -> dict` — testable sans réseau (chapitre 7 !)."
+    ],
+    "ressources": [
+      {
+        "titre": "HTTPX — Timeouts",
+        "url": "https://www.python-httpx.org/advanced/timeouts/"
+      },
+      {
+        "titre": "asyncio.timeout — documentation (fr)",
+        "url": "https://docs.python.org/fr/3/library/asyncio-task.html#asyncio.timeout"
+      },
+      {
+        "titre": "FastAPI — First Steps",
+        "url": "https://fastapi.tiangolo.com/tutorial/first-steps/"
+      }
+    ],
+    "solution": "```python\n# serveur_test.py — uvicorn serveur_test:app --port 8100\nimport asyncio\nimport random\n\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI()\nCOURS = {\"IWDA\": 92.5, \"EMIM\": 26.9, \"CSPX\": 512.3, \"AGGH\": 5.3, \"VWRL\": 108.4}\netat = {\"flaky_appels\": 0}\n\n\n@app.get(\"/cours/{ticker}\")\nasync def cours(ticker: str):\n    if ticker == \"SLOW\":\n        await asyncio.sleep(3)\n        return {\"ticker\": ticker, \"cours\": 1.0}\n    if ticker == \"FLAKY\":\n        etat[\"flaky_appels\"] += 1\n        if etat[\"flaky_appels\"] % 2 == 1:\n            raise HTTPException(status_code=500, detail=\"panne simulée\")\n        return {\"ticker\": ticker, \"cours\": 42.0}\n    await asyncio.sleep(0.2)\n    if ticker not in COURS:\n        raise HTTPException(status_code=404, detail=\"ticker inconnu\")\n    return {\"ticker\": ticker, \"cours\": COURS[ticker]}\n```\n\n```python\n# client.py\nimport asyncio\n\nimport httpx\n\nBASE = \"http://127.0.0.1:8100\"\nTICKERS = [\"IWDA\", \"EMIM\", \"CSPX\", \"AGGH\", \"VWRL\", \"SLOW\", \"FLAKY\", \"NOPE\"]\n\n\nasync def fetch_un(client: httpx.AsyncClient, ticker: str) -> float:\n    reponse = await client.get(f\"{BASE}/cours/{ticker}\", timeout=1.0)\n    reponse.raise_for_status()\n    return reponse.json()[\"cours\"]\n\n\ndef classer(res) -> dict:\n    \"\"\"Fonction pure : transforme résultat-ou-exception en entrée de rapport.\"\"\"\n    if isinstance(res, httpx.TimeoutException):\n        return {\"statut\": \"timeout\"}\n    if isinstance(res, httpx.HTTPStatusError):\n        return {\"statut\": f\"http_{res.response.status_code}\"}\n    if isinstance(res, Exception):\n        return {\"statut\": \"erreur\", \"detail\": str(res)}\n    return {\"statut\": \"ok\", \"cours\": res}\n\n\nasync def main() -> None:\n    async with httpx.AsyncClient() as client:\n        async with asyncio.timeout(5):            # garde-fou GLOBAL\n            resultats = await asyncio.gather(\n                *(fetch_un(client, t) for t in TICKERS),\n                return_exceptions=True,\n            )\n    rapport = {t: classer(r) for t, r in zip(TICKERS, resultats)}\n    for ticker, info in rapport.items():\n        print(f\"{ticker:<6} {info}\")\n\n\nasyncio.run(main())\n```\n\nRapport obtenu :\n\n```\nIWDA   {'statut': 'ok', 'cours': 92.5}\n...\nSLOW   {'statut': 'timeout'}\nFLAKY  {'statut': 'http_500'}\nNOPE   {'statut': 'http_404'}\n```\n\nPourquoi le timeout global de 5 s ne se déclenche pas : SLOW est tué à 1 s par SON timeout de requête — le lot entier finit en ~1 s. Les deux niveaux ont des rôles distincts : le timeout par requête borne chaque élément, le global protège contre l'accumulation (20 requêtes à 0.9 s chacune passeraient le premier mais pas une dérive générale).\n\nEt le réflexe chapitre 7 : `classer()` est pure — elle se teste avec des exceptions construites à la main, sans serveur ni réseau."
+  },
+  {
+    "id": "ex05",
+    "titre": "Le crime : bloquer la boucle",
+    "consigne": "Démonstration du piège n°1 de l'async, à vivre une fois pour ne plus jamais le commettre :\n\n1. Écris `tic()` : une coroutine qui affiche un point toutes les 0.2 s (10 fois) — c'est le « moniteur de vie » de la boucle.\n2. Lance en parallèle (gather) `tic()` et `travail_bloquant()` qui appelle **`time.sleep(2)`** : constate que les points S'ARRÊTENT pendant 2 s — TOUTE la boucle est gelée, pas seulement cette coroutine.\n3. Remplace par `await asyncio.sleep(2)` : les points continuent. Explique la différence.\n4. Cas du calcul réel : remplace le sleep par un vrai calcul CPU (somme de 50 millions d'entiers). Même gel. Corrige avec `await asyncio.to_thread(calcul)` et vérifie que les points continuent.\n5. Règle finale à formuler : quels types d'opérations ont le droit de vivre TELS QUELS dans une coroutine ?",
+    "indices": [
+      "`async def tic(): for _ in range(10): print(\".\", end=\"\", flush=True); await asyncio.sleep(0.2)` — le flush est nécessaire pour voir le gel en direct.",
+      "`time.sleep` est une fonction SYNCHRONE : elle ne rend jamais la main à la boucle (aucun await). La boucle mono-thread ne peut rien exécuter d'autre tant qu'elle n'a pas fini.",
+      "`asyncio.to_thread(f, *args)` exécute f dans un thread séparé et rend un awaitable : la boucle continue pendant que le thread calcule. C'est le pont officiel vers le code bloquant inévitable."
+    ],
+    "ressources": [
+      {
+        "titre": "asyncio.to_thread — documentation (fr)",
+        "url": "https://docs.python.org/fr/3/library/asyncio-task.html#asyncio.to_thread"
+      },
+      {
+        "titre": "asyncio — Developing with asyncio (blocking code)",
+        "url": "https://docs.python.org/fr/3/library/asyncio-dev.html"
+      }
+    ],
+    "solution": "```python\nimport asyncio\nimport time\n\n\nasync def tic() -> None:\n    for _ in range(10):\n        print(\".\", end=\"\", flush=True)\n        await asyncio.sleep(0.2)\n    print(\" fin des tics\")\n\n\n# 2. Le crime\nasync def travail_bloquant() -> None:\n    print(\"[début du sleep bloquant]\")\n    time.sleep(2)                    # ☠ gèle TOUTE la boucle\n    print(\"[fin]\")\n\n\nasyncio.run(asyncio.wait(          # variante de gather, peu importe ici\n    [asyncio.ensure_future(tic()), asyncio.ensure_future(travail_bloquant())]\n))\n# Sortie : .[début du sleep bloquant]           ← UN point, puis 2 s de silence\n#          [fin].........  fin des tics          ← les points rattrapent après\n\n\n# 3. La version correcte\nasync def travail_cooperatif() -> None:\n    print(\"[début]\")\n    await asyncio.sleep(2)           # rend la main : les tics continuent\n    print(\"[fin]\")\n\n\n# 4. Calcul CPU réel\ndef calcul() -> int:\n    return sum(range(50_000_000))    # ~2 s de CPU pur\n\n\nasync def travail_cpu_corrige() -> None:\n    resultat = await asyncio.to_thread(calcul)    # le thread calcule,\n    print(f\"[calcul fini : {resultat}]\")           # la boucle vit\n\n\nasync def main() -> None:\n    await asyncio.gather(tic(), travail_cpu_corrige())\n\nasyncio.run(main())\n# Les points défilent RÉGULIÈREMENT pendant le calcul ✓\n```\n\nExplication : la boucle asyncio est mono-thread et **coopérative** — elle ne reprend la main qu'aux `await`. `time.sleep` (comme un gros calcul, ou `requests.get`) ne contient aucun `await` : la boucle est otage jusqu'à la fin. `asyncio.sleep` est une coroutine : elle dit à la boucle « réveille-moi dans 2 s » et lui rend la main immédiatement.\n\nRègle finale (question 5) — dans une coroutine, ont le droit de vivre tels quels :\n\n- les `await` d'opérations async (httpx async, asyncio.sleep, drivers async) ;\n- le code synchrone COURT (microsecondes-millisecondes : manipulation de dicts, formatage, petit parsing).\n\nTout le reste — sleep, requêtes synchrones, fichiers volumineux, calculs lourds (Pandas inclus !) — passe par `asyncio.to_thread` ou reste hors de la boucle. Ce point resurgira dans FastAPI : une route `async def` qui fait du Pandas lourd gèle TOUT le serveur ; une route `def` classique est déportée dans un thread automatiquement."
+  }
+]

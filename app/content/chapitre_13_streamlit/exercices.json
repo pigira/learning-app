@@ -1,0 +1,86 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Vivre le re-run",
+    "consigne": "Avant de construire, comprendre le modèle d'exécution — 15 lignes suffisent :\n\n1. Écris une app avec : un `print(\"RUN\", time.time())` en tête de script (regarde le TERMINAL, pas la page), un `st.slider`, un `st.text_input` et un `st.button`, chacun affiché avec `st.write`.\n2. Manipule chaque widget et note dans le terminal : combien de runs par frappe dans le text_input ? Par cran de slider ? Le print du RUN apparaît-il au clic de bouton ?\n3. Ajoute `compteur = 0` puis `compteur += 1` à chaque run et affiche-le : pourquoi reste-t-il à 1 ? Corrige avec `st.session_state`.\n4. Démontre le piège du bouton : `if st.button(\"Activer\"): st.write(\"actif\")` — pourquoi « actif » disparaît-il dès l'interaction suivante ? Remplace par une checkbox et explique la différence de nature.",
+    "indices": [
+      "Le print en tête s'exécute à CHAQUE interaction : chaque frappe validée du text_input (perte de focus/Entrée), chaque relâchement de slider déclenche un run complet.",
+      "`compteur = 0` est ré-exécuté à chaque run — la variable renaît à 0 puis passe à 1, toujours. La version qui survit : `st.session_state.setdefault(\"compteur\", 0)` puis `st.session_state.compteur += 1`.",
+      "`st.button` renvoie True UNIQUEMENT pendant le run du clic ; au run suivant (autre widget touché), il renvoie False et la branche disparaît. Une checkbox renvoie son ÉTAT (persistant), un bouton signale un ÉVÉNEMENT (fugace)."
+    ],
+    "ressources": [
+      {
+        "titre": "Streamlit — Main concepts (execution model)",
+        "url": "https://docs.streamlit.io/get-started/fundamentals/main-concepts"
+      },
+      {
+        "titre": "Streamlit — Button behavior",
+        "url": "https://docs.streamlit.io/develop/concepts/design/buttons"
+      }
+    ],
+    "solution": "```python\nimport time\n\nimport streamlit as st\n\nprint(\"RUN\", time.strftime(\"%H:%M:%S\"))          # visible dans le TERMINAL\n\nst.title(\"Anatomie du re-run\")\n\nvaleur = st.slider(\"Un slider\", 0, 100, 50)\ntexte = st.text_input(\"Un champ texte\")\nclic = st.button(\"Un bouton\")\n\nst.write(f\"slider={valeur}, texte={texte!r}, bouton={clic}\")\n\n# 3. Le compteur naïf, toujours à 1 :\ncompteur = 0\ncompteur += 1\nst.write(f\"compteur naïf : {compteur}\")           # 1, éternellement\n\n# La version session_state :\nst.session_state.setdefault(\"compteur\", 0)\nst.session_state.compteur += 1\nst.write(f\"runs depuis le lancement : {st.session_state.compteur}\")\n\n# 4. Bouton vs checkbox\nif st.button(\"Activer (bouton)\"):\n    st.write(\"actif — mais touche n'importe quoi d'autre et je disparais\")\nif st.checkbox(\"Activer (checkbox)\"):\n    st.write(\"actif — et je RESTE actif tant que la case est cochée\")\n```\n\nObservations à avoir faites :\n\n- Chaque interaction = un run COMPLET (le print terminal le prouve) ; le slider ne déclenche qu'au relâchement, le text_input à la validation.\n- `compteur = 0` renaît à chaque run : les variables ordinaires n'ont AUCUNE mémoire. `session_state` est la seule mémoire inter-runs.\n- Bouton = **événement** (vrai le temps d'un run), checkbox = **état** (persiste). Utiliser un bouton pour « activer un mode » est LE bug Streamlit du débutant ; le mode s'éteint à l'interaction suivante. Événement → bouton (recalculer, soumettre) ; état → checkbox/selectbox (filtre, option).\n\nCes trois phrases sont 80 % de la compréhension de Streamlit — tout le reste du chapitre en découle."
+  },
+  {
+    "id": "ex02",
+    "titre": "Explorateur d'ETF avec cache",
+    "consigne": "Construis l'explorateur du projet Finance (données : générateur du chapitre 11) :\n\n1. Sidebar : selectbox du ticker, slider « derniers N mois » (1-42, défaut 12).\n2. Page : 3 `st.metric` en colonnes (perf sur la période, volatilité annualisée, max drawdown — réutilise `metriques_etf` du chapitre 11 sur la sous-période) puis la courbe du cours (Plotly) avec sa MM20.\n3. Le chargement des cours passe par `@st.cache_data` avec un `print(\"CHARGEMENT\")` dedans : vérifie au terminal qu'il ne sort qu'UNE fois malgré les manipulations. Ajoute un bouton « Vider le cache » (`st.cache_data.clear()`).\n4. Le delta du metric perf : compare à la période précédente de même durée (delta vert/rouge automatique).",
+    "indices": [
+      "`@st.cache_data` sur `def charger() -> pd.DataFrame: print(\"CHARGEMENT\"); return generer_cours()` — les manipulations de widgets ne redéclenchent pas le print : le cache sert le même DataFrame.",
+      "La sous-période : `v = cours[ticker].dropna().last(f\"{mois}ME\")`... `last` est déprécié : utilise `v.loc[v.index >= v.index[-1] - pd.DateOffset(months=mois)]`.",
+      "Le delta : perf de la fenêtre précédente `v_prec = v.loc[(index >= debut - 2*offset) & (index < debut)]` puis `st.metric(..., delta=f\"{perf - perf_prec:+.1%} vs période préc.\")`."
+    ],
+    "ressources": [
+      {
+        "titre": "Streamlit — st.cache_data",
+        "url": "https://docs.streamlit.io/develop/concepts/architecture/caching"
+      },
+      {
+        "titre": "Streamlit — st.metric",
+        "url": "https://docs.streamlit.io/develop/api-reference/data/st.metric"
+      }
+    ],
+    "solution": "```python\nimport pandas as pd\nimport plotly.express as px\nimport streamlit as st\n\nfrom rapport import generer_cours, metriques_etf     # chapitre 11\n\nst.set_page_config(page_title=\"Explorateur ETF\", layout=\"wide\")\n\n\n@st.cache_data\ndef charger() -> pd.DataFrame:\n    print(\"CHARGEMENT\")                    # une seule fois au terminal ✓\n    return generer_cours()\n\n\ncours = charger()\n\n# ---- sidebar : les contrôles ----\nst.sidebar.header(\"Filtres\")\nticker = st.sidebar.selectbox(\"ETF\", list(cours.columns))\nmois = st.sidebar.slider(\"Derniers N mois\", 1, 42, 12)\nif st.sidebar.button(\"Vider le cache\"):\n    st.cache_data.clear()\n    st.rerun()\n\n# ---- découpage temporel ----\nv_complet = cours[ticker].dropna()\nfin = v_complet.index[-1]\ndebut = fin - pd.DateOffset(months=mois)\nv = v_complet.loc[v_complet.index >= debut]\nv_prec = v_complet.loc[(v_complet.index >= debut - pd.DateOffset(months=mois))\n                       & (v_complet.index < debut)]\n\n# ---- metrics ----\nm = metriques_etf(v)\nperf = m[\"perf_totale\"]\nperf_prec = (v_prec.iloc[-1] / v_prec.iloc[0] - 1) if len(v_prec) > 1 else None\n\nst.title(f\"{ticker} — {mois} derniers mois\")\nc1, c2, c3 = st.columns(3)\nc1.metric(\"Performance\", f\"{perf:+.1%}\",\n          delta=f\"{perf - perf_prec:+.1%} vs période préc.\" if perf_prec is not None else None)\nc2.metric(\"Volatilité annualisée\", f\"{m['volatilite']:.1%}\")\nc3.metric(\"Max drawdown\", f\"{m['max_drawdown']:.1%}\")\n\n# ---- graphique ----\ndf_plot = pd.DataFrame({\"cours\": v, \"MM20\": v.rolling(20).mean()})\nfig = px.line(df_plot, labels={\"value\": \"€\", \"index\": \"\", \"variable\": \"\"})\nst.plotly_chart(fig, use_container_width=True)\n```\n\nVérifications clés :\n\n- Le terminal n'affiche `CHARGEMENT` qu'au premier run (et après « Vider le cache ») : slider et selectbox manipulés à volonté servent le DataFrame depuis le cache. Sans le décorateur, chaque cran de slider regénèrerait 900 jours de cours.\n- Toute la LOGIQUE (métriques) vient du chapitre 11 par import — l'app fait ~50 lignes et n'est que de la présentation. C'est le critère de qualité d'une app Streamlit.\n- Le `metric` avec delta colore automatiquement (vert positif/rouge négatif) : le composant encode la convention, pas toi."
+  },
+  {
+    "id": "ex03",
+    "titre": "Filtres croisés sur le journal Enduro",
+    "consigne": "Sur les séances propres du pipeline chapitre 10 (CSV `seances.csv` chargé avec cache) :\n\n1. Sidebar, trois filtres COMBINÉS : multiselect des sports (défaut : tous), plage de dates (`st.date_input` à deux valeurs, bornée par les données), durée minimale (slider).\n2. Page : 3 metrics (nb séances, heures totales, distance totale) recalculés sur le sous-ensemble filtré ; le volume hebdomadaire par sport en barres empilées Plotly qui RÉAGIT aux filtres ; le tableau filtré dans un expander.\n3. Cas limite obligatoire : si le filtrage ne laisse AUCUNE séance, affiche `st.warning(\"Aucune séance ne correspond aux filtres\")` et arrête proprement (`st.stop()`) au lieu de laisser exploser les graphiques.\n4. Question : pourquoi les filtres doivent-ils s'appliquer à une COPIE du DataFrame caché (ou plus exactement : pourquoi ne faut-il jamais muter le retour d'une fonction cachée, même si Streamlit t'en protège par défaut) ?",
+    "indices": [
+      "Le masque combiné : `masque = df[\"sport\"].isin(sports) & (df[\"date\"].dt.date >= d1) & (df[\"date\"].dt.date <= d2) & (df[\"duree_min\"] >= seuil)` — trois conditions en `&`, parenthèses obligatoires (chapitre 10).",
+      "`st.date_input(\"Plage\", value=(dmin, dmax), min_value=dmin, max_value=dmax)` renvoie un tuple... de UN élément pendant que l'utilisateur choisit la 2e date : garde `if len(plage) != 2: st.stop()`.",
+      "Question 4 : cache_data sert par défaut une COPIE (sécurité) — mais avec `st.cache_resource` ou copy désactivé, une mutation (ajout de colonne, tri en place) polluerait le cache PARTAGÉ entre runs et pages. La discipline « le retour du cache est en lecture seule » évite d'avoir à se souvenir quel décorateur copie."
+    ],
+    "ressources": [
+      {
+        "titre": "Streamlit — st.date_input / widgets",
+        "url": "https://docs.streamlit.io/develop/api-reference/widgets"
+      },
+      {
+        "titre": "Streamlit — st.stop",
+        "url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.stop"
+      }
+    ],
+    "solution": "```python\nimport pandas as pd\nimport plotly.express as px\nimport streamlit as st\n\nst.set_page_config(page_title=\"Journal Enduro\", layout=\"wide\")\n\n\n@st.cache_data\ndef charger() -> pd.DataFrame:\n    return pd.read_csv(\"data/propre/seances.csv\", parse_dates=[\"date\"])\n\n\ndf = charger()\n\n# ---- filtres (sidebar) ----\nst.sidebar.header(\"Filtres\")\nsports = st.sidebar.multiselect(\"Sports\", sorted(df[\"sport\"].unique()),\n                                default=sorted(df[\"sport\"].unique()))\ndmin, dmax = df[\"date\"].min().date(), df[\"date\"].max().date()\nplage = st.sidebar.date_input(\"Plage\", value=(dmin, dmax),\n                              min_value=dmin, max_value=dmax)\nseuil = st.sidebar.slider(\"Durée minimale (min)\", 0, 180, 0)\n\nif len(plage) != 2:               # l'utilisateur n'a choisi qu'une borne\n    st.info(\"Choisis les deux bornes de la plage.\")\n    st.stop()\n\nmasque = (df[\"sport\"].isin(sports)\n          & (df[\"date\"].dt.date >= plage[0])\n          & (df[\"date\"].dt.date <= plage[1])\n          & (df[\"duree_min\"] >= seuil))\nfiltre = df[masque]               # nouveau DataFrame : le cache reste intact\n\n# ---- cas limite AVANT tout affichage dépendant des données ----\nif filtre.empty:\n    st.warning(\"Aucune séance ne correspond aux filtres\")\n    st.stop()\n\n# ---- metrics ----\nst.title(\"Journal d'entraînement\")\nc1, c2, c3 = st.columns(3)\nc1.metric(\"Séances\", len(filtre))\nc2.metric(\"Heures\", f\"{filtre['duree_h'].sum():.1f} h\")\nc3.metric(\"Distance\", f\"{filtre['distance_km'].sum():.0f} km\")\n\n# ---- volume hebdo réactif ----\nhebdo = (filtre.groupby([\"semaine\", \"sport\"])[\"duree_h\"].sum()\n         .reset_index())\nfig = px.bar(hebdo, x=\"semaine\", y=\"duree_h\", color=\"sport\",\n             labels={\"duree_h\": \"Heures\", \"semaine\": \"\"})\nst.plotly_chart(fig, use_container_width=True)\n\nwith st.expander(f\"Détail des {len(filtre)} séances\"):\n    st.dataframe(filtre.sort_values(\"date\", ascending=False),\n                 use_container_width=True, hide_index=True)\n```\n\nLes habitudes structurantes :\n\n- **Garde-fous d'abord** : plage incomplète et résultat vide sont traités AVANT les metrics/graphes — `st.stop()` coupe le run proprement, l'utilisateur voit un message et pas une traceback de division par zéro.\n- Le masque booléen combiné est du pur chapitre 10 ; Streamlit n'ajoute que la provenance des bornes.\n- Question 4 : `df[masque]` crée un NOUVEAU DataFrame — le retour du cache n'est jamais modifié. Même si `cache_data` copie par défaut, la discipline « lecture seule » te protège le jour où tu passes à `cache_resource` (pas de copie) ou désactives la copie pour la performance. Un cache pollué produit le pire type de bug : dépendant de l'ordre de navigation des pages."
+  },
+  {
+    "id": "ex04",
+    "titre": "Carnet de recettes : form et session_state",
+    "consigne": "Un mini-carnet Cuisine, entièrement en mémoire de session :\n\n1. Un `st.form` d'ajout : nom, temps (number_input), ingrédients (text_input, séparés par des virgules), difficulté (select_slider 1-3). À la soumission : validation (nom non vide, sinon `st.error`) puis ajout à `st.session_state.recettes`.\n2. La liste des recettes : une ligne par recette (columns), avec bouton « Supprimer » par ligne (attention au `key`) qui retire l'élément et `st.rerun()`.\n3. Un filtre « réalisables en moins de N minutes » au-dessus de la liste — indépendant du form.\n4. Démontre l'intérêt du form : déplace TEMPORAIREMENT le text_input « nom » hors du form et observe (print terminal) le re-run à chaque frappe validée ; remets-le dans le form (un seul run à la soumission).\n5. Question : que devient le carnet si tu recharges la page navigateur (F5) ? Où faudrait-il le ranger pour qu'il survive (deux réponses des chapitres précédents) ?",
+    "indices": [
+      "L'init : `if \"recettes\" not in st.session_state: st.session_state.recettes = []` tout en haut. Le submit : `if st.form_submit_button(\"Ajouter\"):` DANS le bloc `with st.form(...)`.",
+      "La suppression en boucle : `if col.button(\"🗑\", key=f\"suppr_{i}\"): st.session_state.recettes.pop(i); st.rerun()` — sans key unique, Streamlit lève DuplicateWidgetID.",
+      "Question 5 : F5 = nouvelle session → carnet perdu. Persistance : JSON (chapitre 5, simple) ou SQLite (chapitre 6, robuste) — chargé au premier run et sauvé à chaque mutation."
+    ],
+    "ressources": [
+      {
+        "titre": "Streamlit — st.form",
+        "url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.form"
+      },
+      {
+        "titre": "Streamlit — Session State",
+        "url": "https://docs.streamlit.io/develop/concepts/architecture/session-state"
+      }
+    ],
+    "solution": "```python\nimport streamlit as st\n\nst.title(\"Carnet de recettes\")\n\nif \"recettes\" not in st.session_state:\n    st.session_state.recettes = []\n\n# ---- 1. formulaire d'ajout : soumission ATOMIQUE ----\nwith st.form(\"ajout\", clear_on_submit=True):\n    nom = st.text_input(\"Nom\")\n    temps = st.number_input(\"Temps (min)\", min_value=1, value=20)\n    ingredients_txt = st.text_input(\"Ingrédients (séparés par des virgules)\")\n    difficulte = st.select_slider(\"Difficulté\", options=[1, 2, 3])\n    if st.form_submit_button(\"Ajouter\"):\n        if not nom.strip():\n            st.error(\"Le nom est obligatoire.\")\n        else:\n            st.session_state.recettes.append({\n                \"nom\": nom.strip(),\n                \"temps\": int(temps),\n                \"ingredients\": [i.strip() for i in ingredients_txt.split(\",\") if i.strip()],\n                \"difficulte\": difficulte,\n            })\n\n# ---- 3. filtre indépendant ----\nseuil = st.slider(\"Réalisables en moins de (min)\", 5, 120, 60)\nvisibles = [(i, r) for i, r in enumerate(st.session_state.recettes)\n            if r[\"temps\"] <= seuil]\n\nst.caption(f\"{len(visibles)} recette(s) sur {len(st.session_state.recettes)}\")\n\n# ---- 2. liste avec suppression ----\nfor i, r in visibles:\n    c1, c2, c3, c4 = st.columns([3, 1, 1, 1])\n    c1.write(f\"**{r['nom']}** — {', '.join(r['ingredients']) or 'sans ingrédients'}\")\n    c2.write(f\"{r['temps']} min\")\n    c3.write(\"★\" * r[\"difficulte\"])\n    if c4.button(\"Supprimer\", key=f\"suppr_{i}\"):\n        st.session_state.recettes.pop(i)\n        st.rerun()          # redessine immédiatement la liste à jour\n```\n\nRéponses aux questions :\n\n- **Point 4** : hors form, chaque validation de champ (Entrée, perte de focus) déclenche un run complet — avec 4 champs, l'app « clignote » et un calcul coûteux en aval tournerait 4 fois pour rien. Le form met les saisies en tampon : UN run, à la soumission, avec toutes les valeurs cohérentes entre elles.\n- **Point 5** : session_state vit côté serveur, lié à la SESSION navigateur — F5 crée une session neuve, carnet perdu. Pour survivre : sérialiser en JSON (`stockage.py` du chapitre 5) ou en SQLite (chapitre 6), charger dans l'init (`if \"recettes\" not in ...: st.session_state.recettes = charger()`) et sauvegarder après chaque append/pop. C'est exactement le branchement que fait le projet de ce chapitre.\n\nLe `clear_on_submit=True` vide le formulaire après ajout — petit détail qui change l'usage réel."
+  }
+]

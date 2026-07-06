@@ -1,0 +1,23 @@
+{
+  "numero": 17,
+  "titre": "Appels LLM et function calling",
+  "description": "Azure OpenAI : chat completions, sorties structurées et tool calling — les fondations de l'agent.",
+  "objectifs": [
+    "Appeler un modèle via l'API Azure OpenAI (auth, déploiements, paramètres)",
+    "Obtenir des sorties structurées fiables (JSON Schema / Pydantic)",
+    "Implémenter le function calling : définition des tools, boucle d'exécution, erreurs"
+  ],
+  "points_theorie": [
+    "Azure OpenAI : ressource, déploiement, endpoint, api_version, clés (config chapitre 14)",
+    "Chat completions : messages system/user/assistant, temperature, max_tokens",
+    "Comptage de tokens et coûts ; garder le contexte sous contrôle",
+    "Structured output : response_format JSON schema, validation Pydantic en sortie",
+    "Tools : définition (nom, description, paramètres JSON Schema), tool_choice",
+    "La boucle tool calling : tool_calls → exécuter → renvoyer les résultats → réponse finale",
+    "Robustesse : erreurs API (429, contenu filtré), retries, timeouts"
+  ],
+  "projets_cibles": [
+    "Cuisine"
+  ],
+  "statut": "complet"
+}

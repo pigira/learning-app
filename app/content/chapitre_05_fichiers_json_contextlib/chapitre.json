@@ -1,0 +1,22 @@
+{
+  "numero": 5,
+  "titre": "Fichiers, JSON et context managers",
+  "description": "Lire/écrire des fichiers avec pathlib, sérialiser en JSON/CSV, écrire ses propres context managers.",
+  "objectifs": [
+    "Manipuler fichiers et chemins avec open() et pathlib (multiplateforme, robuste)",
+    "Sérialiser/désérialiser JSON et CSV, en liaison avec to_dict/from_dict du chapitre 3",
+    "Comprendre le protocole des context managers et en écrire avec contextlib"
+  ],
+  "points_theorie": [
+    "open() : modes (r/w/a/b), encodage UTF-8 explicite, pourquoi with est obligatoire",
+    "pathlib.Path : construction (/), exists, mkdir, glob, read_text/write_text",
+    "json : load/loads/dump/dumps, ensure_ascii, indent, types supportés et limites (dates !)",
+    "csv : DictReader/DictWriter (versus le split(',') artisanal du chapitre 0)",
+    "Context managers : protocole __enter__/__exit__, @contextlib.contextmanager",
+    "Gestion des erreurs fichiers : FileNotFoundError, PermissionError, fichiers corrompus"
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "complet"
+}

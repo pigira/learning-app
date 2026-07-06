@@ -1,0 +1,23 @@
+{
+  "numero": 21,
+  "titre": "Projet final transverse",
+  "description": "Assembler toutes les briques : app data + IA complète, testée et dockerisée.",
+  "objectifs": [
+    "Concevoir puis livrer un MVP de bout en bout sans guide pas-à-pas",
+    "Assembler : API externe, SQLite, Pandas, Streamlit/FastAPI, agent IA, config, tests, Docker",
+    "Produire un livrable présentable (README, démo) — pour toi et pour un recruteur"
+  ],
+  "points_theorie": [
+    "Cadrage d'un MVP : périmètre minimal, user stories, ce qu'on refuse de faire",
+    "Architecture : découpage en couches (données / métier / présentation / IA)",
+    "Choix techniques argumentés et documentation des décisions (mini-ADR)",
+    "Qualité de livraison : tests des chemins critiques, README, démo scriptée",
+    "Rétrospective : dette assumée, suites possibles"
+  ],
+  "projets_cibles": [
+    "Cuisine",
+    "Finance",
+    "Enduro"
+  ],
+  "statut": "complet"
+}

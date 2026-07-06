@@ -1,0 +1,23 @@
+{
+  "numero": 12,
+  "titre": "Visualisation de données",
+  "description": "Matplotlib pour comprendre, Plotly pour interagir : courbes, comparaisons, exports.",
+  "objectifs": [
+    "Maîtriser l'anatomie Matplotlib (Figure/Axes) et les graphiques essentiels",
+    "Construire des graphiques interactifs Plotly (hover, zoom) et les exporter en HTML",
+    "Choisir le bon graphique pour la bonne question, avec titres/axes/légendes systématiques"
+  ],
+  "points_theorie": [
+    "Matplotlib : Figure vs Axes, plt.subplots, courbes, styles, annotations",
+    "Multi-graphiques : subplots partageant l'axe X, twinx",
+    "Intégration Pandas : df.plot, dates en abscisse",
+    "Plotly Express : line, bar, scatter ; hover_data ; export write_html",
+    "Sauvegarde : savefig (PNG) vs HTML interactif — usages",
+    "Bonnes pratiques : lisibilité, échelles, base 100 pour comparer"
+  ],
+  "projets_cibles": [
+    "Finance",
+    "Enduro"
+  ],
+  "statut": "complet"
+}

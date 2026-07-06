@@ -1,0 +1,23 @@
+{
+  "numero": 7,
+  "titre": "Tests et qualité de code",
+  "description": "pytest, fixtures, paramétrage, et l'outillage qualité : ruff, black, couverture.",
+  "objectifs": [
+    "Écrire des tests pytest lisibles (arrange/act/assert) et les organiser",
+    "Utiliser fixtures, parametrize, tmp_path et monkeypatch",
+    "Outiller un projet : ruff, black, coverage, et l'intégration VS Code"
+  ],
+  "points_theorie": [
+    "pytest : découverte des tests, assert simple, structure tests/",
+    "Tester les exceptions (pytest.raises) et les cas limites",
+    "@pytest.mark.parametrize : une table de cas, un seul test",
+    "Fixtures : injection, portée (function/module), fixtures intégrées (tmp_path, capsys)",
+    "monkeypatch : simuler input(), variables d'environnement, fonctions coûteuses",
+    "ruff (lint + format, remplace flake8/isort) et black ; configuration pyproject.toml",
+    "coverage : mesurer, lire un rapport, ce que 100 % ne garantit pas"
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "complet"
+}

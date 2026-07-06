@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}{{ "%02d" | format(chap.meta.numero) }} · {{ chap.meta.titre }} — Apprendre Python{% endblock %}
+{% block body_attrs %}data-chapitre="{{ chap.slug }}"{% endblock %}
+
+{% block content %}
+<nav class="fil-ariane"><a href="/">&larr; Tous les chapitres</a></nav>
+
+<header class="entete-chapitre">
+  <h1>
+    <span class="numero">{{ "%02d" | format(chap.meta.numero) }}</span>
+    {{ chap.meta.titre }}
+    {% if chap.meta.statut == "squelette" %}
+    <span class="badge badge-squelette">squelette — contenu à compléter</span>
+    {% endif %}
+  </h1>
+  {% if chap.meta.description %}<p class="description">{{ chap.meta.description }}</p>{% endif %}
+  {% if chap.meta.projets_cibles %}
+  <p class="badges">Projets cibles :
+    {% for p in chap.meta.projets_cibles %}<span class="badge badge-projet">{{ p }}</span>{% endfor %}
+  </p>
+  {% endif %}
+  {% if chap.meta.objectifs %}
+  <details class="objectifs" open>
+    <summary>Objectifs du chapitre</summary>
+    <ul>
+      {% for o in chap.meta.objectifs %}<li>{{ o }}</li>{% endfor %}
+    </ul>
+  </details>
+  {% endif %}
+</header>
+
+{% if chap.theorie %}
+<section class="theorie">
+  <h2 class="titre-section">Théorie</h2>
+  <div class="prose">{{ chap.theorie | markdown | safe }}</div>
+</section>
+{% elif chap.meta.points_theorie %}
+<section class="theorie">
+  <h2 class="titre-section">Théorie — à rédiger</h2>
+  <p class="note-squelette">Points à couvrir dans <code>theorie.md</code> :</p>
+  <ul>
+    {% for pt in chap.meta.points_theorie %}<li>{{ pt }}</li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if chap.exercices %}
+<section class="exercices">
+  <h2 class="titre-section">Exercices
+    <span class="compteur">(<span id="compteur-exercices">{{ faits | length }}/{{ chap.exercices | length }}</span> terminés)</span>
+  </h2>
+
+  {% for ex in chap.exercices %}
+  <article class="exercice" id="exercice-{{ ex.id }}">
+    <header class="exercice-entete">
+      <h3>{{ loop.index }}. {{ ex.titre }}</h3>
+      <label class="case-fait">
+        <input type="checkbox" data-role="fait-exercice" data-exercice-id="{{ ex.id }}"
+               {% if ex.id in faits %}checked{% endif %}>
+        Terminé
+      </label>
+    </header>
+
+    <div class="consigne prose">{{ ex.consigne | markdown | safe }}</div>
+
+    {% if ex.indices %}
+    <div class="indices">
+      <div class="rangee-boutons">
+        {% for indice in ex.indices %}
+        <button type="button" class="btn" data-role="indice"
+                data-cible="indice-{{ ex.id }}-{{ loop.index }}"
+                {% if not loop.first %}disabled{% endif %}>Indice {{ loop.index }}</button>
+        {% endfor %}
+      </div>
+      {% for indice in ex.indices %}
+      <div class="encart encart-indice cache" id="indice-{{ ex.id }}-{{ loop.index }}">
+        <span class="encart-titre">Indice {{ loop.index }}</span>
+        <div class="prose">{{ indice | markdown | safe }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if ex.ressources %}
+    <details class="ressources">
+      <summary>Ressources</summary>
+      <ul>
+        {% for r in ex.ressources %}
+        <li><a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.titre }}</a></li>
+        {% endfor %}
+      </ul>
+    </details>
+    {% endif %}
+
+    {% if ex.solution %}
+    <div class="rangee-boutons">
+      <button type="button" class="btn btn-solution" data-role="solution"
+              data-cible="solution-{{ ex.id }}">Voir la correction</button>
+    </div>
+    <div class="encart encart-solution cache" id="solution-{{ ex.id }}">
+      <span class="encart-titre">Correction</span>
+      <div class="prose">{{ ex.solution | markdown | safe }}</div>
+    </div>
+    {% endif %}
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if chap.projet %}
+<section class="projet" id="section-projet">
+  <h2 class="titre-section">Projet guidé</h2>
+
+  <div class="encart verrou {% if tous_faits %}cache{% endif %}" id="projet-verrou">
+    Le projet guidé se déverrouille quand tous les exercices du chapitre
+    sont marqués « Terminé ».
+  </div>
+
+  <div id="projet-contenu" class="{% if not tous_faits %}cache{% endif %}">
+    <article class="exercice projet-carte">
+      <header class="exercice-entete">
+        <h3>{{ chap.projet.titre }}</h3>
+        <label class="case-fait">
+          <input type="checkbox" data-role="fait-projet" {% if projet_ok %}checked{% endif %}>
+          Terminé
+        </label>
+      </header>
+
+      <div class="consigne prose">{{ chap.projet.consigne | markdown | safe }}</div>
+
+      {% if chap.projet.etapes %}
+      <div class="etapes">
+        <h4>Étapes</h4>
+        <ol>
+          {% for etape in chap.projet.etapes %}
+          <li class="prose">{{ etape | markdown | safe }}</li>
+          {% endfor %}
+        </ol>
+      </div>
+      {% endif %}
+
+      {% if chap.projet.indices %}
+      <div class="indices">
+        <div class="rangee-boutons">
+          {% for indice in chap.projet.indices %}
+          <button type="button" class="btn" data-role="indice"
+                  data-cible="indice-projet-{{ loop.index }}"
+                  {% if not loop.first %}disabled{% endif %}>Indice {{ loop.index }}</button>
+          {% endfor %}
+        </div>
+        {% for indice in chap.projet.indices %}
+        <div class="encart encart-indice cache" id="indice-projet-{{ loop.index }}">
+          <span class="encart-titre">Indice {{ loop.index }}</span>
+          <div class="prose">{{ indice | markdown | safe }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if chap.projet.ressources %}
+      <details class="ressources">
+        <summary>Ressources</summary>
+        <ul>
+          {% for r in chap.projet.ressources %}
+          <li><a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.titre }}</a></li>
+          {% endfor %}
+        </ul>
+      </details>
+      {% endif %}
+
+      {% if chap.projet.solution %}
+      <div class="rangee-boutons">
+        <button type="button" class="btn btn-solution" data-role="solution"
+                data-cible="solution-projet">Voir la correction</button>
+      </div>
+      <div class="encart encart-solution cache" id="solution-projet">
+        <span class="encart-titre">Correction</span>
+        <div class="prose">{{ chap.projet.solution | markdown | safe }}</div>
+      </div>
+      {% endif %}
+    </article>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

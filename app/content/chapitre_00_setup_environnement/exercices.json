@@ -1,0 +1,128 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Prise en main du terminal",
+    "consigne": "Sans ouvrir le Finder, uniquement au terminal :\n\n1. Affiche ton dossier courant.\n2. Crée l'arborescence `~/exos_terminal/projet/` contenant les sous-dossiers `src`, `data` et `docs` — en **une seule commande**.\n3. Place-toi dans `projet`, crée un fichier vide `src/main.py` et un fichier `docs/notes.txt`.\n4. Liste tout le contenu du projet de façon récursive.\n5. Renomme `notes.txt` en `journal.txt`.\n6. Copie `journal.txt` dans `data/`, puis supprime cette copie.\n7. Pour finir, supprime tout le dossier `exos_terminal`.\n\nNote chaque commande utilisée : c'est la liste de commandes qui constitue ta réponse.",
+    "indices": [
+      "`mkdir -p` crée tous les niveaux intermédiaires d'un coup, et les accolades développent plusieurs noms : `mkdir -p a/{b,c}` crée `a/b` et `a/c`.",
+      "Renommer et déplacer sont la même opération : `mv source destination`. Pour lister récursivement : `ls -R`.",
+      "`touch` accepte plusieurs fichiers d'un coup. Pour supprimer un dossier et son contenu : `rm -r` (définitif — vérifie le chemin avant Entrée)."
+    ],
+    "ressources": [
+      {
+        "titre": "Guide d'utilisation du Terminal (Apple, fr)",
+        "url": "https://support.apple.com/fr-fr/guide/terminal/welcome/mac"
+      },
+      {
+        "titre": "Cours d'introduction à la ligne de commande (MDN, fr)",
+        "url": "https://developer.mozilla.org/fr/docs/Learn_web_development/Getting_started/Environment_setup/Command_line"
+      }
+    ],
+    "solution": "```bash\npwd                                      # 1. dossier courant\nmkdir -p ~/exos_terminal/projet/{src,data,docs}   # 2. toute l'arborescence d'un coup\ncd ~/exos_terminal/projet                # 3.\ntouch src/main.py docs/notes.txt\nls -R                                    # 4. listing récursif\nmv docs/notes.txt docs/journal.txt       # 5. renommer = mv\ncp docs/journal.txt data/                # 6. copie...\nrm data/journal.txt                      #    ...puis suppression de la copie\ncd ~                                     # 7. sortir du dossier avant de le supprimer\nrm -r ~/exos_terminal\n```\n\nPoints à retenir :\n\n- `mkdir -p` + accolades `{a,b,c}` : création d'arborescence en une commande.\n- `mv` sert à la fois à déplacer et à renommer.\n- `rm` est **définitif** (pas de corbeille) : relis toujours le chemin avant de valider, surtout avec `-r`."
+  },
+  {
+    "id": "ex02",
+    "titre": "Lire et modifier les permissions",
+    "consigne": "1. Crée un fichier `bonjour.sh` contenant la ligne `echo \"Bonjour $(whoami)\"` (au terminal : `echo 'echo \"Bonjour $(whoami)\"' > bonjour.sh`).\n2. Affiche ses permissions avec `ls -l` et décode la chaîne obtenue (qui peut faire quoi ?).\n3. Tente de l'exécuter avec `./bonjour.sh` — observe l'erreur.\n4. Rends-le exécutable, puis relance-le.\n5. Question bonus : à quelles permissions correspond `chmod 755` ?",
+    "indices": [
+      "La chaîne `-rw-r--r--` se lit par triplets après le premier caractère : propriétaire / groupe / autres, chacun sur `rwx`.",
+      "`chmod +x fichier` ajoute le droit d'exécution. L'erreur `permission denied` disparaît ensuite.",
+      "Notation octale : r=4, w=2, x=1, additionnés par triplet. 7 = rwx, 5 = r-x."
+    ],
+    "ressources": [
+      {
+        "titre": "chmod — manuel macOS (ss64)",
+        "url": "https://ss64.com/mac/chmod.html"
+      },
+      {
+        "titre": "ls — manuel macOS (ss64)",
+        "url": "https://ss64.com/mac/ls.html"
+      }
+    ],
+    "solution": "```bash\necho 'echo \"Bonjour $(whoami)\"' > bonjour.sh\nls -l bonjour.sh\n# -rw-r--r--  1 pierre  staff  25 ... bonjour.sh\n#  ^ propriétaire : lecture + écriture ; groupe : lecture ; autres : lecture\n./bonjour.sh\n# zsh: permission denied: ./bonjour.sh   → pas de droit d'exécution\nchmod +x bonjour.sh\nls -l bonjour.sh\n# -rwxr-xr-x : le x est apparu pour les trois catégories\n./bonjour.sh\n# Bonjour pierre\n```\n\nBonus — `chmod 755` : 7 (4+2+1 = rwx) pour le propriétaire, 5 (4+1 = r-x) pour le groupe et les autres. Soit `rwxr-xr-x` : c'est exactement ce que `+x` a produit ici, et la permission standard d'un script ou d'un dossier partagé."
+  },
+  {
+    "id": "ex03",
+    "titre": "Premier environnement virtuel",
+    "consigne": "Dans un nouveau dossier `~/exo_venv` :\n\n1. Crée un environnement virtuel nommé `.venv` et active-le.\n2. Prouve que le `python3` actif est bien celui du venv.\n3. Installe le package `requests`, puis liste les packages installés.\n4. Gèle les dépendances dans un fichier `requirements.txt` et affiche son contenu.\n5. Désactive le venv et prouve que `requests` n'est **pas** disponible hors venv (`python3 -c \"import requests\"`).\n6. Réactive le venv et vérifie que l'import fonctionne.",
+    "indices": [
+      "Création : `python3 -m venv .venv` ; activation : `source .venv/bin/activate` — le prompt se préfixe de `(.venv)`.",
+      "`which python3` montre le chemin de l'exécutable actif : il doit pointer dans `.venv/bin/`.",
+      "`pip freeze > requirements.txt` écrit les versions exactes ; `deactivate` sort du venv."
+    ],
+    "ressources": [
+      {
+        "titre": "venv — documentation officielle (fr)",
+        "url": "https://docs.python.org/fr/3/library/venv.html"
+      },
+      {
+        "titre": "Installer des packages avec pip et venv (packaging.python.org)",
+        "url": "https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/"
+      }
+    ],
+    "solution": "```bash\nmkdir ~/exo_venv && cd ~/exo_venv\npython3 -m venv .venv\nsource .venv/bin/activate        # le prompt devient : (.venv) pierre@...\nwhich python3                    # /Users/pierre/exo_venv/.venv/bin/python3 ✓\npip install requests\npip list                         # requests + ses dépendances (certifi, urllib3...)\npip freeze > requirements.txt\ncat requirements.txt             # versions exactes, ex. requests==2.32.3\ndeactivate\npython3 -c \"import requests\"\n# ModuleNotFoundError: No module named 'requests'  → l'isolation fonctionne\nsource .venv/bin/activate\npython3 -c \"import requests; print(requests.__version__)\"   # OK\n```\n\nÀ retenir : le venv ne change que le `python3`/`pip` **actifs dans le shell courant**. Chaque nouveau terminal exige une réactivation (VS Code le fera pour toi une fois l'interpréteur sélectionné)."
+  },
+  {
+    "id": "ex04",
+    "titre": "VS Code prêt pour Python",
+    "consigne": "En repartant du dossier `~/exo_venv` de l'exercice précédent :\n\n1. Installe la commande `code` dans le PATH (si ce n'est pas déjà fait), puis ouvre le dossier avec `code .`.\n2. Installe les extensions **Python** et **Pylance**.\n3. Sélectionne l'interpréteur du `.venv` du projet.\n4. Crée `version_requests.py` qui importe `requests` et affiche sa version (`requests.__version__`).\n5. Exécute-le dans le **terminal intégré**. Vérifie que Pylance ne souligne pas l'import (preuve que l'interpréteur est le bon).",
+    "indices": [
+      "`Cmd + Shift + P` → « Shell Command: Install 'code' command in PATH ». Ensuite `code .` ouvre le dossier courant.",
+      "`Cmd + Shift + P` → « Python: Select Interpreter » → entrée `('.venv': venv)`. L'interpréteur actif s'affiche dans la barre d'état en bas à droite.",
+      "Le terminal intégré s'ouvre avec `Ctrl + ù` (clavier FR). Si le venv est sélectionné, VS Code l'active automatiquement dans ce terminal."
+    ],
+    "ressources": [
+      {
+        "titre": "Getting started with Python in VS Code",
+        "url": "https://code.visualstudio.com/docs/python/python-tutorial"
+      },
+      {
+        "titre": "Python environments in VS Code",
+        "url": "https://code.visualstudio.com/docs/python/environments"
+      }
+    ],
+    "solution": "Étapes :\n\n1. Dans VS Code : `Cmd + Shift + P` → « Shell Command: Install 'code' command in PATH ». Puis au terminal : `cd ~/exo_venv && code .`\n2. `Cmd + Shift + X` → rechercher « Python » → installer l'extension Microsoft (Pylance vient avec).\n3. `Cmd + Shift + P` → « Python: Select Interpreter » → `./.venv/bin/python`.\n4. Fichier `version_requests.py` :\n\n```python\nimport requests\n\nprint(f\"requests version {requests.__version__}\")\n```\n\n5. `Ctrl + ù` pour ouvrir le terminal intégré — VS Code active le venv (prompt `(.venv)`), puis :\n\n```bash\npython3 version_requests.py\n# requests version 2.32.x\n```\n\nSi Pylance soulignait `requests` en jaune (« could not be resolved »), c'est que l'interpréteur sélectionné n'était pas celui du `.venv` : c'est le symptôme à reconnaître."
+  },
+  {
+    "id": "ex05",
+    "titre": "Premier débogage : trouver le bug sans print()",
+    "consigne": "Copie ce script dans `moyenne_fc.py` — il calcule la fréquence cardiaque moyenne d'une séance, mais le résultat est faux :\n\n```python\nfrequences = [142, 148, 155, 151, 149, 158, 146]\n\n\ndef moyenne(valeurs):\n    total = 0\n    for i in range(1, len(valeurs)):\n        total = total + valeurs[i]\n    return total / len(valeurs)\n\n\nprint(f\"FC moyenne : {moyenne(frequences):.1f} bpm\")   # attendu : 149.9\n```\n\n1. Exécute-le : quelle valeur obtiens-tu au lieu de 149.9 ?\n2. Pose un breakpoint sur la ligne `total = total + valeurs[i]` et lance le debugger (`F5`).\n3. Avance pas à pas (`F5` pour reprendre à chaque itération) en observant `i` et `total` dans le panneau **Variables**.\n4. Identifie le bug, corrige, et vérifie le résultat.\n5. Bonus : remplace toute la fonction par l'idiome Python en une ligne.",
+    "indices": [
+      "Compare la somme accumulée par la boucle à la somme réelle attendue (additionne les 7 valeurs à la main ou au REPL) : il manque quelque chose.",
+      "Au tout premier arrêt du debugger, regarde la valeur de `i` : quel indice n'est jamais visité ?",
+      "`range(1, n)` commence à 1 — réflexe hérité du C où l'on gère les bornes à la main. En Python on n'itère pas sur les indices : `for v in valeurs:`."
+    ],
+    "ressources": [
+      {
+        "titre": "Python debugging in VS Code",
+        "url": "https://code.visualstudio.com/docs/python/debugging"
+      },
+      {
+        "titre": "Fonctions intégrées sum(), len() (docs fr)",
+        "url": "https://docs.python.org/fr/3/library/functions.html"
+      }
+    ],
+    "solution": "Le script affiche `129.6` au lieu de `149.9`.\n\nDans le debugger, au premier passage sur le breakpoint, `i` vaut `1` : l'élément d'indice `0` (142) n'est **jamais** additionné, alors que la division se fait bien par 7. D'où une moyenne sous-évaluée.\n\nCorrection minimale : `range(len(valeurs))` au lieu de `range(1, len(valeurs))`. Mais la vraie correction est d'écrire du Python, pas du C traduit :\n\n```python\ndef moyenne(valeurs):\n    return sum(valeurs) / len(valeurs)\n```\n\nLeçon de méthode : le debugger montre l'état réel (`i`, `total`) à chaque itération — plus fiable et plus rapide que des `print()` disséminés. Ce réflexe servira dans tous les chapitres suivants."
+  },
+  {
+    "id": "ex06",
+    "titre": "Remise aux normes PEP 8",
+    "consigne": "Ce script fonctionne mais viole PEP 8 un peu partout. Réécris-le proprement **sans changer son comportement** :\n\n```python\nimport sys, math\ndef PrixTotal(listeIngredients,tauxTva):\n    prixHT=0\n    for ingredient in listeIngredients: prixHT=prixHT+ingredient[\"prix\"]\n    return prixHT*(1+tauxTva)\ntva=0.055\npanier=[{\"nom\":\"farine\",\"prix\":1.2},{\"nom\":\"oeufs\",\"prix\":3.5},{\"nom\":\"beurre\",\"prix\":2.8}]\nprint(\"prix TTC:\",PrixTotal(panier,tva))\n```\n\nListe ensuite, en commentaire en fin de fichier, chaque catégorie de violation que tu as corrigée.",
+    "indices": [
+      "Nommage : fonctions et variables en `snake_case`, constantes en `MAJUSCULES`. `PrixTotal` et `listeIngredients` sont donc à renommer.",
+      "Imports : un par ligne, et uniquement s'ils servent — `sys` et `math` sont inutilisés ici.",
+      "Espaces autour de `=` et des opérateurs, après les virgules ; jamais d'instruction sur la même ligne que le `for :`. Bonus : la boucle d'accumulation se remplace par `sum(...)`."
+    ],
+    "ressources": [
+      {
+        "titre": "PEP 8 — Style Guide for Python Code",
+        "url": "https://peps.python.org/pep-0008/"
+      },
+      {
+        "titre": "How to Write Beautiful Python Code With PEP 8 (Real Python)",
+        "url": "https://realpython.com/python-pep8/"
+      }
+    ],
+    "solution": "```python\nTAUX_TVA = 0.055\n\n\ndef prix_total(ingredients, taux_tva=TAUX_TVA):\n    prix_ht = sum(ingredient[\"prix\"] for ingredient in ingredients)\n    return prix_ht * (1 + taux_tva)\n\n\npanier = [\n    {\"nom\": \"farine\", \"prix\": 1.2},\n    {\"nom\": \"oeufs\", \"prix\": 3.5},\n    {\"nom\": \"beurre\", \"prix\": 2.8},\n]\n\nprint(f\"Prix TTC : {prix_total(panier):.2f} €\")\n\n# Violations corrigées :\n# - imports inutilisés (sys, math) supprimés ; sinon : un import par ligne\n# - nommage : PrixTotal -> prix_total, listeIngredients -> ingredients (snake_case),\n#   tva -> TAUX_TVA (constante en majuscules)\n# - espaces autour de = et des opérateurs, après les virgules\n# - pas d'instruction collée au for sur la même ligne\n# - deux lignes vides autour de la fonction de niveau module\n# - littéral long (panier) éclaté sur plusieurs lignes\n```\n\nRemarque : la boucle d'accumulation devient `sum(...)` — plus court et plus lisible. Au chapitre 7, `ruff` et `black` détecteront/appliqueront tout cela automatiquement ; l'objectif ici est de savoir le faire à la main."
+  }
+]

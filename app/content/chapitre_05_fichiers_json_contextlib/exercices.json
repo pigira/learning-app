@@ -1,0 +1,111 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Recettes en JSON : export, import, erreurs",
+    "consigne": "À partir de la liste `RECETTES` du chapitre 2 :\n\n1. `sauvegarder(recettes: list[dict], chemin: Path) -> None` : écrit un JSON indenté, accents lisibles dans le fichier (ouvre-le pour vérifier : `crème` ne doit pas apparaître en `\\u00e8`).\n2. `charger(chemin: Path) -> list[dict]` : relit le fichier ; si le fichier n'existe pas → renvoie `[]` (premier lancement, cas normal) ; si le JSON est corrompu → lève `SauvegardeCorrompue` chaînée, avec le chemin dans le message.\n3. Vérifie le round-trip : `charger(...) == RECETTES` après sauvegarde.\n4. Teste le cas corrompu : tronque le fichier à la main (`chemin.write_text(texte[:40])`) et vérifie l'exception et sa traceback chaînée.",
+    "indices": [
+      "`json.dump(recettes, f, ensure_ascii=False, indent=2)` dans un `with open(chemin, \"w\", encoding=\"utf-8\")`.",
+      "Deux try distincts dans `charger` : `FileNotFoundError` autour de la lecture (→ `return []`), `json.JSONDecodeError` autour du parsing (→ `raise ... from`). Ne les fusionne pas : les deux cas n'ont pas le même sens.",
+      "Le round-trip est exact ici parce que les recettes ne contiennent que des types JSON natifs (str, int, list, dict) — relis la table de correspondance de la théorie."
+    ],
+    "ressources": [
+      {
+        "titre": "json — documentation officielle (fr)",
+        "url": "https://docs.python.org/fr/3/library/json.html"
+      },
+      {
+        "titre": "Working With JSON Data in Python (Real Python)",
+        "url": "https://realpython.com/python-json/"
+      }
+    ],
+    "solution": "```python\nimport json\nfrom pathlib import Path\n\n\nclass SauvegardeCorrompue(Exception):\n    pass\n\n\ndef sauvegarder(recettes: list[dict], chemin: Path) -> None:\n    with open(chemin, \"w\", encoding=\"utf-8\") as f:\n        json.dump(recettes, f, ensure_ascii=False, indent=2)\n\n\ndef charger(chemin: Path) -> list[dict]:\n    try:\n        texte = chemin.read_text(encoding=\"utf-8\")\n    except FileNotFoundError:\n        return []                       # premier lancement : cas nominal\n    try:\n        return json.loads(texte)\n    except json.JSONDecodeError as exc:\n        raise SauvegardeCorrompue(f\"{chemin} illisible : {exc}\") from exc\n\n\nif __name__ == \"__main__\":\n    RECETTES = [\n        {\"nom\": \"carbonara\", \"ingredients\": [\"pates\", \"oeufs\", \"parmesan\", \"lardons\"], \"temps_min\": 25},\n        {\"nom\": \"crème brûlée\", \"ingredients\": [\"crème\", \"oeufs\", \"sucre\"], \"temps_min\": 50},\n    ]\n    chemin = Path(\"recettes.json\")\n\n    sauvegarder(RECETTES, chemin)\n    assert charger(chemin) == RECETTES          # round-trip exact\n    print(chemin.read_text(encoding=\"utf-8\"))   # \"crème brûlée\" lisible ✓\n\n    assert charger(Path(\"inexistant.json\")) == []\n\n    chemin.write_text(chemin.read_text(encoding=\"utf-8\")[:40], encoding=\"utf-8\")\n    try:\n        charger(chemin)\n    except SauvegardeCorrompue as exc:\n        print(f\"OK, détecté : {exc}\")\n```\n\nPoints de conception :\n\n- Absent → `[]` : l'appelant n'a AUCUN cas particulier à gérer au premier lancement.\n- Corrompu → exception : rendre `[]` ici serait catastrophique (au prochain `sauvegarder`, la sauvegarde de l'utilisateur serait écrasée par du vide). La règle : ne jamais transformer une corruption en état vide silencieux.\n- Sans `ensure_ascii=False`, le fichier contiendrait `\\u00e8` à la place de `è` — valide mais illisible pour un humain qui édite sa sauvegarde."
+  },
+  {
+    "id": "ex02",
+    "titre": "Cours d'ETF : glob + csv.DictReader",
+    "consigne": "Crée un dossier `data/` contenant deux fichiers (à écrire depuis Python, c'est l'occasion) :\n\n`IWDA.csv` :\n```\ndate,cours\n2026-06-02,91.10\n2026-06-03,91.85\n2026-06-04,90.95\n```\n\n`EMIM.csv` : même format, trois lignes de ton choix.\n\nPuis écris `charger_cours(dossier: Path) -> dict[str, list[tuple[str, float]]]` qui : découvre les `*.csv` par `glob` (le ticker = le nom du fichier sans extension), parse chaque fichier avec `csv.DictReader` en convertissant le cours en `float`, ignore proprement les lignes incomplètes (champ vide) en les comptant, et renvoie `{\"IWDA\": [(\"2026-06-02\", 91.10), ...], \"EMIM\": [...]}`. Affiche le nombre de lignes chargées/ignorées par ticker.",
+    "indices": [
+      "Le ticker : `chemin.stem`. La boucle : `for chemin in sorted(dossier.glob(\"*.csv\")):`.",
+      "N'oublie pas `newline=\"\"` dans l'open pour csv, et la conversion `float(ligne[\"cours\"])` — DictReader ne renvoie que des str.",
+      "Ligne incomplète : `if not ligne[\"date\"] or not ligne[\"cours\"]: ignorees += 1; continue`. En vrai flux de données financières, ces trous existent toujours."
+    ],
+    "ressources": [
+      {
+        "titre": "csv — documentation officielle (fr)",
+        "url": "https://docs.python.org/fr/3/library/csv.html"
+      },
+      {
+        "titre": "pathlib — documentation officielle (fr)",
+        "url": "https://docs.python.org/fr/3/library/pathlib.html"
+      },
+      {
+        "titre": "Python's pathlib Module (Real Python)",
+        "url": "https://realpython.com/python-pathlib/"
+      }
+    ],
+    "solution": "```python\nimport csv\nfrom pathlib import Path\n\n\ndef creer_donnees_test(dossier: Path) -> None:\n    dossier.mkdir(parents=True, exist_ok=True)\n    (dossier / \"IWDA.csv\").write_text(\n        \"date,cours\\n2026-06-02,91.10\\n2026-06-03,91.85\\n2026-06-04,90.95\\n\",\n        encoding=\"utf-8\",\n    )\n    (dossier / \"EMIM.csv\").write_text(\n        \"date,cours\\n2026-06-02,26.80\\n2026-06-03,\\n2026-06-04,27.05\\n\",  # 1 trou\n        encoding=\"utf-8\",\n    )\n\n\ndef charger_cours(dossier: Path) -> dict[str, list[tuple[str, float]]]:\n    resultat: dict[str, list[tuple[str, float]]] = {}\n    for chemin in sorted(dossier.glob(\"*.csv\")):\n        ticker = chemin.stem\n        series: list[tuple[str, float]] = []\n        ignorees = 0\n        with open(chemin, encoding=\"utf-8\", newline=\"\") as f:\n            for ligne in csv.DictReader(f):\n                if not ligne.get(\"date\") or not ligne.get(\"cours\"):\n                    ignorees += 1\n                    continue\n                series.append((ligne[\"date\"], float(ligne[\"cours\"])))\n        resultat[ticker] = series\n        print(f\"{ticker} : {len(series)} lignes chargées, {ignorees} ignorée(s)\")\n    return resultat\n\n\nif __name__ == \"__main__\":\n    dossier = Path(\"data\")\n    creer_donnees_test(dossier)\n    cours = charger_cours(dossier)\n    # EMIM : 2 lignes chargées, 1 ignorée(s) — le trou du 06-03 est journalisé\n    assert cours[\"IWDA\"][0] == (\"2026-06-02\", 91.10)\n```\n\nTrois habitudes illustrées :\n\n- `glob` + `stem` : le système de fichiers EST la structure de données (un ticker = un fichier) — même principe que `app/content/` de cette application (un chapitre = un dossier).\n- Les lignes sales sont ignorées ET comptées : ni crash, ni silence.\n- Le typage du retour (`dict[str, list[tuple[str, float]]]`) documente le format mieux qu'un commentaire — mypy le vérifiera."
+  },
+  {
+    "id": "ex03",
+    "titre": "Context manager : chrono",
+    "consigne": "1. Écris avec `@contextmanager` un context manager `chrono(label: str)` qui affiche `[label] 0.042 s` à la sortie du bloc — **y compris si le bloc lève une exception** (l'exception doit continuer à se propager après l'affichage).\n2. Génère un fichier de test de 500 000 lignes (`\"ligne 42\\n\"`...).\n3. Compare avec `chrono` trois façons de compter les lignes : itération directe sur le fichier, `read().count(\"\\n\")`, `len(readlines())`.\n4. Vérifie le comportement sur exception : un bloc `with chrono(\"boum\"):` qui lève `ValueError` doit afficher le temps PUIS laisser l'exception remonter.",
+    "indices": [
+      "Le squelette exact est dans la théorie : `debut = time.perf_counter()` avant le `yield`, affichage dans le `finally`.",
+      "`time.perf_counter()` est le bon chronomètre (haute résolution, monotone) — pas `time.time()`.",
+      "Pour le point 4 : entoure le `with` d'un `try/except ValueError` extérieur et vérifie que tu vois D'ABORD le temps, PUIS ton except — preuve que le finally s'exécute avant la propagation."
+    ],
+    "ressources": [
+      {
+        "titre": "contextlib — documentation officielle (fr)",
+        "url": "https://docs.python.org/fr/3/library/contextlib.html"
+      },
+      {
+        "titre": "Context Managers and Python's with Statement (Real Python)",
+        "url": "https://realpython.com/python-with-statement/"
+      }
+    ],
+    "solution": "```python\nimport time\nfrom contextlib import contextmanager\nfrom pathlib import Path\n\n\n@contextmanager\ndef chrono(label: str):\n    debut = time.perf_counter()\n    try:\n        yield\n    finally:                        # exécuté même si le bloc lève\n        duree = time.perf_counter() - debut\n        print(f\"[{label}] {duree:.3f} s\")\n\n\n# 2. Fichier de test\nchemin = Path(\"gros_fichier.txt\")\nwith chrono(\"génération\"):\n    with open(chemin, \"w\", encoding=\"utf-8\") as f:\n        for i in range(500_000):\n            f.write(f\"ligne {i}\\n\")\n\n# 3. Trois stratégies de comptage\nwith chrono(\"itération directe\"):\n    with open(chemin, encoding=\"utf-8\") as f:\n        n1 = sum(1 for _ in f)              # mémoire constante\n\nwith chrono(\"read + count\"):\n    n2 = chemin.read_text(encoding=\"utf-8\").count(\"\\n\")   # tout en RAM, rapide\n\nwith chrono(\"readlines\"):\n    with open(chemin, encoding=\"utf-8\") as f:\n        n3 = len(f.readlines())             # tout en RAM + une liste d'objets str\n\nassert n1 == n2 == n3 == 500_000\n\n# 4. Exception : le chrono s'affiche AVANT la propagation\ntry:\n    with chrono(\"boum\"):\n        raise ValueError(\"test\")\nexcept ValueError:\n    print(\"l'exception a bien continué sa route\")\n```\n\nOrdres de grandeur attendus (ça varie) : `read+count` le plus rapide, `readlines` le plus coûteux (500 000 objets str alloués), l'itération directe entre les deux mais en **mémoire constante** — c'est elle qui tient sur un fichier de 10 Go.\n\nLe point structurel : `try/finally` autour du `yield` est OBLIGATOIRE pour un context manager robuste. Sans lui, une exception dans le bloc saute l'affichage — exactement le genre de fuite (fichier jamais fermé, verrou jamais relâché) que le protocole existe pour empêcher."
+  },
+  {
+    "id": "ex04",
+    "titre": "Écriture atomique",
+    "consigne": "Objectif : rendre l'écriture d'une sauvegarde insensible aux crashs.\n\n1. Écris `ecrire_atomique(chemin: Path, texte: str) -> None` : écrit dans `chemin.with_suffix(\".tmp\")` puis bascule avec `Path.replace` (renommage atomique).\n2. Démontre le problème qu'elle résout : écris `ecrire_naif(chemin, texte)` qui écrit directement, et simule un crash au milieu (lève une exception après avoir écrit la moitié du texte, via `f.write(texte[:len(texte)//2])` puis `raise`). Constate : avec la version naïve le fichier est **à moitié écrit** ; avec la version atomique (même crash simulé pendant l'écriture du .tmp), le fichier d'origine est **intact**.\n3. Question : pourquoi le `.tmp` doit-il être sur le même système de fichiers que la cible ?",
+    "indices": [
+      "`tmp.replace(chemin)` (os.replace) est atomique au niveau OS : à tout instant, `chemin` contient soit l'ancienne version complète, soit la nouvelle complète — jamais un état intermédiaire.",
+      "Pour la démo : écris d'abord un contenu initial dans le fichier, puis tente l'écriture crashée, puis relis le fichier et compare.",
+      "Question 3 : un rename ne peut être atomique qu'à l'intérieur d'un même filesystem ; entre deux disques, c'est une copie+suppression (non atomique). D'où `chemin.with_suffix(\".tmp\")` (même dossier) et pas /tmp."
+    ],
+    "ressources": [
+      {
+        "titre": "Path.replace / os.replace (fr)",
+        "url": "https://docs.python.org/fr/3/library/pathlib.html#pathlib.Path.replace"
+      },
+      {
+        "titre": "os — documentation officielle (fr)",
+        "url": "https://docs.python.org/fr/3/library/os.html#os.replace"
+      }
+    ],
+    "solution": "```python\nfrom pathlib import Path\n\n\ndef ecrire_naif(chemin: Path, texte: str, crash: bool = False) -> None:\n    with open(chemin, \"w\", encoding=\"utf-8\") as f:    # le fichier est déjà TRONQUÉ ici\n        f.write(texte[: len(texte) // 2])\n        if crash:\n            raise RuntimeError(\"crash simulé (disque plein, kill -9...)\")\n        f.write(texte[len(texte) // 2 :])\n\n\ndef ecrire_atomique(chemin: Path, texte: str, crash: bool = False) -> None:\n    tmp = chemin.with_suffix(\".tmp\")\n    with open(tmp, \"w\", encoding=\"utf-8\") as f:\n        f.write(texte[: len(texte) // 2])\n        if crash:\n            raise RuntimeError(\"crash simulé\")\n        f.write(texte[len(texte) // 2 :])\n    tmp.replace(chemin)          # bascule atomique, UNIQUEMENT si tout a réussi\n\n\nif __name__ == \"__main__\":\n    chemin = Path(\"sauvegarde.json\")\n    chemin.write_text('{\"version\": \"précieuse et complète\"}', encoding=\"utf-8\")\n\n    # Version naïve : le crash laisse un fichier à moitié écrit\n    try:\n        ecrire_naif(chemin, '{\"version\": \"nouvelle\"}', crash=True)\n    except RuntimeError:\n        pass\n    print(\"après crash naïf   :\", chemin.read_text(encoding=\"utf-8\"))\n    # → {\"version \" ... tronqué : la sauvegarde d'origine est PERDUE\n\n    chemin.write_text('{\"version\": \"précieuse et complète\"}', encoding=\"utf-8\")\n\n    # Version atomique : le crash ne touche que le .tmp\n    try:\n        ecrire_atomique(chemin, '{\"version\": \"nouvelle\"}', crash=True)\n    except RuntimeError:\n        pass\n    print(\"après crash atomique:\", chemin.read_text(encoding=\"utf-8\"))\n    # → {\"version\": \"précieuse et complète\"}  : intacte ✓\n\n    ecrire_atomique(chemin, '{\"version\": \"nouvelle\"}')      # sans crash : bascule OK\n    print(\"écriture réussie    :\", chemin.read_text(encoding=\"utf-8\"))\n```\n\nRéponse à la question 3 : `replace` s'appuie sur le `rename` du système de fichiers, atomique seulement **au sein d'un même volume** (c'est une simple mise à jour d'entrée de répertoire). Entre deux volumes, l'OS devrait copier puis supprimer — deux opérations, donc une fenêtre de corruption. C'est pourquoi le fichier temporaire se crée à côté de la cible (`with_suffix(\".tmp\")`), jamais dans `/tmp`.\n\nCe pattern est utilisé par tout logiciel sérieux (éditeurs, bases de données, gestionnaires de paquets) — et par ton projet de fin de chapitre."
+  },
+  {
+    "id": "ex05",
+    "titre": "Export CSV du journal d'entraînement",
+    "consigne": "À partir de la liste de séances du chapitre 2 (list de dicts avec `sport`, `duree_min`, `distance_km`, `fc_moy`), produis `export_seances.csv` avec `csv.DictWriter` :\n\n1. Colonnes dans cet ordre : `date, sport, duree_min, distance_km, allure_min_km` — la dernière est **calculée** (chaîne `\"5:13\"`, vide pour les sports sans distance ou distance nulle).\n2. Ajoute une date à chaque séance si elle n'en a pas (invente un champ).\n3. Les floats sont écrits avec 1 décimale (formate en str avant écriture).\n4. Relis le fichier avec `DictReader` et vérifie que le nombre de lignes correspond.\n5. Ouvre le CSV dans un éditeur : pourquoi `DictWriter` a-t-il mis des guillemets nulle part (ou quelque part) ?",
+    "indices": [
+      "`csv.DictWriter(f, fieldnames=[...])` puis `writer.writeheader()` puis `writer.writerow(d)` — chaque dict doit avoir EXACTEMENT les clés de fieldnames (construis un dict d'export, ne réutilise pas le dict brut).",
+      "L'allure : reprends `allure_min_km` du chapitre 1 et formate `f\"{m}:{s:02d}\"`. Garde `\"\"` si `distance_km` vaut 0 ou si le sport est sans distance.",
+      "Question 5 : le module ne met des guillemets QUE si le champ contient le séparateur, un guillemet ou un retour ligne (quoting minimal par défaut). Teste en ajoutant une séance avec `sport=\"course, trail\"`."
+    ],
+    "ressources": [
+      {
+        "titre": "csv.DictWriter — documentation officielle (fr)",
+        "url": "https://docs.python.org/fr/3/library/csv.html#csv.DictWriter"
+      },
+      {
+        "titre": "Reading and Writing CSV Files in Python (Real Python)",
+        "url": "https://realpython.com/python-csv/"
+      }
+    ],
+    "solution": "```python\nimport csv\nfrom pathlib import Path\n\nSEANCES = [\n    {\"date\": \"2026-06-01\", \"sport\": \"course\", \"duree_min\": 48, \"distance_km\": 9.2, \"fc_moy\": 152},\n    {\"date\": \"2026-06-03\", \"sport\": \"velo\", \"duree_min\": 95, \"distance_km\": 32.5, \"fc_moy\": 138},\n    {\"date\": \"2026-06-05\", \"sport\": \"course, trail\", \"duree_min\": 65, \"distance_km\": 12.1, \"fc_moy\": 158},\n    {\"date\": \"2026-06-08\", \"sport\": \"renfo\", \"duree_min\": 40, \"distance_km\": 0.0, \"fc_moy\": 110},\n]\n\nCOLONNES = [\"date\", \"sport\", \"duree_min\", \"distance_km\", \"allure_min_km\"]\n\n\ndef allure_txt(duree_min: int, distance_km: float) -> str:\n    if distance_km <= 0:\n        return \"\"\n    allure_s = duree_min * 60 / distance_km\n    return f\"{int(allure_s // 60)}:{int(allure_s % 60):02d}\"\n\n\ndef exporter(seances: list[dict], chemin: Path) -> None:\n    with open(chemin, \"w\", encoding=\"utf-8\", newline=\"\") as f:\n        writer = csv.DictWriter(f, fieldnames=COLONNES)\n        writer.writeheader()\n        for s in seances:\n            writer.writerow({\n                \"date\": s[\"date\"],\n                \"sport\": s[\"sport\"],\n                \"duree_min\": s[\"duree_min\"],\n                \"distance_km\": f\"{s['distance_km']:.1f}\",\n                \"allure_min_km\": allure_txt(s[\"duree_min\"], s[\"distance_km\"]),\n            })\n\n\nif __name__ == \"__main__\":\n    chemin = Path(\"export_seances.csv\")\n    exporter(SEANCES, chemin)\n\n    with open(chemin, encoding=\"utf-8\", newline=\"\") as f:\n        lignes = list(csv.DictReader(f))\n    assert len(lignes) == len(SEANCES)\n    print(chemin.read_text(encoding=\"utf-8\"))\n```\n\nContenu produit (extrait) :\n\n```\ndate,sport,duree_min,distance_km,allure_min_km\n2026-06-01,course,48,9.2,5:13\n2026-06-05,\"course, trail\",65,12.1,5:22\n2026-06-08,renfo,40,0.0,\n```\n\nRéponse à la question 5 : quoting minimal — seul `\"course, trail\"` est entre guillemets, car il contient le séparateur. C'est exactement le cas que le `split(\",\")` du chapitre 0 aurait cassé (il aurait produit une colonne de trop) : la raison d'être du module csv tient dans cette ligne.\n\nAutre point : on construit un **dict d'export** distinct du dict métier — la couche présentation (formats, arrondis, colonnes) ne contamine pas les données sources."
+  }
+]

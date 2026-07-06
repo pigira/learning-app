@@ -1,0 +1,23 @@
+{
+  "numero": 11,
+  "titre": "Séries temporelles avec Pandas",
+  "description": "DatetimeIndex, resample, rolling : rendements, volatilité, drawdown et charge d'entraînement.",
+  "objectifs": [
+    "Manipuler un DatetimeIndex (tri, sélection par période, fréquences)",
+    "Rééchantillonner (resample) et lisser (rolling) des séries",
+    "Calculer les métriques finance/sport : rendements, performance cumulée, volatilité, drawdown, charge"
+  ],
+  "points_theorie": [
+    "DatetimeIndex : to_datetime, set_index, tri, slicing temporel ('2026-01':'2026-06')",
+    "resample : fréquences (D/W/ME), agrégations (last, sum, mean), ffill des trous",
+    "rolling : fenêtres, min_periods ; moyennes mobiles",
+    "pct_change (rendements), cumprod (performance cumulée), shift (comparaisons décalées)",
+    "Volatilité (std des rendements, annualisation) et max drawdown (cummax)",
+    "Comparaison de périodes et de séries (base 100)"
+  ],
+  "projets_cibles": [
+    "Finance",
+    "Enduro"
+  ],
+  "statut": "complet"
+}

@@ -1,0 +1,17 @@
+{
+  "numero": 1,
+  "titre": "Fondamentaux Python",
+  "description": "Types, opérateurs, contrôle de flux, fonctions — translation rapide depuis C/C++, pièges inclus.",
+  "objectifs": [
+    "Manipuler les types de base et les conversions explicites sans erreur",
+    "Formater n'importe quelle sortie avec les f-strings (précision, padding, pourcentage, alignement)",
+    "Écrire des conditions et boucles idiomatiques (for-each, range, while, match/case)",
+    "Définir des fonctions avec valeurs par défaut, appels nommés et retours multiples",
+    "Repérer et éviter les pièges classiques de la translation C/C++ → Python (/, //, ==/is, for)"
+  ],
+  "points_theorie": [],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "complet"
+}

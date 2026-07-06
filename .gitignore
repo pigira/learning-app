@@ -1,0 +1,12 @@
+# Environnement virtuel
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Données locales (progression utilisateur)
+app/data/progress.db
+
+# macOS
+.DS_Store

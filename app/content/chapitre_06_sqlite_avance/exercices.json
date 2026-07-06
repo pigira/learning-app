@@ -1,0 +1,107 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Schéma recettes ↔ ingrédients (N-N)",
+    "consigne": "Modélise la base de l'app Cuisine :\n\n1. Crée les tables `recettes` (id, nom UNIQUE, temps_min), `ingredients` (id, nom UNIQUE) et la table de liaison `recette_ingredients` (recette_id, ingredient_id, quantite TEXT, clé primaire composée, FK avec CASCADE). Active le PRAGMA foreign_keys.\n2. Insère les 5 recettes du chapitre 2 avec `executemany` (les ingrédients d'abord — dédoublonnés via un set —, puis les liaisons).\n3. Requête A : les recettes qui utilisent du parmesan (double JOIN).\n4. Requête B : le nombre d'ingrédients par recette, trié décroissant (GROUP BY).\n5. Preuve du CASCADE : supprime la recette « omelette » et vérifie que ses lignes de liaison ont disparu (mais pas les ingrédients).",
+    "indices": [
+      "Liaison : `CREATE TABLE recette_ingredients (recette_id INTEGER NOT NULL REFERENCES recettes(id) ON DELETE CASCADE, ingredient_id INTEGER NOT NULL REFERENCES ingredients(id), quantite TEXT, PRIMARY KEY (recette_id, ingredient_id))`.",
+      "Pour lier, il te faut les ids : `SELECT id FROM recettes WHERE nom = ?` (ou construis des dicts nom→id en une requête après les inserts).",
+      "Requête B : `SELECT r.nom, COUNT(*) AS nb FROM recettes r JOIN recette_ingredients ri ON ri.recette_id = r.id GROUP BY r.id ORDER BY nb DESC`."
+    ],
+    "ressources": [
+      {
+        "titre": "sqlite3 — documentation officielle (fr)",
+        "url": "https://docs.python.org/fr/3/library/sqlite3.html"
+      },
+      {
+        "titre": "SQLite — Foreign Key Support",
+        "url": "https://www.sqlite.org/foreignkeys.html"
+      }
+    ],
+    "solution": "```python\nimport sqlite3\n\nRECETTES = {\n    \"carbonara\": [\"pates\", \"oeufs\", \"parmesan\", \"lardons\"],\n    \"omelette\": [\"oeufs\", \"beurre\"],\n    \"risotto\": [\"riz\", \"parmesan\", \"bouillon\", \"oignon\", \"beurre\"],\n    \"salade grecque\": [\"tomates\", \"concombre\", \"feta\", \"olives\", \"huile\"],\n    \"pates pesto\": [\"pates\", \"basilic\", \"parmesan\", \"huile\", \"ail\"],\n}\n\nconn = sqlite3.connect(\"cuisine.db\")\nconn.row_factory = sqlite3.Row\nconn.execute(\"PRAGMA foreign_keys = ON\")\n\nconn.executescript(\"\"\"\nCREATE TABLE IF NOT EXISTS recettes (\n    id        INTEGER PRIMARY KEY,\n    nom       TEXT NOT NULL UNIQUE,\n    temps_min INTEGER\n);\nCREATE TABLE IF NOT EXISTS ingredients (\n    id  INTEGER PRIMARY KEY,\n    nom TEXT NOT NULL UNIQUE\n);\nCREATE TABLE IF NOT EXISTS recette_ingredients (\n    recette_id    INTEGER NOT NULL REFERENCES recettes(id) ON DELETE CASCADE,\n    ingredient_id INTEGER NOT NULL REFERENCES ingredients(id),\n    quantite      TEXT,\n    PRIMARY KEY (recette_id, ingredient_id)\n);\n\"\"\")\n\nwith conn:\n    conn.executemany(\"INSERT OR IGNORE INTO recettes (nom) VALUES (?)\",\n                     [(nom,) for nom in RECETTES])\n    tous_ingredients = {i for ings in RECETTES.values() for i in ings}   # dédoublonnés\n    conn.executemany(\"INSERT OR IGNORE INTO ingredients (nom) VALUES (?)\",\n                     [(i,) for i in tous_ingredients])\n\n    # dicts nom -> id (une requête chacun, pas une par nom)\n    rid = {r[\"nom\"]: r[\"id\"] for r in conn.execute(\"SELECT id, nom FROM recettes\")}\n    iid = {r[\"nom\"]: r[\"id\"] for r in conn.execute(\"SELECT id, nom FROM ingredients\")}\n\n    conn.executemany(\n        \"INSERT OR IGNORE INTO recette_ingredients (recette_id, ingredient_id) VALUES (?, ?)\",\n        [(rid[nom], iid[ing]) for nom, ings in RECETTES.items() for ing in ings],\n    )\n\n# A. Recettes au parmesan\nfor ligne in conn.execute(\"\"\"\n    SELECT r.nom\n    FROM recettes r\n    JOIN recette_ingredients ri ON ri.recette_id = r.id\n    JOIN ingredients i          ON i.id = ri.ingredient_id\n    WHERE i.nom = ?\"\"\", (\"parmesan\",)):\n    print(ligne[\"nom\"])          # carbonara, risotto, pates pesto\n\n# B. Nombre d'ingrédients par recette\nfor ligne in conn.execute(\"\"\"\n    SELECT r.nom, COUNT(*) AS nb\n    FROM recettes r\n    JOIN recette_ingredients ri ON ri.recette_id = r.id\n    GROUP BY r.id\n    ORDER BY nb DESC\"\"\"):\n    print(f\"{ligne['nom']} : {ligne['nb']}\")\n\n# 5. CASCADE\nwith conn:\n    conn.execute(\"DELETE FROM recettes WHERE nom = ?\", (\"omelette\",))\nreste = conn.execute(\"SELECT COUNT(*) AS n FROM recette_ingredients \"\n                     \"WHERE recette_id NOT IN (SELECT id FROM recettes)\").fetchone()\nassert reste[\"n\"] == 0            # aucune liaison orpheline ✓\nassert conn.execute(\"SELECT COUNT(*) AS n FROM ingredients\").fetchone()[\"n\"] == len(tous_ingredients)\nconn.close()\n```\n\nÀ retenir : la table de liaison EST la relation N-N (sa clé primaire composée interdit le doublon recette+ingrédient) ; les lookups nom→id se font en une requête transformée en dict — pas une requête par ligne ; et sans le PRAGMA, le test du CASCADE échouerait silencieusement."
+  },
+  {
+    "id": "ex02",
+    "titre": "Transactions : l'import qui ne corrompt jamais",
+    "consigne": "Table `cours (ticker TEXT, date TEXT, valeur REAL)` avec contrainte `UNIQUE (ticker, date)`.\n\n1. Écris `importer_naif(conn, lignes)` : une boucle d'`INSERT` **sans** transaction, et fais-le planter à la ligne 6 sur 10 (glisse un tuple invalide : valeur `None` avec NOT NULL, par exemple). Constate : les 5 premières lignes SONT en base — import à moitié fait, état incohérent.\n2. Écris `importer_transactionnel(conn, lignes)` : mêmes inserts dans un `with conn:`. Même crash → vérifie que la base contient **zéro** ligne (rollback complet).\n3. Transforme l'insert en **upsert** (`ON CONFLICT (ticker, date) DO UPDATE SET valeur = excluded.valeur`) et prouve l'idempotence : importer deux fois le même lot valide laisse exactement N lignes, et réimporter avec une valeur corrigée met à jour.",
+    "indices": [
+      "Ouvre la connexion avec `isolation_level=None`... non — plus simple : pour la version naïve, exécute chaque INSERT via `conn.execute(...)` suivi de `conn.commit()` À CHAQUE ligne (c'est ça, l'absence de transaction globale).",
+      "Version 2 : `with conn:` autour de la boucle entière. L'exception doit être capturée À L'EXTÉRIEUR du with pour que le rollback ait lieu.",
+      "Vérifie l'état entre chaque scénario avec `SELECT COUNT(*)` et repars d'une table vide (`DELETE FROM cours`)."
+    ],
+    "ressources": [
+      {
+        "titre": "sqlite3 — transactions (fr)",
+        "url": "https://docs.python.org/fr/3/library/sqlite3.html#transaction-control"
+      },
+      {
+        "titre": "SQLite — ON CONFLICT (upsert)",
+        "url": "https://www.sqlite.org/lang_upsert.html"
+      }
+    ],
+    "solution": "```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"\"\"\nCREATE TABLE cours (\n    ticker TEXT NOT NULL,\n    date   TEXT NOT NULL,\n    valeur REAL NOT NULL,\n    UNIQUE (ticker, date)\n)\"\"\")\n\nlignes_ok = [(\"IWDA\", f\"2026-06-{j:02d}\", 91.0 + j / 10) for j in range(1, 11)]\nlignes_ko = lignes_ok[:5] + [(\"IWDA\", \"2026-06-99\", None)] + lignes_ok[5:]  # None → IntegrityError\n\n\ndef importer_naif(conn, lignes):\n    for ligne in lignes:\n        conn.execute(\"INSERT INTO cours (ticker, date, valeur) VALUES (?, ?, ?)\", ligne)\n        conn.commit()                     # commit ligne à ligne = pas de filet\n\n\ndef importer_transactionnel(conn, lignes):\n    with conn:                            # BEGIN ... COMMIT / ROLLBACK\n        for ligne in lignes:\n            conn.execute(\"INSERT INTO cours (ticker, date, valeur) VALUES (?, ?, ?)\", ligne)\n\n\ndef upsert(conn, lignes):\n    with conn:\n        conn.executemany(\"\"\"\n            INSERT INTO cours (ticker, date, valeur) VALUES (?, ?, ?)\n            ON CONFLICT (ticker, date) DO UPDATE SET valeur = excluded.valeur\"\"\", lignes)\n\n\ndef compte(conn):\n    return conn.execute(\"SELECT COUNT(*) FROM cours\").fetchone()[0]\n\n\n# 1. Naïf : état incohérent après crash\ntry:\n    importer_naif(conn, lignes_ko)\nexcept sqlite3.IntegrityError:\n    pass\nprint(\"naïf après crash :\", compte(conn))          # 5 ← la moitié est en base !\nconn.execute(\"DELETE FROM cours\"); conn.commit()\n\n# 2. Transactionnel : tout ou rien\ntry:\n    importer_transactionnel(conn, lignes_ko)\nexcept sqlite3.IntegrityError:\n    pass\nprint(\"transactionnel après crash :\", compte(conn))   # 0 ✓\n\n# 3. Upsert idempotent\nupsert(conn, lignes_ok)\nupsert(conn, lignes_ok)                               # rejoué à l'identique\nprint(\"après double import :\", compte(conn))          # 10, pas 20 ✓\ncorrection = [(\"IWDA\", \"2026-06-01\", 99.99)]\nupsert(conn, correction)\nv = conn.execute(\"SELECT valeur FROM cours WHERE ticker='IWDA' AND date='2026-06-01'\").fetchone()[0]\nprint(\"valeur corrigée :\", v)                          # 99.99 ✓  (toujours 10 lignes)\n```\n\nLes deux propriétés démontrées sont EXACTEMENT celles qu'exige un job de rafraîchissement automatique (chapitre 15) : atomicité (une panne réseau à mi-lot ne laisse pas une base bancale) et idempotence (le job peut être relancé sans réfléchir). L'upsert exige la contrainte UNIQUE — c'est elle qui définit « le même enregistrement »."
+  },
+  {
+    "id": "ex03",
+    "titre": "Jointures et agrégats sur le journal Enduro",
+    "consigne": "Crée les tables `seances (id, date, sport, duree_min)` et `laps (id, seance_id FK CASCADE, numero, duree_s, fc_moy NULL autorisé)` et insère un jeu de test : 6 séances sur 3 semaines, dont 2 avec 4 laps chacune et une avec des laps sans FC (capteur oublié).\n\nÉcris et vérifie ces requêtes :\n\n1. Volume hebdomadaire par sport : `strftime('%Y-W%W', date)`, SUM et COUNT.\n2. FC moyenne par séance à partir des laps (JOIN + GROUP BY + AVG) — que fait AVG avec les NULL ?\n3. Les séances **sans aucun lap** (LEFT JOIN ... IS NULL).\n4. Le lap le plus rapide (duree_s min) avec la date et le sport de sa séance.",
+    "indices": [
+      "AVG ignore les NULL (il moyenne les valeurs présentes) ; COUNT(fc_moy) compte les non-NULL vs COUNT(*) toutes les lignes — compare les deux pour le voir.",
+      "Séances sans laps : `SELECT s.* FROM seances s LEFT JOIN laps l ON l.seance_id = s.id WHERE l.id IS NULL` — l'idiome anti-jointure.",
+      "Lap le plus rapide : `ORDER BY l.duree_s LIMIT 1` avec le JOIN pour remonter date/sport — pas besoin de sous-requête."
+    ],
+    "ressources": [
+      {
+        "titre": "SQLite — fonctions de dates (strftime)",
+        "url": "https://www.sqlite.org/lang_datefunc.html"
+      },
+      {
+        "titre": "SQLite — SELECT (JOIN, GROUP BY)",
+        "url": "https://www.sqlite.org/lang_select.html"
+      }
+    ],
+    "solution": "```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.row_factory = sqlite3.Row\nconn.execute(\"PRAGMA foreign_keys = ON\")\nconn.executescript(\"\"\"\nCREATE TABLE seances (\n    id        INTEGER PRIMARY KEY,\n    date      TEXT NOT NULL,\n    sport     TEXT NOT NULL,\n    duree_min INTEGER NOT NULL CHECK (duree_min > 0)\n);\nCREATE TABLE laps (\n    id        INTEGER PRIMARY KEY,\n    seance_id INTEGER NOT NULL REFERENCES seances(id) ON DELETE CASCADE,\n    numero    INTEGER NOT NULL,\n    duree_s   INTEGER NOT NULL,\n    fc_moy    INTEGER,\n    UNIQUE (seance_id, numero)\n);\n\"\"\")\n\nwith conn:\n    conn.executemany(\"INSERT INTO seances (id, date, sport, duree_min) VALUES (?, ?, ?, ?)\", [\n        (1, \"2026-06-01\", \"course\", 48), (2, \"2026-06-03\", \"velo\", 95),\n        (3, \"2026-06-08\", \"course\", 52), (4, \"2026-06-10\", \"natation\", 40),\n        (5, \"2026-06-15\", \"course\", 65), (6, \"2026-06-17\", \"velo\", 110),\n    ])\n    conn.executemany(\"INSERT INTO laps (seance_id, numero, duree_s, fc_moy) VALUES (?, ?, ?, ?)\", [\n        (1, 1, 310, 148), (1, 2, 305, 155), (1, 3, 298, 161), (1, 4, 302, 158),\n        (3, 1, 315, None), (3, 2, 308, None), (3, 3, 300, None), (3, 4, 295, None),  # capteur oublié\n    ])\n\n# 1. Volume hebdo par sport\nprint(\"-- volume hebdomadaire --\")\nfor r in conn.execute(\"\"\"\n    SELECT strftime('%Y-W%W', date) AS semaine, sport,\n           SUM(duree_min) AS total_min, COUNT(*) AS nb\n    FROM seances GROUP BY semaine, sport ORDER BY semaine, sport\"\"\"):\n    print(f\"{r['semaine']}  {r['sport']:<9} {r['total_min']:>4} min ({r['nb']} séance(s))\")\n\n# 2. FC moyenne par séance depuis les laps\nprint(\"-- FC moyenne (laps) --\")\nfor r in conn.execute(\"\"\"\n    SELECT s.date, AVG(l.fc_moy) AS fc, COUNT(l.fc_moy) AS avec_fc, COUNT(*) AS laps\n    FROM seances s JOIN laps l ON l.seance_id = s.id\n    GROUP BY s.id\"\"\"):\n    fc = f\"{r['fc']:.0f}\" if r[\"fc\"] is not None else \"n/a\"\n    print(f\"{r['date']} : FC {fc} ({r['avec_fc']}/{r['laps']} laps mesurés)\")\n# Séance 3 : AVG renvoie NULL (aucune valeur) → affiché n/a. AVG IGNORE les NULL,\n# il ne les compte pas comme 0 — c'est le comportement voulu pour un capteur absent.\n\n# 3. Séances sans laps (anti-jointure)\nprint(\"-- sans laps --\")\nfor r in conn.execute(\"\"\"\n    SELECT s.date, s.sport FROM seances s\n    LEFT JOIN laps l ON l.seance_id = s.id\n    WHERE l.id IS NULL\"\"\"):\n    print(r[\"date\"], r[\"sport\"])          # les séances 2, 4, 5, 6\n\n# 4. Lap le plus rapide, avec contexte\nr = conn.execute(\"\"\"\n    SELECT s.date, s.sport, l.numero, l.duree_s\n    FROM laps l JOIN seances s ON s.id = l.seance_id\n    ORDER BY l.duree_s LIMIT 1\"\"\").fetchone()\nprint(f\"lap le plus rapide : {r['duree_s']} s (séance {r['sport']} du {r['date']}, lap {r['numero']})\")\n```\n\nTrois idiomes à mémoriser : `strftime` pour agréger par période (le resampling de Pandas, chapitre 11, fera pareil en mieux) ; `AVG`/`COUNT(col)` qui ignorent les NULL — le NULL modélise « non mesuré », pas zéro ; et le LEFT JOIN ... IS NULL pour « ceux qui n'ont pas de »."
+  },
+  {
+    "id": "ex04",
+    "titre": "Index : mesurer avant de croire",
+    "consigne": "1. Génère une table `cours` de 200 000 lignes (40 tickers × 5 000 dates) — `executemany` par lots, dans une transaction (sinon tu vas attendre longtemps : mesure la différence sur 10 000 lignes si tu es curieux).\n2. Chronomètre (context manager `chrono` du chapitre 5) 200 exécutions de `SELECT valeur FROM cours WHERE ticker = ? AND date = ?` **sans** index.\n3. Regarde `EXPLAIN QUERY PLAN` de cette requête (SCAN attendu).\n4. Crée `CREATE UNIQUE INDEX idx_cours ON cours(ticker, date)`, re-regarde le plan (SEARCH attendu), re-chronomètre. Facteur d'accélération ?\n5. Question : pourquoi l'index composé `(ticker, date)` sert-il aussi la requête `WHERE ticker = ?` seule, mais pas `WHERE date = ?` seule ?",
+    "indices": [
+      "Génération : `[(t, f\"2026-{m:02d}-{j:02d}\", ...) for ...]` n'a pas besoin d'être de vraies dates uniques par ticker — utilise un compteur formaté `f\"d{n:06d}\"` si c'est plus simple, l'important est la volumétrie.",
+      "`conn.execute(\"EXPLAIN QUERY PLAN SELECT ...\", params).fetchall()` — lis la colonne `detail` : `SCAN cours` vs `SEARCH cours USING INDEX idx_cours (ticker=? AND date=?)`.",
+      "Question 5 : un index composé est trié par (ticker, PUIS date) — comme un annuaire (nom, prénom) : utilisable par nom seul, inutilisable par prénom seul (règle du préfixe gauche)."
+    ],
+    "ressources": [
+      {
+        "titre": "SQLite — Query Planning",
+        "url": "https://www.sqlite.org/queryplanner.html"
+      },
+      {
+        "titre": "SQLite — CREATE INDEX",
+        "url": "https://www.sqlite.org/lang_createindex.html"
+      }
+    ],
+    "solution": "```python\nimport sqlite3\nimport time\nfrom contextlib import contextmanager\n\n\n@contextmanager\ndef chrono(label):\n    debut = time.perf_counter()\n    try:\n        yield\n    finally:\n        print(f\"[{label}] {time.perf_counter() - debut:.3f} s\")\n\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE cours (ticker TEXT NOT NULL, date TEXT NOT NULL, valeur REAL NOT NULL)\")\n\ntickers = [f\"ETF{i:02d}\" for i in range(40)]\nlignes = [(t, f\"d{n:06d}\", 100.0 + n % 50) for t in tickers for n in range(5_000)]\n\nwith chrono(\"insertion 200k (1 transaction)\"):\n    with conn:\n        conn.executemany(\"INSERT INTO cours VALUES (?, ?, ?)\", lignes)\n\nrequete = \"SELECT valeur FROM cours WHERE ticker = ? AND date = ?\"\ncibles = [(tickers[i % 40], f\"d{(i * 137) % 5000:06d}\") for i in range(200)]\n\nprint(conn.execute(\"EXPLAIN QUERY PLAN \" + requete, cibles[0]).fetchall())\n# → SCAN cours  (parcours complet des 200 000 lignes à chaque requête)\n\nwith chrono(\"200 requêtes SANS index\"):\n    for params in cibles:\n        conn.execute(requete, params).fetchone()\n\nconn.execute(\"CREATE UNIQUE INDEX idx_cours ON cours(ticker, date)\")\n\nprint(conn.execute(\"EXPLAIN QUERY PLAN \" + requete, cibles[0]).fetchall())\n# → SEARCH cours USING INDEX idx_cours (ticker=? AND date=?)\n\nwith chrono(\"200 requêtes AVEC index\"):\n    for params in cibles:\n        conn.execute(requete, params).fetchone()\n```\n\nRésultats typiques : sans index ~2-4 s, avec index ~0.001 s — un facteur 1000+. Le SCAN lit 200 000 lignes par requête ; le SEARCH descend un arbre B-tree en ~18 comparaisons.\n\nRéponse à la question 5 (règle du **préfixe gauche**) : l'index est trié par ticker puis date, comme un annuaire trié par (nom, prénom). Chercher « tous les GIRAUD » (ticker seul) : les entrées sont contiguës → index utilisable. Chercher « tous les Pierre » (date seule) : dispersés partout → SCAN. Si `WHERE date = ?` seule est fréquente, il lui faut son propre index.\n\nDernier point, le plus important en pratique : l'insertion des 200 000 lignes dans UNE transaction prend ~0.5 s ; en auto-commit ligne à ligne, plusieurs minutes (un fsync par ligne). Lot + transaction, toujours."
+  },
+  {
+    "id": "ex05",
+    "titre": "Première migration Alembic",
+    "consigne": "Sur une base `enduro.db` existante contenant la table `seances` de l'exercice 3 (avec quelques lignes — les données doivent survivre) :\n\n1. Installe Alembic, `alembic init migrations`, configure `sqlalchemy.url = sqlite:///enduro.db`.\n2. Crée une révision « ajout ressenti et index date » : `upgrade()` ajoute la colonne `ressenti INTEGER` (nullable — pourquoi obligatoirement nullable ici ?) et l'index `idx_seances_date` ; `downgrade()` fait l'inverse.\n3. Applique (`alembic upgrade head`), vérifie : colonne présente (`PRAGMA table_info(seances)`), données intactes, table `alembic_version` créée.\n4. `alembic downgrade -1`, re-vérifie, puis re-upgrade.\n5. Question : que se passerait-il si tu ajoutais la colonne à la main sur ta machine et via migration sur une autre ?",
+    "indices": [
+      "Dans le script de révision : `op.add_column(\"seances\", sa.Column(\"ressenti\", sa.Integer))` et `op.create_index(\"idx_seances_date\", \"seances\", [\"date\"])`.",
+      "Nullable obligatoire : la table contient DÉJÀ des lignes — une colonne NOT NULL sans DEFAULT ne peut pas leur être ajoutée (elles n'auraient pas de valeur).",
+      "Vérification côté Python : `[c[1] for c in conn.execute(\"PRAGMA table_info(seances)\")]` liste les noms de colonnes."
+    ],
+    "ressources": [
+      {
+        "titre": "Alembic — Tutorial",
+        "url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+      },
+      {
+        "titre": "Alembic — Operation Reference (op.add_column...)",
+        "url": "https://alembic.sqlalchemy.org/en/latest/ops.html"
+      }
+    ],
+    "solution": "Séquence complète :\n\n```bash\npip install alembic\nalembic init migrations\n# alembic.ini : sqlalchemy.url = sqlite:///enduro.db\nalembic revision -m \"ajout ressenti et index date\"\n```\n\nScript généré, complété (`migrations/versions/xxxx_ajout_ressenti....py`) :\n\n```python\nimport sqlalchemy as sa\nfrom alembic import op\n\n# revision / down_revision : générés, ne pas toucher\n\n\ndef upgrade() -> None:\n    op.add_column(\"seances\", sa.Column(\"ressenti\", sa.Integer, nullable=True))\n    op.create_index(\"idx_seances_date\", \"seances\", [\"date\"])\n\n\ndef downgrade() -> None:\n    op.drop_index(\"idx_seances_date\", table_name=\"seances\")\n    op.drop_column(\"seances\", \"ressenti\")\n```\n\n```bash\nalembic upgrade head\n```\n\nVérification :\n\n```python\nimport sqlite3\nconn = sqlite3.connect(\"enduro.db\")\ncolonnes = [c[1] for c in conn.execute(\"PRAGMA table_info(seances)\")]\nprint(colonnes)      # [..., 'ressenti'] ✓\nprint(conn.execute(\"SELECT COUNT(*) FROM seances\").fetchone())   # données intactes ✓\nprint(conn.execute(\"SELECT * FROM alembic_version\").fetchone())  # ('a1b2c3...',)\n```\n\n`alembic downgrade -1` retire colonne et index (SQLite gère `DROP COLUMN` depuis la 3.35), `alembic upgrade head` les remet. La table `alembic_version` contient l'identifiant de la révision courante : c'est le « pointeur d'état » de la base.\n\nRéponse à la question 5 : les deux bases auraient le même schéma mais PAS le même état Alembic — sur ta machine, `alembic upgrade head` tenterait de re-créer une colonne existante et planterait (`duplicate column name`). C'est le scénario qui justifie la règle : **une fois Alembic adopté, plus aucune modification manuelle**, sur aucune machine. La colonne nullable illustre l'autre contrainte du monde réel : on migre des bases pleines, pas des schémas vides."
+  }
+]

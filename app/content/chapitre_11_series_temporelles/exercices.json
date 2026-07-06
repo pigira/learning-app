@@ -1,0 +1,107 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Générer et apprivoiser une série de cours",
+    "consigne": "Tous les exercices du chapitre partagent le même jeu de données — génère-le une fois pour toutes dans `donnees.py` :\n\n```python\nimport numpy as np\nimport pandas as pd\n\ndef generer_cours(seed: int = 42) -> pd.DataFrame:\n    rng = np.random.default_rng(seed)\n    jours = pd.bdate_range(\"2023-01-02\", \"2026-06-30\")   # jours OUVRÉS\n    rdt = rng.normal(0.0004, 0.011, size=len(jours))        # dérive + bruit\n    iwda = 70 * (1 + pd.Series(rdt, index=jours)).cumprod()\n    rdt2 = rng.normal(0.0002, 0.016, size=len(jours))\n    emim = 30 * (1 + pd.Series(rdt2, index=jours)).cumprod()\n    return pd.DataFrame({\"IWDA\": iwda, \"EMIM\": emim})\n```\n\nPuis explore :\n\n1. Pourquoi `bdate_range` et pas `date_range` ? Vérifie : y a-t-il des samedis dans l'index (`.dayofweek`) ?\n2. Sélections : tout mars 2025 ; du 2024-06-01 au 2024-12-31 ; les 60 derniers jours.\n3. `asfreq(\"D\")` : combien de NaN apparaissent ? D'où viennent-ils ? Comble-les avec `ffill` et justifie pourquoi ffill (et pas interpolation) pour un cours.\n4. Stats par année : moyenne et dernier cours de chaque année civile (resample YE).",
+    "indices": [
+      "`(df.index.dayofweek >= 5).sum()` doit valoir 0 : bdate_range ne génère que lundi-vendredi — comme une vraie bourse.",
+      "Sélections : `df.loc[\"2025-03\"]`, `df.loc[\"2024-06-01\":\"2024-12-31\"]`, `df.iloc[-60:]` (ou `df.loc[df.index[-60]:]`).",
+      "ffill = « le cours du samedi est celui de vendredi » : le dernier prix CONNU. Une interpolation inventerait un prix entre vendredi et lundi — une donnée qui n'a jamais existé."
+    ],
+    "ressources": [
+      {
+        "titre": "pandas — Time series / date functionality",
+        "url": "https://pandas.pydata.org/docs/user_guide/timeseries.html"
+      },
+      {
+        "titre": "pandas — bdate_range",
+        "url": "https://pandas.pydata.org/docs/reference/api/pandas.bdate_range.html"
+      }
+    ],
+    "solution": "```python\nimport pandas as pd\nfrom donnees import generer_cours\n\ndf = generer_cours()\n\n# 1. Jours ouvrés uniquement\nassert (df.index.dayofweek >= 5).sum() == 0     # aucun samedi/dimanche\nprint(f\"{len(df)} jours ouvrés de {df.index[0].date()} à {df.index[-1].date()}\")\n\n# 2. Sélections temporelles\nmars_2025 = df.loc[\"2025-03\"]                    # sélection partielle : tout le mois\ns2_2024 = df.loc[\"2024-06-01\":\"2024-12-31\"]      # bornes INCLUSES\nderniers_60 = df.iloc[-60:]\nprint(len(mars_2025), len(s2_2024), len(derniers_60))    # 21, 150, 60 (environ)\n\n# 3. Matérialiser les jours calendaires\ncomplet = df.asfreq(\"D\")\nnb_nan = complet[\"IWDA\"].isna().sum()\nprint(f\"{nb_nan} NaN créés\")     # ~2 par semaine × ~182 semaines ≈ 364 :\n                                  # les week-ends (+ jours fériés absents de bdate_range)\ncomplet = complet.ffill()         # samedi/dimanche = dernier cours de vendredi\nassert complet[\"IWDA\"].isna().sum() == 0\n\n# Pourquoi ffill : un cours est un PRIX OBSERVÉ. Le week-end, le marché est fermé,\n# le dernier prix connu reste LE prix. Interpoler fabriquerait des observations\n# fictives — acceptable pour une température, pas pour une valeur de marché.\n\n# 4. Par année civile\npar_an = df.resample(\"YE\").agg([\"mean\", \"last\"]).round(2)\nprint(par_an)\n```\n\nTrois habitudes prises ici :\n\n- **Seed fixé** (`default_rng(42)`) : les données sont aléatoires mais REPRODUCTIBLES — tes exercices suivants et leurs tests donneront toujours les mêmes chiffres.\n- La marche aléatoire par `cumprod` de rendements est exactement le modèle inverse de ce qu'on fera ensuite (cours → rendements) : générer par le modèle qu'on analysera, c'est se donner un étalon.\n- La distinction jours ouvrés / calendaires est structurelle en finance : les trous du week-end ne sont pas des données manquantes à réparer, sauf besoin explicite (aligner sur un journal d'entraînement quotidien, par exemple)."
+  },
+  {
+    "id": "ex02",
+    "titre": "Rendements : journaliers, mensuels, composés",
+    "consigne": "Sur la colonne IWDA du jeu de l'exercice 1 :\n\n1. Rendements journaliers (`pct_change`). Vérifie à la main le premier non-NaN : `(v2 - v1) / v1`.\n2. Rendements mensuels : `resample(\"ME\").last().pct_change()`. Meilleur et pire mois (valeur ET date — `idxmax`/`idxmin`).\n3. **La vérification de composition** : `(1 + rdt_mensuels).prod() - 1` doit être égal (à 1e-10 près) à la performance totale `v_fin / v_debut_du_premier_mois_complet - 1`. Fais-la passer — attention au premier mois (le pct_change du premier mois est NaN : la composition démarre au 2e mois, donc la perf de référence aussi).\n4. Performance cumulée jour par jour (`cumprod`) et base 100 : vérifie que les deux courbes racontent la même chose (base100 = 100 × (1 + perf_cumulée)).",
+    "indices": [
+      "Point 3, le piège : `rdt_mensuels.prod()` sur des NaN → le prod IGNORE le NaN du premier mois. La perf de référence doit donc partir du DERNIER cours du premier mois (`mensuel.iloc[0]`), pas du premier cours de la série.",
+      "`(1 + rdt).cumprod() - 1` : chaque point = perf composée depuis le début. NaN initial : `fillna(0)` sur le premier rendement ou dropna avant cumprod.",
+      "assert de cohérence : `abs(compose - reference) < 1e-10` — les erreurs d'arrondi flottant restent bien en dessous."
+    ],
+    "ressources": [
+      {
+        "titre": "pandas — pct_change",
+        "url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.pct_change.html"
+      },
+      {
+        "titre": "pandas — resample",
+        "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.resample.html"
+      }
+    ],
+    "solution": "```python\nimport pandas as pd\nfrom donnees import generer_cours\n\nv = generer_cours()[\"IWDA\"]\n\n# 1. Rendements journaliers + vérification manuelle\nrdt = v.pct_change()\nmanuel = (v.iloc[1] - v.iloc[0]) / v.iloc[0]\nassert abs(rdt.iloc[1] - manuel) < 1e-15\nprint(f\"premier rendement : {rdt.iloc[1]:+.4%}\")\n\n# 2. Rendements mensuels\nmensuel = v.resample(\"ME\").last()\nrdt_m = mensuel.pct_change()\nprint(f\"meilleur mois : {rdt_m.max():+.2%} ({rdt_m.idxmax():%Y-%m})\")\nprint(f\"pire mois     : {rdt_m.min():+.2%} ({rdt_m.idxmin():%Y-%m})\")\n\n# 3. LA vérification de composition\ncompose = (1 + rdt_m).prod() - 1            # prod ignore le NaN du 1er mois\nreference = v.iloc[-1] / mensuel.iloc[0] - 1   # depuis la FIN du 1er mois\nassert abs(compose - reference) < 1e-10\nprint(f\"composition mensuelle : {compose:+.2%} == perf depuis fin du 1er mois ✓\")\n\n# 4. Perf cumulée et base 100 : même histoire, deux échelles\nperf_cumulee = (1 + rdt.fillna(0)).cumprod() - 1\nbase100 = 100 * v / v.iloc[0]\nassert ((100 * (1 + perf_cumulee)) - base100).abs().max() < 1e-8\nprint(f\"perf totale : {perf_cumulee.iloc[-1]:+.2%} — base 100 finale : {base100.iloc[-1]:.1f}\")\n```\n\nLe point conceptuel de l'exercice est la question 3 : les rendements se **composent en produit**. La somme des rendements mensuels donnerait un chiffre faux (et toujours trop optimiste à la baisse : -10 % puis +10 % ≠ 0 %, mais -1 %). Toute la suite (annualisation, comparaisons) repose sur cette mécanique.\n\nLe piège du premier mois vaut la peine d'être compris à fond : `pct_change` a besoin d'un point AVANT — le premier élément de toute série de rendements est NaN, et chaque agrégation/composition doit décider explicitement où commence la période de référence. Les écarts « inexpliqués » entre deux calculs de performance viennent presque toujours de là."
+  },
+  {
+    "id": "ex03",
+    "titre": "Charge d'entraînement : rolling et ratio ACWR",
+    "consigne": "Simule 120 jours de charge d'entraînement (une mesure par SÉANCE, jours de repos sans ligne) : ~4 séances/semaine de charge 30-100 (durée × intensité arbitraire), avec un bloc volontairement excessif vers le jour 80 (2 semaines à 6 grosses séances).\n\n1. Passe des séances éparses à une série QUOTIDIENNE : `resample(\"D\").sum()` — vérifie que les jours de repos valent 0 (et pas NaN) sur ta construction.\n2. Charge aiguë = somme glissante 7 j ; charge chronique = somme glissante 28 j ÷ 4. Pourquoi min_periods mérite réflexion ici ? (les 27 premiers jours...)\n3. Ratio ACWR = aiguë / chronique. Liste les jours où il dépasse 1.5 — ton bloc excessif doit ressortir, avec quelques jours de retard : explique ce retard.\n4. Bonus : combien de jours de récupération (charge nulle) faut-il après le bloc pour repasser sous 1.0 ? Lis-le dans les données.",
+    "indices": [
+      "Construction : un DataFrame de séances avec dates aléatoires espacées, `set_index` puis `resample(\"D\").sum()` — resample crée les jours absents avec sum=0 (c'est un groupby : les groupes vides somment à 0).",
+      "min_periods : sans lui, les 27 premiers jours de chronique sont NaN → ratio NaN (honnête : on ne connaît pas encore la base). Avec min_periods=7, la chronique démarre tôt mais SOUS-ESTIME (dénominateur /4 sur moins de 4 semaines) → ratio gonflé artificiellement. Choix défendable : garder NaN et n'interpréter qu'à partir de j28.",
+      "Le retard : l'aiguë (7 j) réagit vite au bloc, la chronique (28 j) l'absorbe lentement — le ratio monte pendant le bloc et culmine vers sa fin. C'est le DESIGN de la métrique : détecter une montée de charge plus vite que le corps ne s'y adapte."
+    ],
+    "ressources": [
+      {
+        "titre": "pandas — rolling (user guide)",
+        "url": "https://pandas.pydata.org/docs/user_guide/window.html"
+      },
+      {
+        "titre": "pandas — resample",
+        "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.resample.html"
+      }
+    ],
+    "solution": "```python\nimport numpy as np\nimport pandas as pd\n\nrng = np.random.default_rng(7)\n\n# Séances éparses : ~4/semaine sur 120 jours, bloc excessif jours 78-91\ndates, charges = [], []\nfor jour in range(120):\n    date = pd.Timestamp(\"2026-03-01\") + pd.Timedelta(days=jour)\n    en_bloc = 78 <= jour <= 91\n    p_seance = 6 / 7 if en_bloc else 4 / 7\n    if rng.random() < p_seance:\n        dates.append(date)\n        charges.append(rng.integers(70, 110) if en_bloc else rng.integers(30, 100))\n\nseances = pd.DataFrame({\"charge\": charges}, index=pd.DatetimeIndex(dates))\n\n# 1. Série quotidienne : les jours de repos deviennent des 0 EXPLICITES\nquotidien = seances[\"charge\"].resample(\"D\").sum()\nassert (quotidien == 0).sum() > 20          # les jours de repos existent, à 0\nassert quotidien.isna().sum() == 0\n\n# 2. Aiguë et chronique — sans min_periods : NaN assumés en début de série\naigue = quotidien.rolling(7).sum()\nchronique = quotidien.rolling(28).sum() / 4\n\n# 3. Ratio ACWR\nacwr = aigue / chronique\nalerte = acwr[acwr > 1.5]\nprint(f\"jours en alerte (> 1.5) : {len(alerte)}\")\nprint(alerte.round(2).tail(10))\n# Les alertes apparaissent PENDANT le bloc (jours ~84-95) : l'aiguë a bondi\n# en 7 jours, la chronique (mémoire de 28 j) n'a pas encore suivi.\n\n# 4. Retour au calme après le bloc\napres_bloc = acwr.loc[\"2026-05-22\":]         # fin du bloc ≈ jour 91\nretour = apres_bloc[apres_bloc < 1.0]\nif len(retour):\n    premier = retour.index[0]\n    print(f\"retour sous 1.0 le {premier.date()} \"\n          f\"({(premier - pd.Timestamp('2026-05-21')).days} jours après le bloc)\")\n```\n\nLes deux idées à retenir :\n\n- **`resample(\"D\").sum()` fabrique les zéros** : un jour de repos est une information (charge nulle), pas une absence de donnée. Si tu avais fait `asfreq(\"D\")`, les jours sans séance seraient NaN et les rolling seraient faux. Le choix resample/asfreq encode le sens métier.\n- **Le couple 7 j / 28 j est un détecteur de dérive** : il compare ce que tu viens de faire à ce que ton corps a l'habitude d'encaisser. Sa latence (les alertes culminent en fin de bloc) n'est pas un défaut mais une propriété à connaître pour l'interpréter — même logique que n'importe quel indicateur à fenêtre (moyennes mobiles de cours comprises : mêmes maths, autre domaine)."
+  },
+  {
+    "id": "ex04",
+    "titre": "Max drawdown : anatomie de la pire chute",
+    "consigne": "Sur IWDA (exercice 1) :\n\n1. Calcule la série de drawdown : `v / v.cummax() - 1`. Vérifie deux propriétés : toujours ≤ 0, et vaut 0 chaque fois que le cours fait un nouveau plus haut.\n2. Max drawdown : la valeur (`min()`) et la date du creux (`idxmin`).\n3. Retrouve la date du **pic** correspondant (le plus haut d'AVANT le creux) et la date de **récupération** (premier retour au niveau du pic après le creux — elle peut ne pas exister !). Durées : pic→creux et creux→récupération.\n4. Top 3 des pires drawdowns : après récupération du premier, le suivant... (simplifie : les 3 plus grandes valeurs de la série de drawdown espacées d'au moins 90 jours — à toi de coder l'espacement).\n5. Question : pourquoi le max drawdown intéresse-t-il plus un épargnant que la volatilité ?",
+    "indices": [
+      "Le pic : `v.loc[:creux].idxmax()` — le plus haut restreint à la période avant le creux. La récupération : `apres = v.loc[creux:]; recup = apres[apres >= v.loc[pic]].index.min()` (NaT si jamais atteint).",
+      "Pour l'espacement des top 3 : trie les dates par drawdown croissant (le plus négatif d'abord) et garde une date si elle est à > 90 jours de toutes celles déjà retenues — une boucle de 5 lignes.",
+      "Question 5 : la volatilité est symétrique (elle compte autant les hausses que les baisses) et abstraite ; le drawdown répond à la question vécue : « combien j'aurais perdu en achetant au pire moment, et combien de temps sous l'eau ? »."
+    ],
+    "ressources": [
+      {
+        "titre": "pandas — cummax",
+        "url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.cummax.html"
+      },
+      {
+        "titre": "pandas — Computation / descriptive stats",
+        "url": "https://pandas.pydata.org/docs/user_guide/basics.html#descriptive-statistics"
+      }
+    ],
+    "solution": "```python\nimport pandas as pd\nfrom donnees import generer_cours\n\nv = generer_cours()[\"IWDA\"]\n\n# 1. La série de drawdown et ses invariants\ndd = v / v.cummax() - 1\nassert (dd <= 1e-15).all()                       # jamais positif\nnouveaux_haut = v == v.cummax()\nassert (dd[nouveaux_haut].abs() < 1e-15).all()   # 0 à chaque nouveau sommet\n\n# 2-3. Anatomie du pire épisode\ncreux = dd.idxmin()\nmax_dd = dd.min()\npic = v.loc[:creux].idxmax()\napres = v.loc[creux:]\nrecup_serie = apres[apres >= v.loc[pic]]\nrecuperation = recup_serie.index.min() if len(recup_serie) else pd.NaT\n\nprint(f\"max drawdown : {max_dd:.1%}\")\nprint(f\"pic          : {pic.date()} ({v.loc[pic]:.2f})\")\nprint(f\"creux        : {creux.date()} ({v.loc[creux]:.2f}) \"\n      f\"— chute en {(creux - pic).days} jours\")\nif pd.isna(recuperation):\n    print(\"récupération : pas encore — toujours sous l'eau en fin de série\")\nelse:\n    print(f\"récupération : {recuperation.date()} \"\n          f\"— {(recuperation - creux).days} jours pour remonter\")\n\n# 4. Top 3 espacés de 90 jours\ncandidats = dd.sort_values()                      # du plus négatif au moins négatif\nretenus: list[pd.Timestamp] = []\nfor date in candidats.index:\n    if all(abs((date - r).days) > 90 for r in retenus):\n        retenus.append(date)\n    if len(retenus) == 3:\n        break\nfor i, date in enumerate(retenus, 1):\n    print(f\"n°{i} : {dd.loc[date]:.1%} le {date.date()}\")\n```\n\nRéponse à la question 5 : la volatilité mesure l'agitation, dans les deux sens — un ETF qui monte en zigzag est « volatil » sans jamais faire perdre un euro. Le drawdown mesure LE scénario douloureux : acheter au pic, voir -30 %, attendre deux ans le retour à zéro. C'est la métrique qui teste ta capacité réelle à tenir une stratégie (et celle qui figure dans tout rapport de fonds sérieux). Les deux sont complémentaires : volatilité = coût permanent du voyage, drawdown = profondeur du pire passage.\n\nTechniquement, retiens le trio `cummax / idxmin / slicing par dates` : trois primitives qui, combinées, reconstituent toute la chronologie d'un épisode — aucun besoin de boucle."
+  },
+  {
+    "id": "ex05",
+    "titre": "Comparer deux ETF : base 100, corrélation, lookahead",
+    "consigne": "IWDA vs EMIM (le DataFrame complet de l'exercice 1) :\n\n1. Compare-les en base 100 sur la période commune. Lequel finit devant ? De combien ?\n2. Corrélation des rendements journaliers (`corr`) et corrélation glissante 60 j : sur quelles périodes les deux marchés se découplent-ils le plus ?\n3. Tableau comparatif final : perf totale, perf annualisée, volatilité annualisée, max drawdown — un DataFrame 2 lignes × 4 colonnes proprement formaté.\n4. **Le piège du lookahead** : implémente la « stratégie » naïve *« je détiens EMIM le jour t si son rendement du jour t est positif »* (impossible en vrai : il faut connaître le futur) puis la version honnête avec `shift(1)` (*« si le rendement d'HIER était positif »*). Compare les perfs cumulées des deux — l'écart EST la valeur de l'information du futur. Conclusion à rédiger en une phrase.",
+    "indices": [
+      "Base 100 : `100 * df / df.iloc[0]` — une division vectorisée par la première ligne suffit pour toutes les colonnes.",
+      "Corrélation glissante : `rdt[\"IWDA\"].rolling(60).corr(rdt[\"EMIM\"])` — puis `idxmin()` pour la période de découplage maximal.",
+      "La stratégie triche : `perf_triche = (1 + rdt * (rdt > 0)).cumprod()` (on ne subit que les jours positifs !). L'honnête : `signal = (rdt.shift(1) > 0)` puis `(1 + rdt * signal).cumprod()`. L'écart est spectaculaire — c'est le but."
+    ],
+    "ressources": [
+      {
+        "titre": "pandas — corr / rolling.corr",
+        "url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.rolling.html"
+      },
+      {
+        "titre": "pandas — shift",
+        "url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.shift.html"
+      }
+    ],
+    "solution": "```python\nimport pandas as pd\nfrom donnees import generer_cours\n\ndf = generer_cours()\nrdt = df.pct_change()\n\n# 1. Base 100\nbase100 = 100 * df / df.iloc[0]\nfinal = base100.iloc[-1]\nprint(f\"IWDA : {final['IWDA']:.1f} — EMIM : {final['EMIM']:.1f} \"\n      f\"(écart : {final['IWDA'] - final['EMIM']:+.1f} points de base 100)\")\n\n# 2. Corrélations\nprint(f\"corrélation globale des rendements : {rdt['IWDA'].corr(rdt['EMIM']):.2f}\")\ncorr_60 = rdt[\"IWDA\"].rolling(60).corr(rdt[\"EMIM\"])\nprint(f\"découplage max : {corr_60.min():.2f} autour du {corr_60.idxmin():%Y-%m}\")\n\n# 3. Tableau comparatif\ndef metriques(v: pd.Series) -> dict:\n    r = v.pct_change()\n    n_annees = (v.index[-1] - v.index[0]).days / 365.25\n    perf = v.iloc[-1] / v.iloc[0] - 1\n    return {\n        \"perf_totale\": perf,\n        \"perf_annualisee\": (1 + perf) ** (1 / n_annees) - 1,\n        \"volatilite\": r.std() * (252 ** 0.5),\n        \"max_drawdown\": (v / v.cummax() - 1).min(),\n    }\n\ntableau = pd.DataFrame({t: metriques(df[t]) for t in df.columns}).T\nprint((tableau * 100).round(1).astype(str) + \" %\")\n\n# 4. Lookahead : la triche vs l'honnête\nr = rdt[\"EMIM\"].fillna(0)\ntriche = (1 + r * (r > 0)).cumprod().iloc[-1] - 1          # connaît le futur\nhonnete = (1 + r * (r.shift(1) > 0)).cumprod().iloc[-1] - 1   # signal d'hier\nachat_conserve = (1 + r).cumprod().iloc[-1] - 1\nprint(f\"triche (impossible) : {triche:+.0%}\")       # astronomique\nprint(f\"honnête (shift 1)   : {honnete:+.1%}\")      # ~proche du hasard\nprint(f\"acheter-conserver   : {achat_conserve:+.1%}\")\n```\n\nConclusion du point 4 (à retenir mot pour mot) : **la version « triche » ne subit que les jours positifs — sa performance délirante mesure exactement la valeur de l'information du futur, pas celle d'une stratégie.** Un seul `shift(1)` oublié suffit à transformer un backtest médiocre en miracle apparent ; c'est le bug le plus cher de la finance quantitative amateur. Réflexe permanent : à l'instant t, toute décision ne peut utiliser que des données ≤ t-1 — et dans le doute, décale d'un cran de plus.\n\nLe tableau comparatif de la question 3 est, à la mise en forme près, la sortie du projet de chapitre."
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "numero": 8,
+  "titre": "Async Python",
+  "description": "asyncio et httpx async : paralléliser les I/O réseau proprement.",
+  "objectifs": [
+    "Comprendre l'event loop et le modèle coopératif (async/await)",
+    "Paralléliser des requêtes HTTP avec asyncio.gather et httpx.AsyncClient",
+    "Maîtriser la concurrence : semaphores, timeouts, annulation, gestion d'erreurs"
+  ],
+  "points_theorie": [
+    "Pourquoi l'async : I/O bound vs CPU bound (et pourquoi pas des threads ici)",
+    "Coroutines, async def, await, asyncio.run",
+    "asyncio.gather (et return_exceptions), asyncio.as_completed",
+    "httpx.AsyncClient : session partagée, timeouts",
+    "Limiter la concurrence : asyncio.Semaphore",
+    "asyncio.timeout / wait_for, annulation, erreurs dans les tâches",
+    "Pièges : oublier await, bloquer la loop avec du code synchrone"
+  ],
+  "projets_cibles": [
+    "Cuisine",
+    "Finance"
+  ],
+  "statut": "complet"
+}

@@ -1,0 +1,22 @@
+{
+  "numero": 20,
+  "titre": "Packaging et Docker",
+  "description": "Dockerfile, volumes et docker-compose : livrer une app qui tourne partout.",
+  "objectifs": [
+    "Comprendre images, conteneurs et layers ; écrire un Dockerfile propre pour Python",
+    "Persister les données (volumes) et configurer par variables d'environnement",
+    "Orchestrer avec docker-compose (app + jobs) et diagnostiquer (logs, exec)"
+  ],
+  "points_theorie": [
+    "Concepts : image, conteneur, layer, registry ; installation Docker Desktop macOS",
+    "Dockerfile Python : base slim, ordre des layers (requirements d'abord), CMD uvicorn",
+    ".dockerignore ; utilisateur non-root ; multi-stage (aperçu)",
+    "build/run : ports (-p), variables (-e), volumes (-v) — SQLite dans un volume",
+    "docker-compose.yml : services, env_file, depends_on, healthcheck",
+    "Debug : logs, exec -it, inspect ; taille d'image et bonnes pratiques"
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "complet"
+}

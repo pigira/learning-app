@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="intro">
+  <h1>Parcours</h1>
+  <p>Chapitres progressifs : théorie courte, exercices avec indices et corrections,
+     projet guidé de fin de chapitre. La progression est enregistrée localement.</p>
+</section>
+
+{% if erreurs %}
+<div class="alerte">
+  <strong>Chapitres ignorés (contenu invalide) :</strong>
+  <ul>
+    {% for e in erreurs %}<li>{{ e }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<section class="liste-chapitres">
+  {% for carte in cartes %}
+  <a class="carte statut-{{ carte.statut }}" href="/chapitre/{{ carte.chap.slug }}">
+    <span class="numero">{{ "%02d" | format(carte.chap.meta.numero) }}</span>
+    <span class="carte-corps">
+      <span class="carte-titre">
+        {{ carte.chap.meta.titre }}
+        {% if carte.chap.meta.statut == "squelette" %}
+        <span class="badge badge-squelette">squelette</span>
+        {% endif %}
+      </span>
+      {% if carte.chap.meta.description %}
+      <span class="carte-description">{{ carte.chap.meta.description }}</span>
+      {% endif %}
+      {% if carte.chap.meta.projets_cibles %}
+      <span class="badges">
+        {% for p in carte.chap.meta.projets_cibles %}
+        <span class="badge badge-projet">{{ p }}</span>
+        {% endfor %}
+      </span>
+      {% endif %}
+    </span>
+    <span class="carte-progression">
+      <span class="badge badge-statut">{{ carte.statut_label }}</span>
+      <span class="detail-progression">
+        {{ carte.nb_faits }}/{{ carte.nb_total }} exercices{% if carte.chap.projet %} · projet {{ "fait" if carte.projet_ok else "à faire" }}{% endif %}
+      </span>
+    </span>
+  </a>
+  {% endfor %}
+</section>
+{% endblock %}

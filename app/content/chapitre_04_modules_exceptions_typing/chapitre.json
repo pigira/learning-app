@@ -1,0 +1,23 @@
+{
+  "numero": 4,
+  "titre": "Modules, exceptions et typing",
+  "description": "Structurer le code en packages, gérer les erreurs proprement, typer et vérifier avec mypy.",
+  "objectifs": [
+    "Découper un programme en modules et packages importables",
+    "Gérer les erreurs avec try/except/else/finally et des exceptions personnalisées",
+    "Annoter le code (type hints) et le vérifier avec mypy"
+  ],
+  "points_theorie": [
+    "import, from...import, alias ; modules vs packages, rôle de __init__.py",
+    "if __name__ == '__main__' et exécution vs import",
+    "try/except/else/finally, raise, chaînage (raise ... from ...)",
+    "Hiérarchie des exceptions natives ; écrire des exceptions personnalisées",
+    "EAFP vs LBYL (philosophie Python de la gestion d'erreur)",
+    "Type hints : types de base, list[str], dict[str, float], Optional/| None, TypeAlias",
+    "mypy : installation, configuration de base, lecture des erreurs"
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "complet"
+}

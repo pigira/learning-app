@@ -1,0 +1,111 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Tester les zones cardiaques (parametrize)",
+    "consigne": "Reprends `zone_cardiaque(fc, fc_max)` (chapitres 1/4) et ajoute-lui d'abord une validation : `FcInvalide` si `fc` hors [40, 220] ou `fc_max` ≤ 0.\n\nÉcris `tests/test_zones.py` :\n\n1. Un test paramétré couvrant les 5 zones ET les 4 bornes exactes (60/70/80/90 % de fc_max = 185 → calcule les bpm de bascule à la main : c'est le cœur de l'exercice).\n2. Les cas d'erreur avec `pytest.raises` : fc = 320, fc = 20, fc_max = 0 — en vérifiant avec `match=` que le message contient la valeur fautive.\n3. Lance `python -m pytest -v` : tu dois voir un test par ligne de la table.\n4. Introduis un bug volontaire (`>=` devenu `>` sur la borne 0.8) et observe QUELS tests tombent — c'est la preuve que ta table couvre bien les bascules.",
+    "indices": [
+      "Bornes pour fc_max=185 : 60 % = 111.0 → fc 111 est PILE la borne (zone 2) et 110 en zone 1 ; 70 % = 129.5 → 129 en zone 2, 130 en zone 3 ; 80 % = 148.0 → 148 en zone 4 ; 90 % = 166.5 → 167 en zone 5.",
+      "`@pytest.mark.parametrize((\"fc\", \"attendu\"), [(110, 1), (111, 2), (129, 2), (130, 3), (147, 3), (148, 4), (166, 4), (167, 5)])` avec fc_max fixé à 185 dans le corps.",
+      "Pour le bug volontaire : seuls les tests des bornes EXACTES (148 notamment) doivent tomber — si aucun ne tombe, ta table ne teste pas les frontières."
+    ],
+    "ressources": [
+      {
+        "titre": "pytest — How to parametrize",
+        "url": "https://docs.pytest.org/en/stable/how-to/parametrize.html"
+      },
+      {
+        "titre": "pytest — Assertions about exceptions",
+        "url": "https://docs.pytest.org/en/stable/how-to/assert.html"
+      }
+    ],
+    "solution": "```python\n# zones.py\nclass FcInvalide(Exception):\n    pass\n\n\ndef zone_cardiaque(fc: int, fc_max: int) -> int:\n    if fc_max <= 0:\n        raise FcInvalide(f\"fc_max invalide : {fc_max}\")\n    if not 40 <= fc <= 220:\n        raise FcInvalide(f\"FC hors limites physiologiques : {fc}\")\n    ratio = fc / fc_max\n    if ratio >= 0.9:\n        return 5\n    if ratio >= 0.8:\n        return 4\n    if ratio >= 0.7:\n        return 3\n    if ratio >= 0.6:\n        return 2\n    return 1\n```\n\n```python\n# tests/test_zones.py\nimport pytest\n\nfrom zones import FcInvalide, zone_cardiaque\n\nFC_MAX = 185\n\n\n@pytest.mark.parametrize(\n    (\"fc\", \"zone_attendue\"),\n    [\n        (100, 1),\n        (110, 1),   # 59.5 % : juste sous la borne\n        (111, 2),   # 60.0 % pile : borne incluse\n        (129, 2),   # 69.7 %\n        (130, 3),   # 70.3 % : bascule\n        (147, 3),   # 79.5 %\n        (148, 4),   # 80.0 % pile\n        (166, 4),   # 89.7 %\n        (167, 5),   # 90.3 %\n        (185, 5),   # 100 %\n    ],\n)\ndef test_zones_et_bornes(fc, zone_attendue):\n    assert zone_cardiaque(fc, FC_MAX) == zone_attendue\n\n\n@pytest.mark.parametrize(\"fc\", [320, 20, 39, 221])\ndef test_fc_aberrante(fc):\n    with pytest.raises(FcInvalide, match=str(fc)):\n        zone_cardiaque(fc, FC_MAX)\n\n\ndef test_fc_max_invalide():\n    with pytest.raises(FcInvalide, match=\"0\"):\n        zone_cardiaque(150, 0)\n```\n\n`pytest -v` affiche 15 tests (10 + 4 + 1), chacun nommé avec ses paramètres : `test_zones_et_bornes[148-4]`...\n\nAvec le bug volontaire (`ratio > 0.8` au lieu de `>=`), seul `[148-4]` tombe : `assert 3 == 4`. C'est la démonstration du principe : **les tests de bornes exactes sont les seuls qui distinguent `>` de `>=`** — les valeurs « confortables » (100, 185) passent avec les deux versions et ne protègent de rien. La table encode maintenant la spécification : toute régression future sur les seuils sera attrapée en 0.1 s."
+  },
+  {
+    "id": "ex02",
+    "titre": "Fixture : base SQLite en mémoire",
+    "consigne": "Cible : les fonctions de requête du chapitre 6 (`recettes_par_ingredient(conn, nom)`, `nb_ingredients_par_recette(conn)` — réécris-les si besoin).\n\n1. Dans `tests/conftest.py`, écris une fixture `db` : SQLite `:memory:`, schéma recettes/ingredients/liaison, PRAGMA foreign_keys, jeu minimal (3 recettes, 6 ingrédients), `yield conn`, close.\n2. Trois tests : (a) recherche par ingrédient présent (résultat exact, trié), (b) ingrédient inconnu → liste vide (pas d'exception), (c) le CASCADE : supprimer une recette dans le test ne doit pas polluer les autres tests — prouve l'isolation en vérifiant dans un test suivant que la recette existe toujours.\n3. Question : pourquoi `:memory:` plutôt qu'un fichier partagé, et quel est le lien avec l'ordre d'exécution des tests ?",
+    "indices": [
+      "La fixture vit dans `tests/conftest.py` : tous les fichiers de test du dossier la reçoivent par simple paramètre `db`, sans import.",
+      "Chaque test reçoit une CONNEXION NEUVE (la fixture est re-exécutée par test, portée `function` par défaut) : la suppression du test (c) n'existe plus au test suivant.",
+      "Pour prouver l'isolation, écris volontairement `test_c_suppression` PUIS `test_d_recette_toujours_la` et lance avec `-v` : l'ordre alphabétique les exécute dans cet ordre, et (d) passe quand même."
+    ],
+    "ressources": [
+      {
+        "titre": "pytest — Fixtures",
+        "url": "https://docs.pytest.org/en/stable/how-to/fixtures.html"
+      },
+      {
+        "titre": "sqlite3 — bases en mémoire (fr)",
+        "url": "https://docs.python.org/fr/3/library/sqlite3.html"
+      }
+    ],
+    "solution": "```python\n# tests/conftest.py\nimport sqlite3\n\nimport pytest\n\nSCHEMA = \"\"\"\nCREATE TABLE recettes (id INTEGER PRIMARY KEY, nom TEXT NOT NULL UNIQUE, temps_min INTEGER);\nCREATE TABLE ingredients (id INTEGER PRIMARY KEY, nom TEXT NOT NULL UNIQUE);\nCREATE TABLE recette_ingredients (\n    recette_id    INTEGER NOT NULL REFERENCES recettes(id) ON DELETE CASCADE,\n    ingredient_id INTEGER NOT NULL REFERENCES ingredients(id),\n    PRIMARY KEY (recette_id, ingredient_id)\n);\n\"\"\"\n\nDONNEES = {\n    \"omelette\": [\"oeufs\", \"beurre\"],\n    \"carbonara\": [\"pates\", \"oeufs\", \"parmesan\"],\n    \"pates pesto\": [\"pates\", \"basilic\", \"parmesan\"],\n}\n\n\n@pytest.fixture\ndef db():\n    conn = sqlite3.connect(\":memory:\")\n    conn.row_factory = sqlite3.Row\n    conn.execute(\"PRAGMA foreign_keys = ON\")\n    conn.executescript(SCHEMA)\n    with conn:\n        conn.executemany(\"INSERT INTO recettes (nom) VALUES (?)\",\n                         [(n,) for n in DONNEES])\n        ingredients = {i for ings in DONNEES.values() for i in ings}\n        conn.executemany(\"INSERT INTO ingredients (nom) VALUES (?)\",\n                         [(i,) for i in ingredients])\n        rid = {r[\"nom\"]: r[\"id\"] for r in conn.execute(\"SELECT id, nom FROM recettes\")}\n        iid = {r[\"nom\"]: r[\"id\"] for r in conn.execute(\"SELECT id, nom FROM ingredients\")}\n        conn.executemany(\"INSERT INTO recette_ingredients VALUES (?, ?)\",\n                         [(rid[n], iid[i]) for n, ings in DONNEES.items() for i in ings])\n    yield conn\n    conn.close()\n```\n\n```python\n# tests/test_requetes.py\nfrom requetes import nb_ingredients_par_recette, recettes_par_ingredient\n\n\ndef test_a_par_ingredient_present(db):\n    assert recettes_par_ingredient(db, \"parmesan\") == [\"carbonara\", \"pates pesto\"]\n\n\ndef test_b_ingredient_inconnu(db):\n    assert recettes_par_ingredient(db, \"truffe\") == []      # vide, pas d'exception\n\n\ndef test_c_suppression_cascade(db):\n    with db:\n        db.execute(\"DELETE FROM recettes WHERE nom = 'carbonara'\")\n    orphelins = db.execute(\n        \"SELECT COUNT(*) FROM recette_ingredients \"\n        \"WHERE recette_id NOT IN (SELECT id FROM recettes)\").fetchone()[0]\n    assert orphelins == 0\n\n\ndef test_d_isolation_la_recette_est_revenue(db):\n    # Nouvelle fixture = nouvelle base : la suppression de test_c n'existe plus\n    assert recettes_par_ingredient(db, \"parmesan\") == [\"carbonara\", \"pates pesto\"]\n```\n\nRéponse à la question 3 : `:memory:` donne à chaque test une base neuve, jetable et rapide (aucune I/O disque). Avec un fichier partagé, `test_c` laisserait la base SANS carbonara et `test_d` échouerait — mais seulement si c est exécuté avant d : les tests deviendraient dépendants de l'ordre, le pire des poisons (échecs intermittents, impossibles à reproduire). L'isolation par fixture rend l'ordre non pertinent — par construction."
+  },
+  {
+    "id": "ex03",
+    "titre": "tmp_path : tester la persistance",
+    "consigne": "Cible : `sauvegarder`/`charger` du chapitre 5 (persistance JSON des recettes, avec `SauvegardeCorrompue`).\n\nÉcris `tests/test_stockage.py` avec `tmp_path` :\n\n1. Round-trip : sauvegarder une liste de recettes dans `tmp_path / \"r.json\"`, recharger, comparer à l'identique.\n2. Fichier absent → `charger` renvoie `[]`.\n3. Fichier corrompu (écris `\"{ pas du json\"` dans le fichier) → `pytest.raises(SauvegardeCorrompue)` et le message contient le chemin.\n4. Les accents survivent au round-trip (`\"crème brûlée\"`).\n5. Vérifie qu'après la sauvegarde, AUCUN fichier `.tmp` ne traîne dans `tmp_path` (si tu as fait l'écriture atomique).",
+    "indices": [
+      "`tmp_path` est un `pathlib.Path` injecté par pytest, unique par test, nettoyé automatiquement : `chemin = tmp_path / \"recettes.json\"` et c'est tout.",
+      "Le message d'erreur : `with pytest.raises(SauvegardeCorrompue, match=\"r.json\")` — attention, `match` est une REGEX : échappe le point si tu veux être strict (`r\"r\\.json\"`).",
+      "Reliquats : `assert list(tmp_path.glob(\"*.tmp\")) == []` après un round-trip réussi."
+    ],
+    "ressources": [
+      {
+        "titre": "pytest — tmp_path",
+        "url": "https://docs.pytest.org/en/stable/how-to/tmp_path.html"
+      },
+      {
+        "titre": "json — documentation officielle (fr)",
+        "url": "https://docs.python.org/fr/3/library/json.html"
+      }
+    ],
+    "solution": "```python\n# tests/test_stockage.py\nimport pytest\n\nfrom stockage import SauvegardeCorrompue, charger, sauvegarder\n\nRECETTES = [\n    {\"nom\": \"crème brûlée\", \"ingredients\": [\"crème\", \"oeufs\", \"sucre\"], \"temps_min\": 50},\n    {\"nom\": \"omelette\", \"ingredients\": [\"oeufs\", \"beurre\"], \"temps_min\": 10},\n]\n\n\ndef test_round_trip(tmp_path):\n    chemin = tmp_path / \"recettes.json\"\n    sauvegarder(RECETTES, chemin)\n    assert charger(chemin) == RECETTES\n\n\ndef test_fichier_absent_renvoie_liste_vide(tmp_path):\n    assert charger(tmp_path / \"inexistant.json\") == []\n\n\ndef test_fichier_corrompu(tmp_path):\n    chemin = tmp_path / \"recettes.json\"\n    chemin.write_text(\"{ pas du json\", encoding=\"utf-8\")\n    with pytest.raises(SauvegardeCorrompue, match=r\"recettes\\.json\"):\n        charger(chemin)\n\n\ndef test_accents_survivent(tmp_path):\n    chemin = tmp_path / \"r.json\"\n    sauvegarder(RECETTES, chemin)\n    assert charger(chemin)[0][\"nom\"] == \"crème brûlée\"\n    # et le fichier lui-même est lisible (ensure_ascii=False)\n    assert \"crème\" in chemin.read_text(encoding=\"utf-8\")\n\n\ndef test_pas_de_tmp_residuel(tmp_path):\n    chemin = tmp_path / \"r.json\"\n    sauvegarder(RECETTES, chemin)\n    assert list(tmp_path.glob(\"*.tmp\")) == []\n```\n\nCe que `tmp_path` apporte : chaque test écrit dans un dossier réel mais jetable (`/private/var/folders/.../pytest-xx/test_round_trip0/`) — aucun risque d'écraser une vraie sauvegarde, aucun nettoyage à écrire, et les tests peuvent tourner en parallèle sans se marcher dessus.\n\nRemarque sur le test 4 : il vérifie DEUX choses distinctes — le round-trip Python (qui marcherait même avec `ensure_ascii=True`) ET la lisibilité du fichier brut (qui exige `ensure_ascii=False`). Tester le fichier brut fige le comportement pour l'humain qui l'éditera.\n\nCes cinq tests sont le contrat de la persistance : n'importe quel refactoring de `stockage.py` (passage à SQLite, compression...) doit les garder verts — ou changer le contrat en conscience."
+  },
+  {
+    "id": "ex04",
+    "titre": "monkeypatch : tester l'interactif",
+    "consigne": "Cible : `saisie_entier(message, mini, maxi)` version EAFP (chapitre 4, exercice 3) — une fonction qui boucle sur `input()` : impossible à tester sans simuler le clavier.\n\n1. Test nominal : simule la frappe `\"8\"` → retour 8.\n2. Test de re-demande : simule `\"abc\"`, `\"99\"`, `\"8\"` → retour 8, ET vérifie avec `capsys` que les deux messages d'erreur (entier / bornes) sont sortis dans le bon ordre.\n3. Test des espaces : `\"  8  \"` → 8 (comportement EAFP hérité d'int()).\n4. Question : que se passe-t-il si ta simulation fournit moins de réponses que la fonction n'en demande, et pourquoi est-ce un comportement de test SOUHAITABLE ?",
+    "indices": [
+      "`reponses = iter([\"abc\", \"99\", \"8\"])` puis `monkeypatch.setattr(\"builtins.input\", lambda _: next(reponses))` — chaque appel à input() consomme la réponse suivante.",
+      "`sortie = capsys.readouterr().out` capture tout ce qui a été print. Pour l'ordre : `sortie.index(\"entier\") < sortie.index(\"entre 1 et 12\")`.",
+      "Question 4 : `next()` sur un itérateur épuisé lève StopIteration → le test ÉCHOUE. C'est parfait : une fonction qui redemanderait en boucle infinie serait détectée au lieu de bloquer la suite de tests."
+    ],
+    "ressources": [
+      {
+        "titre": "pytest — monkeypatch",
+        "url": "https://docs.pytest.org/en/stable/how-to/monkeypatch.html"
+      },
+      {
+        "titre": "pytest — Capturing stdout/stderr (capsys)",
+        "url": "https://docs.pytest.org/en/stable/how-to/capture-stdout-stderr.html"
+      }
+    ],
+    "solution": "```python\n# tests/test_saisie.py\nfrom saisie import saisie_entier\n\n\ndef _simuler_frappe(monkeypatch, reponses):\n    it = iter(reponses)\n    monkeypatch.setattr(\"builtins.input\", lambda _: next(it))\n\n\ndef test_nominal(monkeypatch):\n    _simuler_frappe(monkeypatch, [\"8\"])\n    assert saisie_entier(\"Portions : \", 1, 12) == 8\n\n\ndef test_redemande_jusqua_valide(monkeypatch, capsys):\n    _simuler_frappe(monkeypatch, [\"abc\", \"99\", \"8\"])\n    assert saisie_entier(\"Portions : \", 1, 12) == 8\n    sortie = capsys.readouterr().out\n    assert \"entier\" in sortie\n    assert \"entre 1 et 12\" in sortie\n    assert sortie.index(\"entier\") < sortie.index(\"entre 1 et 12\")   # bon ordre\n\n\ndef test_espaces_toleres(monkeypatch):\n    _simuler_frappe(monkeypatch, [\"  8  \"])\n    assert saisie_entier(\"Portions : \", 1, 12) == 8\n```\n\nLe mécanisme : `monkeypatch.setattr(\"builtins.input\", ...)` remplace input PARTOUT pendant le test, puis restaure l'original — même si le test plante. Le petit helper `_simuler_frappe` évite la répétition (il pourrait devenir une fixture dans conftest.py).\n\nRéponse à la question 4 : l'itérateur épuisé lève `StopIteration`, qui fait échouer le test immédiatement. C'est le comportement souhaitable par excellence : si un bug faisait redemander une 4e saisie (boucle infinie avec un vrai clavier), le test échoue en millisecondes au lieu de geler la CI. La simulation par itérateur fini est donc à la fois un outil ET un garde-fou — ne la remplace jamais par un `lambda _: \"8\"` qui répondrait indéfiniment.\n\nLeçon d'architecture en creux : ces tests sont pénibles comparés à ceux de `calculs.py`. C'est LA raison de la séparation saisie/métier du chapitre 4 : garder la couche interactive si mince qu'il n'y a presque rien à y tester."
+  },
+  {
+    "id": "ex05",
+    "titre": "Outiller un projet : ruff, black, coverage",
+    "consigne": "Prends le package `recettes/` du chapitre 4 (avec ses tests des exercices précédents) :\n\n1. Crée le `pyproject.toml` : black (line-length 88) + ruff (règles E, F, W, I, B, UP).\n2. `ruff check .` : corrige TOUT (auto avec `--fix` quand c'est proposé, à la main sinon). Note dans un commentaire quelles catégories d'erreurs sont sorties.\n3. `black .` puis vérifie que ruff reste content.\n4. Branche VS Code : extensions Ruff et Black Formatter, format on save.\n5. `python -m pytest --cov=recettes --cov-report=term-missing` : lis les lignes manquantes, et ajoute les tests nécessaires pour dépasser 80 % — en te concentrant sur les branches d'erreur non couvertes (c'est presque toujours ça qui manque).",
+    "indices": [
+      "pyproject.toml minimal : sections `[tool.black]`, `[tool.ruff]`, `[tool.ruff.lint]` avec `select = [\"E\", \"F\", \"W\", \"I\", \"B\", \"UP\"]`.",
+      "Attends-toi à : I001 (imports non triés), F401 (imports inutilisés), UP035/UP006 (typing.List → list), éventuellement B008/B006 (défaut mutable — le piège du chapitre 1 détecté par la machine).",
+      "Sur le rapport de couverture : les lignes `Missing` dans recherche.py sont typiquement le `raise RecetteInconnue` — le test manquant est `with pytest.raises(RecetteInconnue): liste_courses(..., \"inexistante\", ...)`."
+    ],
+    "ressources": [
+      {
+        "titre": "Ruff — configuration",
+        "url": "https://docs.astral.sh/ruff/configuration/"
+      },
+      {
+        "titre": "Black — documentation",
+        "url": "https://black.readthedocs.io/en/stable/"
+      },
+      {
+        "titre": "pytest-cov — documentation",
+        "url": "https://pytest-cov.readthedocs.io/en/latest/"
+      }
+    ],
+    "solution": "`pyproject.toml` :\n\n```toml\n[tool.black]\nline-length = 88\n\n[tool.ruff]\nline-length = 88\ntarget-version = \"py312\"\n\n[tool.ruff.lint]\nselect = [\"E\", \"F\", \"W\", \"I\", \"B\", \"UP\"]\n\n[tool.pytest.ini_options]\ntestpaths = [\"tests\"]\n```\n\nSession type :\n\n```bash\n$ ruff check .\nrecettes/cli.py:3:1: I001 [*] Import block is un-sorted or un-formatted\nrecettes/recherche.py:1:29: F401 [*] `typing.Optional` imported but unused\nrecettes/donnees.py:12:5: UP006 Use `list` instead of `List` for type annotation\nFound 3 errors ([*] 2 fixable with the --fix option)\n\n$ ruff check --fix .\n$ black .\nreformatted recettes/cli.py\nAll done! ✨\n\n$ python -m pytest --cov=recettes --cov-report=term-missing\nName                     Stmts   Miss  Cover   Missing\n------------------------------------------------------\nrecettes/recherche.py       28      3    89%   34, 41-42\nrecettes/cli.py             35     35     0%   1-58\nTOTAL                       78     38    51%\n```\n\nLecture du rapport : `recherche.py` ligne 34 = le `raise RecetteInconnue` jamais déclenché ; `cli.py` à 0 % = la couche interactive (attendu — c'est le projet qui la couvrira). Test ajouté :\n\n```python\ndef test_liste_courses_recette_inconnue():\n    with pytest.raises(RecetteInconnue, match=\"tiramisu\"):\n        liste_courses(RECETTES, \"tiramisu\", frigo=set())\n```\n\nAprès ajout : `recherche.py` à 100 %, total > 80 % (en excluant cli du périmètre : `--cov=recettes.recherche` ou configuration `[tool.coverage.run] omit`).\n\nDeux enseignements :\n\n- ruff a mécaniquement retrouvé les règles apprises à la main aux chapitres 0-1 (imports, nommage, défauts mutables) : l'outillage encode la discipline, tu n'y penses plus.\n- La couverture ne se « remplit » pas uniformément : on cible les branches d'ERREUR de la logique métier, et on assume que la couche interactive reste peu couverte (elle est mince par design — chapitre 4)."
+  }
+]

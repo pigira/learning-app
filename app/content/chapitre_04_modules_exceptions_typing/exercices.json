@@ -1,0 +1,111 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Du script au package : entrainement/",
+    "consigne": "Reprends le CLI « résumé de séance » du chapitre 1 (un seul fichier) et découpe-le en package :\n\n```\nentrainement/\n├── __init__.py\n├── saisie.py        # saisie_entier, saisie_flottant, saisie_choix\n├── calculs.py       # vitesse_kmh, allure_min_km, zone_cardiaque, calories, MET\n├── affichage.py     # formater_resume\n└── __main__.py      # main() + orchestration\n```\n\nContraintes :\n\n1. Chaque module doit rester importable seul (`python3 -c \"from entrainement.calculs import zone_cardiaque\"`).\n2. `affichage.py` importe `calculs` (imports absolus).\n3. Le programme se lance avec `python3 -m entrainement`.\n4. Ajoute en bas de `calculs.py` un bloc de démonstration qui ne s'exécute PAS à l'import (vérifie-le).",
+    "indices": [
+      "`__init__.py` peut rester vide. Le point d'entrée d'un `python -m package` est le fichier `__main__.py` du package.",
+      "Dans `affichage.py` : `from entrainement.calculs import allure_min_km, ...` (import absolu — le package doit être lancé depuis son dossier parent).",
+      "Le bloc de démo : `if __name__ == \"__main__\":` en bas de `calculs.py`. Teste : `python3 -c \"import entrainement.calculs\"` ne doit rien afficher, `python3 entrainement/calculs.py` doit afficher la démo."
+    ],
+    "ressources": [
+      {
+        "titre": "Modules et packages — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/modules.html"
+      },
+      {
+        "titre": "Python Modules and Packages (Real Python)",
+        "url": "https://realpython.com/python-modules-packages/"
+      }
+    ],
+    "solution": "Structure et contenus clés :\n\n```python\n# entrainement/__init__.py\n\"\"\"Outils de résumé de séance d'entraînement.\"\"\"\n```\n\n```python\n# entrainement/calculs.py\nMET = {\"course\": 9.8, \"velo\": 7.5}\n\n\ndef vitesse_kmh(distance_km, duree_min):\n    return distance_km / (duree_min / 60)\n\n\ndef allure_min_km(distance_km, duree_min):\n    allure_s = duree_min * 60 / distance_km\n    return int(allure_s // 60), int(allure_s % 60)\n\n\ndef zone_cardiaque(fc, fc_max):\n    ratio = fc / fc_max\n    if ratio >= 0.9:\n        return 5\n    if ratio >= 0.8:\n        return 4\n    if ratio >= 0.7:\n        return 3\n    if ratio >= 0.6:\n        return 2\n    return 1\n\n\ndef calories(sport, poids_kg, duree_min):\n    return MET[sport] * poids_kg * (duree_min / 60)\n\n\nif __name__ == \"__main__\":          # démo : jamais exécutée à l'import\n    print(allure_min_km(10.0, 52))  # (5, 12)\n```\n\n```python\n# entrainement/affichage.py\nfrom entrainement.calculs import allure_min_km, calories, vitesse_kmh, zone_cardiaque\n\n\ndef formater_resume(sport, duree_min, distance_km, fc, age, poids_kg):\n    ...  # inchangé par rapport au chapitre 1\n```\n\n```python\n# entrainement/__main__.py\nfrom entrainement.affichage import formater_resume\nfrom entrainement.calculs import MET\nfrom entrainement.saisie import saisie_choix, saisie_entier, saisie_flottant\n\n\ndef main():\n    ...  # orchestration inchangée\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\nLancement : `python3 -m entrainement` **depuis le dossier parent** de `entrainement/`.\n\nCe qu'il faut retenir :\n\n- Le découpage suit les responsabilités (saisie / métier / présentation), pas la taille des fichiers.\n- `calculs.py` n'importe RIEN des autres modules : la logique pure est en bas de la pyramide de dépendances — c'est elle qu'on testera au chapitre 7 sans simuler un clavier.\n- Vérification de non-exécution : `python3 -c \"import entrainement.calculs\"` reste muet, car `__name__` vaut alors `\"entrainement.calculs\"`, pas `\"__main__\"`."
+  },
+  {
+    "id": "ex02",
+    "titre": "Hiérarchie d'exceptions métier",
+    "consigne": "Dans un module `exceptions.py` puis un module `validation.py` :\n\n1. Définis la hiérarchie : `ErreurSeance(Exception)` → `FcInvalide(ErreurSeance)` et `DureeInvalide(ErreurSeance)`.\n2. Écris `valider_seance(seance: dict) -> None` qui lève `FcInvalide` si `fc_moy` est hors [40, 220] et `DureeInvalide` si `duree_min` ≤ 0 ou > 1440 — avec des messages incluant la valeur fautive.\n3. Écris un appelant qui traite une liste de séances (dont deux invalides) et affiche : un message spécifique par type d'erreur, la séance ignorée, et continue le traitement (le lot ne s'arrête pas à la première erreur).\n4. Montre qu'un unique `except ErreurSeance` suffirait si l'appelant ne veut pas distinguer.",
+    "indices": [
+      "Les classes d'exceptions sont souvent vides : `class FcInvalide(ErreurSeance): pass` — le type EST l'information.",
+      "Dans la boucle de traitement : `try: valider_seance(s) / except FcInvalide as exc: ... / except DureeInvalide as exc: ...` puis `continue`. L'objet `exc` s'affiche directement dans une f-string (son message).",
+      "L'ordre des `except` compte : du plus spécifique au plus général. `except ErreurSeance` AVANT `except FcInvalide` rendrait ce dernier inatteignable."
+    ],
+    "ressources": [
+      {
+        "titre": "Erreurs et exceptions — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/errors.html"
+      },
+      {
+        "titre": "Python Exceptions: An Introduction (Real Python)",
+        "url": "https://realpython.com/python-exceptions/"
+      }
+    ],
+    "solution": "```python\n# exceptions.py\nclass ErreurSeance(Exception):\n    \"\"\"Base de toutes les erreurs du domaine séance.\"\"\"\n\n\nclass FcInvalide(ErreurSeance):\n    pass\n\n\nclass DureeInvalide(ErreurSeance):\n    pass\n```\n\n```python\n# validation.py\nfrom exceptions import DureeInvalide, ErreurSeance, FcInvalide\n\n\ndef valider_seance(seance: dict) -> None:\n    fc = seance.get(\"fc_moy\")\n    if fc is not None and not 40 <= fc <= 220:\n        raise FcInvalide(f\"FC moyenne aberrante : {fc} bpm\")\n    duree = seance.get(\"duree_min\", 0)\n    if not 0 < duree <= 1440:\n        raise DureeInvalide(f\"durée invalide : {duree} min\")\n\n\nseances = [\n    {\"date\": \"2026-07-01\", \"sport\": \"course\", \"duree_min\": 48, \"fc_moy\": 152},\n    {\"date\": \"2026-07-02\", \"sport\": \"velo\", \"duree_min\": -10, \"fc_moy\": 140},\n    {\"date\": \"2026-07-03\", \"sport\": \"course\", \"duree_min\": 30, \"fc_moy\": 320},\n    {\"date\": \"2026-07-04\", \"sport\": \"natation\", \"duree_min\": 40, \"fc_moy\": 128},\n]\n\nvalides = []\nfor seance in seances:\n    try:\n        valider_seance(seance)\n    except FcInvalide as exc:\n        print(f\"[capteur FC ?] séance du {seance['date']} ignorée : {exc}\")\n        continue\n    except DureeInvalide as exc:\n        print(f\"[donnée corrompue] séance du {seance['date']} ignorée : {exc}\")\n        continue\n    valides.append(seance)\n\nprint(f\"{len(valides)}/{len(seances)} séances valides\")   # 2/4\n```\n\nVariante « je ne distingue pas » — c'est tout l'intérêt de la classe de base :\n\n```python\n    try:\n        valider_seance(seance)\n    except ErreurSeance as exc:        # attrape FcInvalide ET DureeInvalide\n        print(f\"séance du {seance['date']} ignorée : {exc}\")\n        continue\n```\n\nNoter le pattern de traitement par lot : valider → logger → `continue` — jamais de `except: pass` (l'erreur silencieuse est le pire des deux mondes), et le lot survit aux entrées pourries, comportement indispensable dès qu'on importera des fichiers .fit réels (chapitre 16)."
+  },
+  {
+    "id": "ex03",
+    "titre": "EAFP : la saisie robuste, version idiomatique",
+    "consigne": "Au chapitre 1, `saisie_entier` validait avec `str.isdigit()` — la version LBYL. Réécris-la en EAFP :\n\n1. `saisie_entier(message: str, mini: int, maxi: int) -> int` : tente `int(saisie)` et capture `ValueError`.\n2. Même chose pour `saisie_flottant` (qui gagne au passage : `\"9.5\"`, `\"-2\"`, `\"1e3\"` sont gérés sans bricolage de `replace`).\n3. Compare les deux versions sur les entrées : `\"12\"`, `\"  8  \"`, `\"-3\"`, `\"3.5\"`, `\"abc\"`, `\"1e2\"`. Lesquelles changent de comportement ?\n4. Question : pourquoi EAFP est-il ici plus correct, pas seulement plus court ?",
+    "indices": [
+      "Structure : `while True:` → `try: valeur = int(input(message))` → `except ValueError: print(...); continue` → validation d'intervalle → `return`.",
+      "`int(\"  8  \")` fonctionne (les espaces sont tolérés), `int(\"-3\")` aussi : la version isdigit() les refusait à tort ou les laissait passer différemment.",
+      "Pour la question 4 : liste ce que `isdigit()` valide réellement (uniquement des chiffres) vs ce que `int()` accepte VRAIMENT — le test manuel était une approximation du parseur."
+    ],
+    "ressources": [
+      {
+        "titre": "Erreurs et exceptions — tutoriel officiel (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/errors.html"
+      },
+      {
+        "titre": "LBYL vs EAFP (Real Python)",
+        "url": "https://realpython.com/python-lbyl-vs-eafp/"
+      }
+    ],
+    "solution": "```python\ndef saisie_entier(message: str, mini: int, maxi: int) -> int:\n    while True:\n        try:\n            valeur = int(input(message))\n        except ValueError:\n            print(\"Entre un nombre entier.\")\n            continue\n        if not mini <= valeur <= maxi:\n            print(f\"Valeur attendue entre {mini} et {maxi}.\")\n            continue\n        return valeur\n\n\ndef saisie_flottant(message: str, mini: float, maxi: float) -> float:\n    while True:\n        try:\n            valeur = float(input(message))\n        except ValueError:\n            print(\"Entre un nombre (ex. 9.5).\")\n            continue\n        if not mini <= valeur <= maxi:\n            print(f\"Valeur attendue entre {mini} et {maxi}.\")\n            continue\n        return valeur\n```\n\nComparaison des entrées :\n\n| Entrée | `isdigit()` (ch. 1) | `int()`/`float()` EAFP |\n|---|---|---|\n| `\"12\"` | accepté | accepté |\n| `\"  8  \"` | refusé (espaces) | **accepté** (int tolère) |\n| `\"-3\"` | refusé | **accepté** puis rejeté par l'intervalle si mini ≥ 0 |\n| `\"3.5\"` | refusé | refusé par int, **accepté** par float |\n| `\"abc\"` | refusé | refusé |\n| `\"1e2\"` | refusé | refusé par int, **accepté** par float (100.0) |\n\nRéponse à la question 4 : `isdigit()` était une **réimplémentation approximative** du parseur d'`int()` — elle divergeait sur les espaces, le signe, et il aurait fallu l'enrichir sans fin (`replace('.', '', 1)` pour les floats en était le symptôme). EAFP délègue la définition de « entier valide » à l'autorité compétente : le parseur lui-même. Moins de code, zéro divergence, et le cas nominal se lit en premier."
+  },
+  {
+    "id": "ex04",
+    "titre": "Chaînage : raise ... from",
+    "consigne": "Le journal d'entraînement contient des durées saisies en texte au format `\"h:mm\"` (`\"1:05\"`, `\"0:48\"`).\n\n1. Définis `FormatDureeInvalide(Exception)`.\n2. Écris `parser_duree(texte: str) -> int` (minutes totales) qui, sur toute entrée invalide (`\"1h05\"`, `\"1:5:0\"`, `\"abc\"`, `\"\"`, `\"1:-5\"`), lève `FormatDureeInvalide` avec un message montrant l'entrée reçue — **chaînée** à l'erreur d'origine avec `from`.\n3. Provoque l'erreur et observe la traceback : tu dois voir les deux exceptions et la ligne `The above exception was the direct cause of the following exception`.\n4. Ajoute la validation métier : minutes de la partie `mm` dans [0, 59] (à lever toi-même, sans chaînage — pourquoi ?).",
+    "indices": [
+      "`h, m = texte.split(\":\")` lève ValueError si le nombre de morceaux n'est pas 2 ; `int(h)` lève ValueError sur du texte. Un seul try suffit pour les deux.",
+      "`raise FormatDureeInvalide(f\"attendu 'h:mm', reçu {texte!r}\") from exc` — le `!r` affiche l'entrée avec ses quotes, précieux pour repérer les espaces.",
+      "Pour la question 4 : `\"1:75\"` est syntaxiquement parsable — il n'y a AUCUNE exception d'origine à chaîner, c'est ta règle métier qui décide. `raise` sans `from`."
+    ],
+    "ressources": [
+      {
+        "titre": "raise et le chaînage d'exceptions (fr)",
+        "url": "https://docs.python.org/fr/3/tutorial/errors.html#raising-exceptions"
+      },
+      {
+        "titre": "Python's raise: Effectively Raising Exceptions (Real Python)",
+        "url": "https://realpython.com/python-raise-exception/"
+      }
+    ],
+    "solution": "```python\nclass FormatDureeInvalide(Exception):\n    pass\n\n\ndef parser_duree(texte: str) -> int:\n    \"\"\"Convertit \"h:mm\" en minutes totales.\"\"\"\n    try:\n        h_txt, m_txt = texte.split(\":\")     # ValueError si != 2 morceaux\n        heures, minutes = int(h_txt), int(m_txt)   # ValueError si non numérique\n    except ValueError as exc:\n        raise FormatDureeInvalide(f\"attendu 'h:mm', reçu {texte!r}\") from exc\n\n    # Règle métier : pas d'exception d'origine → raise sans from\n    if not 0 <= minutes <= 59:\n        raise FormatDureeInvalide(f\"minutes hors [0, 59] : {texte!r}\")\n    if heures < 0:\n        raise FormatDureeInvalide(f\"heures négatives : {texte!r}\")\n    return heures * 60 + minutes\n\n\nprint(parser_duree(\"1:05\"))    # 65\nparser_duree(\"1h05\")           # → traceback chaînée\n```\n\nTraceback obtenue (l'essentiel) :\n\n```\nValueError: not enough values to unpack (expected 2, got 1)\n\nThe above exception was the direct cause of the following exception:\n...\nFormatDureeInvalide: attendu 'h:mm', reçu '1h05'\n```\n\nPourquoi c'est le bon pattern :\n\n- **L'appelant** ne voit qu'un seul type à gérer (`FormatDureeInvalide`), avec un message métier exploitable — il n'a pas à connaître les détails d'implémentation (split ? int ? regex ?).\n- **Le débogueur** garde la cause technique exacte grâce au chaînage.\n- Cas 4 : `\"1:75\"` passe le parsing sans erreur — la violation est purement métier, il n'y a rien à chaîner. Mélanger les deux (`from exc` avec un exc qui n'a rien à voir) rendrait la traceback mensongère.\n\nC'est exactement le pattern de `content.py` de cette application : `json.JSONDecodeError` et `ValidationError` y sont ré-emballées en `ErreurContenu` avec `from exc`."
+  },
+  {
+    "id": "ex05",
+    "titre": "Typer le moteur de recettes et passer mypy",
+    "consigne": "Reprends le moteur de recherche de recettes (projet du chapitre 2) :\n\n1. Crée l'alias `Recette: TypeAlias = dict[str, object]` puis annote TOUTES les signatures : `par_ingredient`, `realisables`, `trouver` (attention : elle peut renvoyer `None`), `liste_courses` (idem), `plus_rapides` (elle renvoie des tuples).\n2. Installe mypy et lance `mypy moteur.py` : corrige jusqu'à zéro erreur.\n3. Introduis volontairement deux bugs et vérifie que mypy les attrape AVANT l'exécution : appel `plus_rapides(RECETTES, n=\"3\")`, et utilisation du retour de `trouver` sans test `None` (`trouver(RECETTES, \"x\")[\"nom\"]`).\n4. Question : quelle annotation aurait empêché le bug le plus courant de ta pratique C++ (déréférencement de pointeur nul) ?",
+    "indices": [
+      "Signatures cibles : `def trouver(recettes: list[Recette], nom: str) -> Recette | None:` et `def plus_rapides(recettes: list[Recette], n: int = 3) -> list[tuple[str, int]]:`.",
+      "Avec `dict[str, object]`, mypy refuse `r[\"temps_min\"] < x` (object n'est pas comparable). Deux issues : cast explicite, ou — mieux ici — un alias plus précis n'existe pas encore : utilise `dict[str, Any]` (import de typing) en connaissance de cause. La VRAIE solution arrive avec les dataclasses typées.",
+      "L'erreur attendue au point 3 : `Item \"None\" of \"Recette | None\" has no attribute \"__getitem__\"` — mypy t'oblige à écrire `if recette is not None:` avant l'accès."
+    ],
+    "ressources": [
+      {
+        "titre": "typing — documentation officielle (fr)",
+        "url": "https://docs.python.org/fr/3/library/typing.html"
+      },
+      {
+        "titre": "mypy — Getting started",
+        "url": "https://mypy.readthedocs.io/en/stable/getting_started.html"
+      },
+      {
+        "titre": "Python Type Checking (Real Python)",
+        "url": "https://realpython.com/python-type-checking/"
+      }
+    ],
+    "solution": "```python\nfrom typing import Any, TypeAlias\n\nRecette: TypeAlias = dict[str, Any]     # Any assumé : les recettes-dicts mélangent\n                                         # str, int et list — les dataclasses (ch. 3)\n                                         # sont la vraie sortie de ce compromis\n\n\ndef par_ingredient(recettes: list[Recette], ingredient: str) -> list[str]:\n    return [r[\"nom\"] for r in recettes if ingredient in r[\"ingredients\"]]\n\n\ndef realisables(recettes: list[Recette], frigo: set[str]) -> list[str]:\n    return [r[\"nom\"] for r in recettes if set(r[\"ingredients\"]) <= frigo]\n\n\ndef trouver(recettes: list[Recette], nom: str) -> Recette | None:\n    return next((r for r in recettes if r[\"nom\"] == nom), None)\n\n\ndef liste_courses(recettes: list[Recette], nom: str, frigo: set[str]) -> set[str] | None:\n    recette = trouver(recettes, nom)\n    if recette is None:\n        return None\n    return set(recette[\"ingredients\"]) - frigo\n\n\ndef plus_rapides(recettes: list[Recette], n: int = 3) -> list[tuple[str, int]]:\n    tri = sorted(recettes, key=lambda r: r[\"temps_min\"])\n    return [(r[\"nom\"], r[\"temps_min\"]) for r in tri[:n]]\n```\n\nVérification des bugs volontaires :\n\n```\n$ mypy moteur.py\nmoteur.py:40: error: Argument \"n\" to \"plus_rapides\" has incompatible type \"str\"; expected \"int\"\nmoteur.py:41: error: Value of type \"Recette | None\" is not indexable\nFound 2 errors in 1 file\n```\n\nLes deux bugs sont morts **avant** la première exécution. Réponse à la question 4 : `-> Recette | None`. C'est l'équivalent d'un pointeur potentiellement nul, mais que l'outillage **force** à tester : impossible d'indexer le retour sans un `if ... is None` (ou un `assert`) sur le chemin. En C++, le crash arrivait à l'exécution ; ici il n'arrive jamais.\n\nHonnêteté sur `Any` : il désactive la vérification à l'INTÉRIEUR des dicts (mypy laisse passer `r[\"temp_min\"]` mal orthographié). Le typage devient réellement puissant quand les données sont des dataclasses (`list[Seance]`) — c'est le sens de la progression chapitres 2 → 3 → 4."
+  }
+]
