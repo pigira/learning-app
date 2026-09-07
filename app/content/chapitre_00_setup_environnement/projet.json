@@ -1,20 +1,19 @@
 {
   "titre": "Squelette de projet propre, de zéro",
-  "consigne": "Monte un mini-projet `suivi_seances` complet et propre — le modèle de tous tes futurs projets. Le programme lit un petit CSV de séances d'entraînement et affiche un résumé.\n\nContenu attendu du CSV `data/seances.csv` (crée-le tel quel) :\n\n```\ndate,sport,duree_min,distance_km\n2026-06-01,course,42,8.1\n2026-06-03,velo,95,32.5\n2026-06-05,course,51,9.8\n2026-06-08,natation,40,1.9\n```\n\nLe script `src/main.py` doit lire ce fichier **sans librairie externe** (avec `open()` et `split(\",\")` — un avant-goût du chapitre 5) et afficher : le nombre de séances, la durée totale (en heures + minutes) et la distance totale. Le tout lancé et débuggé dans VS Code, avec venv, `.gitignore`, `requirements.txt` et `README.md`.",
+  "consigne": "Monte un mini-projet `env_check` complet et propre — le modèle de tous tes futurs projets (arborescence, venv, git, README). Volontairement, aucune logique Python complexe ici : ce chapitre est uniquement outillage, la syntaxe Python (variables, fonctions, structures de données) démarre au chapitre 1. Le script `src/main.py` se contente d'afficher un état des lieux de l'environnement avec des `print()`, comme vu en théorie — l'objectif est de valider la chaîne complète terminal → venv → VS Code → debugger, pas d'écrire un programme.",
   "etapes": [
-    "Au terminal : crée le dossier `~/suivi_seances`, un venv `.venv` dedans, et active-le.",
-    "Crée l'arborescence : `src/`, `data/`, plus les fichiers `README.md`, `requirements.txt` et `.gitignore` (contenu : `.venv/`, `__pycache__/`, `.DS_Store`).",
-    "Crée `data/seances.csv` avec le contenu donné dans la consigne.",
+    "Au terminal : crée le dossier `~/env_check`, un venv `.venv` dedans, et active-le.",
+    "Crée l'arborescence : `src/`, plus les fichiers `README.md`, `requirements.txt` et `.gitignore` (contenu : `.venv/`, `__pycache__/`, `.DS_Store`).",
     "Ouvre le projet dans VS Code (`code .`), sélectionne l'interpréteur `.venv`.",
-    "Écris `src/main.py` : une fonction `lire_seances(chemin)` qui renvoie une liste de dicts (une entrée par ligne, clés issues de l'en-tête), une fonction `resumer(seances)` qui construit le texte du résumé, et le bloc `if __name__ == \"__main__\":` qui enchaîne les deux.",
-    "Exécute depuis le terminal intégré : `python3 src/main.py`. Corrige jusqu'à obtenir le bon résumé.",
-    "Pose un breakpoint dans la boucle de `lire_seances` et vérifie au debugger le contenu d'une ligne parsée (types compris : que valent `duree_min` et `distance_km` ?).",
+    "Écris `src/main.py` : trois variables (`projet`, `version_min_python`, `etape`) puis trois `print(...)` qui les affichent, un par ligne — exactement comme l'exemple `print(\"bonjour\")` du chapitre. Pas de fonction, pas de f-string : juste des variables et des `print()`.",
+    "Exécute depuis le terminal intégré : `python3 src/main.py`.",
+    "Pose un breakpoint sur la première ligne de `src/main.py` (`F9`), lance le debugger (`F5`), puis avance ligne par ligne (`F10`, Step Over) en observant le panneau **Variables** : chaque variable doit apparaître au moment de son assignation.",
     "Termine : `pip freeze > requirements.txt` (vide, c'est normal : aucune dépendance) et rédige le README (but du projet, installation, lancement)."
   ],
   "indices": [
-    "Lecture du fichier : `with open(chemin, encoding=\"utf-8\") as f:` puis `lignes = f.read().splitlines()`. La première ligne est l'en-tête : `entetes = lignes[0].split(\",\")`.",
-    "Pour chaque ligne de données : `valeurs = ligne.split(\",\")` puis `dict(zip(entetes, valeurs))` fabrique le dict directement. Attention : tout est `str` à ce stade — convertis `duree_min` en `int(...)` et `distance_km` en `float(...)` avant d'additionner.",
-    "Durée totale en h/min : `heures, minutes = divmod(total_min, 60)`. Pour le résumé, une f-string multiligne (triple guillemets) suffit."
+    "Création + activation du venv : `python3 -m venv .venv` puis `source .venv/bin/activate` — le prompt se préfixe de `(.venv)`.",
+    "Une variable, c'est juste `nom = valeur`. `print()` accepte plusieurs arguments séparés par des virgules : `print(\"Projet :\", projet)` affiche les deux à la suite, séparés par un espace.",
+    "Le breakpoint (point rouge dans la marge) arrête l'exécution *avant* d'exécuter la ligne ; `F10` exécute la ligne et s'arrête à la suivante — regarde le panneau Variables se remplir progressivement."
   ],
   "ressources": [
     {
@@ -26,9 +25,9 @@
       "url": "https://code.visualstudio.com/docs/python/python-tutorial"
     },
     {
-      "titre": "PEP 8 — Style Guide",
-      "url": "https://peps.python.org/pep-0008/"
+      "titre": "Python debugging in VS Code",
+      "url": "https://code.visualstudio.com/docs/python/debugging"
     }
   ],
-  "solution": "Arborescence finale :\n\n```\nsuivi_seances/\n├── .venv/\n├── .gitignore          # .venv/  __pycache__/  .DS_Store\n├── README.md\n├── requirements.txt    # vide pour l'instant\n├── data/\n│   └── seances.csv\n└── src/\n    └── main.py\n```\n\n`src/main.py` :\n\n```python\nCHEMIN_CSV = \"data/seances.csv\"\n\n\ndef lire_seances(chemin):\n    \"\"\"Lit le CSV et renvoie une liste de dicts typés.\"\"\"\n    with open(chemin, encoding=\"utf-8\") as f:\n        lignes = f.read().splitlines()\n\n    entetes = lignes[0].split(\",\")\n    seances = []\n    for ligne in lignes[1:]:\n        if not ligne:            # ignore une éventuelle ligne vide finale\n            continue\n        seance = dict(zip(entetes, ligne.split(\",\")))\n        # Le CSV ne contient que des str : conversion des champs numériques\n        seance[\"duree_min\"] = int(seance[\"duree_min\"])\n        seance[\"distance_km\"] = float(seance[\"distance_km\"])\n        seances.append(seance)\n    return seances\n\n\ndef resumer(seances):\n    total_min = sum(s[\"duree_min\"] for s in seances)\n    total_km = sum(s[\"distance_km\"] for s in seances)\n    heures, minutes = divmod(total_min, 60)\n    return (\n        f\"Séances   : {len(seances)}\\n\"\n        f\"Durée     : {heures} h {minutes:02d} min\\n\"\n        f\"Distance  : {total_km:.1f} km\"\n    )\n\n\nif __name__ == \"__main__\":\n    print(resumer(lire_seances(CHEMIN_CSV)))\n```\n\nSortie attendue :\n\n```\nSéances   : 4\nDurée     : 3 h 48 min\nDistance  : 52.3 km\n```\n\nAu debugger, un breakpoint dans la boucle montre `seance` avant/après conversion : `{'date': '2026-06-01', 'sport': 'course', 'duree_min': 42, 'distance_km': 8.1}` — noter que `date` et `sport` restent des `str`, c'est voulu.\n\nREADME minimal :\n\n```markdown\n# Suivi de séances\n\nRésumé (nombre, durée, distance) d'un journal d'entraînement CSV.\n\n## Installation\npython3 -m venv .venv && source .venv/bin/activate\n\n## Lancement\npython3 src/main.py\n```\n\nRemarque : lancer `python3 src/main.py` depuis la **racine** du projet est important — le chemin `data/seances.csv` est relatif au dossier courant. La gestion propre des chemins (pathlib) arrive au chapitre 5."
+  "solution": "Arborescence finale :\n\n```\nenv_check/\n├── .venv/\n├── .gitignore          # .venv/  __pycache__/  .DS_Store\n├── README.md\n├── requirements.txt    # vide pour l'instant\n└── src/\n    └── main.py\n```\n\n`src/main.py` :\n\n```python\nprojet = \"env_check\"\nversion_min_python = \"3.12\"\netape = \"chapitre 0 termine\"\n\nprint(\"Projet :\", projet)\nprint(\"Version Python minimale :\", version_min_python)\nprint(\"Etape :\", etape)\n```\n\nSortie attendue :\n\n```\nProjet : env_check\nVersion Python minimale : 3.12\nEtape : chapitre 0 termine\n```\n\nAu debugger : breakpoint sur `projet = \"env_check\"`, puis `F10` trois fois. Le panneau Variables affiche d'abord rien, puis `projet`, puis `projet` + `version_min_python`, puis les trois — c'est la mécanique d'exécution séquentielle ligne par ligne, la base de tout ce qui suit.\n\nREADME minimal :\n\n```markdown\n# env_check\n\nScript de vérification d'environnement (terminal, venv, VS Code, debugger).\n\n## Installation\npython3 -m venv .venv && source .venv/bin/activate\n\n## Lancement\npython3 src/main.py\n```\n\nNote : la version enrichie de ce mini-projet (lecture d'un CSV de séances, fonctions, dict) reviendra une fois les fonctions (chapitre 1) et les structures de données (chapitre 2) vues — pas avant."
 }

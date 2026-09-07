@@ -33,12 +33,36 @@ Puis ouvrir <http://127.0.0.1:8000>. `--reload` relance le serveur si le code Py
 
 ## État du contenu
 
-| Chapitres | État |
-|---|---|
-| 0 à 3 | **Complets** : théorie, 6 exercices détaillés, projet guidé |
-| 4 à 21 | **Squelettes** : objectifs, points de théorie à couvrir, consignes d'exercices et de projet — indices/ressources/corrections à compléter |
+**Les 22 chapitres (0 à 21) sont complets** : chacun a une théorie rédigée (`theorie.md`), 4 à 6 exercices détaillés (consigne + indices progressifs + ressources + correction commentée) et un projet guidé de fin de chapitre. Soit **104 exercices** au total.
 
-Les squelettes sont signalés par un badge dans l'interface et respectent exactement le même schéma que les chapitres complets : les compléter = remplir les champs vides et ajouter `theorie.md`.
+| # | Chapitre | Ex. | Projet(s) cible |
+|---|---|---|---|
+| 0 | Setup de l'environnement (macOS) | 6 | Tous |
+| 1 | Fondamentaux Python | 6 | Tous |
+| 2 | Structures de données | 6 | Tous |
+| 3 | POO en Python | 6 | Tous |
+| 4 | Modules, exceptions et typing | 5 | Tous |
+| 5 | Fichiers, JSON et context managers | 5 | Tous |
+| 6 | SQLite avancé | 5 | Cuisine, Finance, Enduro |
+| 7 | Tests et qualité de code | 5 | Tous |
+| 8 | Async Python | 5 | Cuisine, Finance |
+| 9 | Consommation d'API REST | 5 | Cuisine, Finance |
+| 10 | Pandas | 5 | Finance, Enduro |
+| 11 | Séries temporelles avec Pandas | 5 | Finance, Enduro |
+| 12 | Visualisation de données | 4 | Finance, Enduro |
+| 13 | Streamlit | 4 | Finance, Enduro, Cuisine |
+| 14 | Configuration et secrets | 4 | Tous |
+| 15 | Tâches planifiées et background jobs | 4 | Finance, Cuisine |
+| 16 | Parsing de fichiers binaires (.fit) | 4 | Enduro |
+| 17 | Appels LLM et function calling | 4 | Cuisine |
+| 18 | Conception d'agents IA | 4 | Cuisine |
+| 19 | Sécurité applicative de base | 4 | Tous |
+| 20 | Packaging et Docker | 4 | Tous |
+| 21 | Projet final transverse | 4 | Synthèse des 3 projets |
+
+Le contenu reste modifiable et extensible à tout moment : voir « Ajouter ou compléter un chapitre ». Le mécanisme de badge « squelette » subsiste dans l'interface pour tout nouveau chapitre créé au statut `squelette`.
+
+> Note : les exemples des chapitres purement Python (0-11) ont été exécutés et vérifiés. Ceux qui dépendent de services externes non disponibles hors ligne (IA/Azure OpenAI ch. 17-18, Docker ch. 20, vrais fichiers `.fit` ch. 16) suivent les API stables actuelles mais sont à valider à la première mise en pratique.
 
 ## Structure du projet
 

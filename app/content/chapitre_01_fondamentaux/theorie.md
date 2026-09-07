@@ -46,11 +46,17 @@ Les chaînes sont **immuables** : toute « modification » crée une nouvelle ch
 ```python
 nom = "carbonara"
 nom.upper()          # "CARBONARA" (nom n'a pas changé)
-"  x  ".strip()      # "x"
+nom.lower()          # "carbonara" (repasse en minuscules — utile pour comparer une saisie)
+"  x  ".strip()      # "x"  (enlève espaces et retours ligne en début/fin)
 "a,b,c".split(",")   # ['a', 'b', 'c']
+"cmd a b c".split()          # ['cmd', 'a', 'b', 'c'] — sans argument : coupe sur les espaces
+"cmd a b c".split(maxsplit=1)  # ['cmd', 'a b c'] — coupe au 1er espace seulement (motif "commande + reste")
 "-".join(["a", "b"]) # "a-b"
-nom.replace("a", "o")
+nom.replace("a", "o")        # remplace TOUTES les occurrences
+"3.14".replace(".", "", 1)   # "314" — 3e argument = nombre MAX de remplacements
 nom.startswith("carb")   # True
+"42".isdigit()       # True  — la chaîne ne contient QUE des chiffres
+"4.2".isdigit()      # False — le point n'est pas un chiffre (ni le signe -)
 len(nom)             # 9
 ```
 
@@ -62,6 +68,8 @@ qte = 3
 print(f"Total : {prix * qte:.2f} €")     # expressions arbitraires + format
 print(f"{qte:03d}")                      # 003  (zéro-padding)
 print(f"{0.847:.1%}")                    # 84.7% (format pourcentage)
+print(f"{1234567:,}")                    # 1,234,567 (séparateur de milliers)
+print(f"{1234.5:,.2f}")                  # 1,234.50 (milliers + 2 décimales combinés)
 print(f"{'Vitesse':<12}: {28.4:>8.2f}")  # alignement gauche/droite
 print(f"{prix=}")                        # prix=12.5 (debug rapide)
 ```
@@ -77,7 +85,11 @@ Chaîne multiligne : triple guillemets `"""..."""`.
 7 % 2      # 1     → le signe suit le DIVISEUR : -7 % 2 == 1 (≠ C)
 2 ** 10    # 1024  → puissance
 x += 1     # pas de x++ ni ++x en Python
+
+divmod(7, 2)   # (3, 1) → quotient ET reste d'un coup ; divmod(a, b) == (a // b, a % b)
 ```
+
+`divmod` est l'idiome pour découper une valeur en deux unités : `divmod(200, 60)` → `(3, 20)` (3 h 20), `divmod(315, 60)` → `(5, 15)` (5 min 15 s).
 
 Logique et comparaisons :
 
@@ -157,7 +169,75 @@ match commande:
         print("commande inconnue")
 ```
 
-## 6. Fonctions
+## 6. Saisie utilisateur
+
+Pour lire ce que l'utilisateur tape au clavier : `input()`.
+
+```python
+nom = input("Ton nom : ")     # affiche l'invite, ATTEND une ligne, la renvoie
+```
+
+Point crucial : **`input()` renvoie toujours une `str`**, même si l'utilisateur tape des chiffres. Pour manipuler un nombre, il faut convertir explicitement :
+
+```python
+age = int(input("Âge : "))    # str → int ... mais PLANTE si l'utilisateur tape "abc"
+```
+
+Les exceptions (la gestion propre d'un `int("abc")` qui plante) n'arrivent qu'au chapitre 4. En attendant, l'idiome robuste est : **valider avant de convertir**, avec `str.isdigit()`, dans une boucle `while True` + `break` (le remplaçant du `do...while` inexistant) :
+
+```python
+while True:
+    saisie = input("Portions (1-12) : ").strip()   # strip() : enlève espaces et \n parasites
+    if not saisie.isdigit():                        # "abc", "", "-3", "3.5" → refusés
+        print("Entre un nombre entier.")
+        continue                                    # message d'erreur puis on redemande
+    portions = int(saisie)                          # sûr : isdigit() a garanti des chiffres
+    if not 1 <= portions <= 12:                     # comparaison chaînée (section 4)
+        print("Hors limites : entre 1 et 12.")
+        continue
+    break                                           # saisie valide → on sort de la boucle
+```
+
+À retenir : `input()` bloque le programme jusqu'à Entrée ; on `strip()` avant tout test ; on ne convertit (`int`, `float`) qu'**après** avoir validé la forme de la chaîne.
+
+## 7. Collections : le minimum pour ce chapitre
+
+> Le chapitre 2 traite en détail les listes, tuples, dictionnaires et ensembles. Ici, seulement ce dont les exercices et le projet du chapitre ont besoin.
+
+### Listes
+
+Une liste est une séquence **ordonnée et mutable** — l'équivalent souple du tableau C, mais à taille dynamique et types mélangeables :
+
+```python
+lignes = []                     # liste vide
+lignes.append("===== Résumé =====")   # .append() ajoute UN élément en fin
+lignes.append("Sport : course")       #   → ["===== Résumé =====", "Sport : course"]
+
+mesures = [98.3, 99.1, 100.2]   # littéral de liste
+mesures[0]                      # 98.3  — indexation depuis 0 (comme en C)
+len(mesures)                    # 3
+
+"\n".join(lignes)               # assemble une liste de str en UN seul texte
+                                # (join n'accepte que des chaînes)
+```
+
+Idiome utile : construire un texte **ligne par ligne** dans une liste, puis `"\n".join(...)` à la fin. C'est plus lisible qu'une f-string géante, et une ligne peut être ajoutée sous condition (`if ...: lignes.append(...)`).
+
+### Dictionnaires (avant-goût)
+
+Un `dict` associe des **clés** à des **valeurs** — une table de correspondance :
+
+```python
+met = {"course": 9.8, "velo": 7.5}   # deux paires clé → valeur
+
+met["course"]        # 9.8            — accès par CLÉ (et non par indice numérique)
+"course" in met      # True           — test d'appartenance (porte sur les clés)
+met.keys()           # dict_keys(['course', 'velo']) — l'ensemble des clés
+```
+
+Intérêt concret, exploité dans le projet : un même `dict` sert de **source de vérité unique**. `met` définit à la fois la liste des sports valides (`met.keys()`, pour valider une saisie) *et* leur coefficient (`met["course"]`) — au lieu de dupliquer l'information dans une cascade de `if/elif`. Le détail complet (parcours, méthodes, mutation) est au chapitre 2.
+
+## 8. Fonctions
 
 ```python
 def allure(distance_km, temps_min):
@@ -206,7 +286,7 @@ if __name__ == "__main__":   # vrai seulement si le fichier est exécuté direct
     main()                   # (pas s'il est importé) — l'équivalent culturel du main() C
 ```
 
-## 7. Table de translation C/C++ → Python
+## 9. Table de translation C/C++ → Python
 
 | C / C++ | Python |
 |---|---|
@@ -220,6 +300,8 @@ if __name__ == "__main__":   # vrai seulement si le fichier est exécuté direct
 | `do { } while (cond);` | n'existe pas → `while True:` + `break` |
 | `switch/case` + `break` | `match/case` (sans fallthrough) |
 | `NULL` / `nullptr` | `None` (tester avec `is None`) |
+| `scanf(...)`, `std::cin >> x` | `input()` (renvoie une `str`, à convertir) |
+| tableau `int t[n];` | `list` : `t = []`, `t.append(x)`, taille dynamique |
 | `true` / `false` | `True` / `False` |
 | `// commentaire` | `# commentaire` |
 | `const double TVA = 0.055;` | `TAUX_TVA = 0.055` (convention) |
@@ -231,7 +313,11 @@ if __name__ == "__main__":   # vrai seulement si le fichier est exécuté direct
 
 - [ ] Je connais les 5 types de base et les conversions explicites.
 - [ ] Je formate n'importe quelle sortie avec une f-string (`:.2f`, `:02d`, `:.0%`, alignement).
-- [ ] Je ne confonds plus `/` et `//`, ni `==` et `is`.
+- [ ] Je ne confonds plus `/` et `//`, ni `==` et `is`, et je découpe avec `divmod`.
+- [ ] Je lis une saisie avec `input()`, je la `strip()`/valide (`isdigit`) avant de la convertir.
+- [ ] Je crée une liste, j'ajoute avec `.append()` et j'assemble du texte avec `join()`.
+- [ ] Je découpe une chaîne avec `split()`, y compris une commande avec `split(maxsplit=…)`.
+- [ ] Je lis un `dict` simple : accès `d[clé]`, test `clé in d`, `d.keys()`.
 - [ ] J'écris des `for` sur les éléments (pas sur les indices) et je sais quand `enumerate` s'impose.
 - [ ] J'utilise `match/case` pour les aiguillages structurés.
 - [ ] J'écris des fonctions avec valeurs par défaut, appels nommés et retours multiples.

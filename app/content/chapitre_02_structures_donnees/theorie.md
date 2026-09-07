@@ -140,6 +140,7 @@ Attention : `{}` crée un **dict** vide ; un set vide s'écrit `set()`.
 
 ```python
 for i, cours in enumerate(historique):        # indice + valeur
+for jour, cours in enumerate(historique, start=1):   # compteur démarré à 1 (jours, rangs…)
 for veille, jour in zip(cours, cours[1:]):    # paires consécutives
 for nom, qte in zip(noms, quantites):         # itération parallèle
 
@@ -168,6 +169,14 @@ Règles de lisibilité : une comprehension = une transformation simple. Si tu as
 
 Variante paresseuse (generator expression) : `sum(s["distance"] for s in seances)` — pas de liste intermédiaire, à connaître de vue.
 
+**Récupérer le premier élément qui matche** : `next(gen, defaut)` consomme une generator expression jusqu'au premier résultat, sans construire de liste intermédiaire. Le 2ᵉ argument est la valeur rendue si rien ne matche (au lieu de lever `StopIteration`) :
+
+```python
+recette = next((r for r in recettes if r["nom"] == "risotto"), None)
+```
+
+C'est l'idiome « trouver par clé » sur une `list[dict]` — l'alternative concise à une boucle `for … : return`.
+
 ## 7. Choisir sa structure
 
 | Besoin | Structure |
@@ -187,4 +196,5 @@ Les données réelles sont des **imbrications** : une liste de recettes = `list[
 - [ ] J'utilise `.get`, `.items` et l'idiome d'accumulation sur les dicts.
 - [ ] Je pense « set » dès qu'il s'agit d'unicité ou d'intersection/différence.
 - [ ] J'écris des comprehensions simples et lisibles (list, dict, set).
+- [ ] Je numérote une itération avec `enumerate(start=…)` et je cherche le premier match avec `next(…, défaut)`.
 - [ ] Je choisis la bonne structure sans hésiter (tableau ci-dessus).
