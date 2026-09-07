@@ -16,6 +16,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from . import content, database
 from .models import Chapitre, ExerciceProgress, ProjetProgress
@@ -36,6 +37,16 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="Apprendre Python", lifespan=lifespan)
+
+# Derrière le reverse proxy d'Azure App Service (TLS terminé en amont, requête
+# transmise en HTTP interne), Starlette construit ses URLs absolues (url_for,
+# request.base_url) à partir du schéma de la connexion reçue : http. Ce
+# middleware lit le header X-Forwarded-Proto ajouté par le proxy Azure et
+# corrige le scope ASGI en conséquence, pour que les URLs générées restent en
+# https. Sans lui, le CSS/JS servis via url_for('static', ...) pointent vers
+# http:// et sont bloqués par le navigateur (contenu mixte sur page https).
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
