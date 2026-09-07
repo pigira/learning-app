@@ -6,12 +6,19 @@ ne référence les chapitres/exercices que par leurs identifiants.
 """
 from __future__ import annotations
 
+import os
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
-DB_PATH = DATA_DIR / "progress.db"
+
+# Sur Azure App Service, le code déployé (wwwroot) est remplacé à chaque
+# déploiement : la base ne doit pas vivre là. PROGRESS_DB_PATH permet de la
+# rediriger vers le stockage persistant (/home) monté par App Service.
+# En local, comportement inchangé : app/data/progress.db.
+DB_PATH = Path(os.environ.get("PROGRESS_DB_PATH", DATA_DIR / "progress.db"))
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS exercice_progress (
