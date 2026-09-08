@@ -1,12 +1,14 @@
 """Validate chapter documents, never execute their embedded code.
 
-Run from the repository root: python -m agents.validate_chapter <slug>
+Run from the repository root: python -m agents.validate_chapter <cours> <slug>
+Example: python -m agents.validate_chapter python chapitre_01_fondamentaux
+Chapter numbers must be unique within their course, not across all courses.
 """
 
 import argparse
 import json
 
-from app.content import CONTENT_DIR, obtenir_chapitre
+from app.content import CONTENT_DIR, obtenir_chapitre, obtenir_cours_meta
 from app.models import ChapitreMeta, Exercice, Projet, Ressource
 
 
@@ -38,11 +40,13 @@ def validate_object(data, model, label):
     return result
 
 
-def validate_chapter(slug):
-    folder = CONTENT_DIR / slug
+def validate_chapter(cours, slug):
+    require(obtenir_cours_meta(cours) is not None, "Unknown or invalid course")
+    course_folder = CONTENT_DIR / cours
+    folder = course_folder / slug
     require(
-        folder.resolve().parent == CONTENT_DIR.resolve() and folder.name == slug,
-        "The slug must identify a direct child of app/content",
+        folder.resolve().parent == course_folder.resolve() and folder.name == slug,
+        "The slug must identify a direct child of app/content/<cours>",
     )
 
     def load(filename):
@@ -62,7 +66,7 @@ def validate_chapter(slug):
         ),
         "Invalid projets_cibles",
     )
-    for other in CONTENT_DIR.glob("*/chapitre.json"):
+    for other in course_folder.glob("*/chapitre.json"):
         if other.parent.resolve() != folder.resolve():
             with other.open(encoding="utf-8") as source:
                 other_meta = json.load(source)
@@ -81,15 +85,17 @@ def validate_chapter(slug):
     project = validate_object(load("projet.json"), Projet, "projet.json")
     require(bool(project.etapes), "Missing project steps")
 
-    chapter = obtenir_chapitre(slug)
+    chapter = obtenir_chapitre(cours, slug)
     require(chapter is not None, "The application cannot load the chapter")
-    print(f"{slug}: documents valid ({len(ids)} exercises, status={meta.statut}).")
+    print(f"{cours}/{slug}: documents valid ({len(ids)} exercises, status={meta.statut}).")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("cours")
     parser.add_argument("slug")
-    validate_chapter(parser.parse_args().slug)
+    args = parser.parse_args()
+    validate_chapter(args.cours, args.slug)
 
 
 if __name__ == "__main__":

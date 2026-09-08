@@ -1,6 +1,6 @@
 """Moteur FastAPI de l'application d'apprentissage.
 
-Routes HTML (accueil, chapitre) + API JSON de progression.
+Routes HTML (hub, cours, chapitre) + API JSON de progression.
 Le moteur ne connaît rien du contenu : voir ``content.py``.
 
 Lancement :  uvicorn app.main:app --reload
@@ -19,7 +19,7 @@ from fastapi.templating import Jinja2Templates
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from . import content, database
-from .models import Chapitre, ExerciceProgress, ProjetProgress
+from .models import Chapitre, CoursMeta, ExerciceProgress, ProjetProgress
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -36,7 +36,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
 
 
-app = FastAPI(title="Apprendre Python", lifespan=lifespan)
+app = FastAPI(title="Hub Apprentissage", lifespan=lifespan)
 
 # Derrière le reverse proxy d'Azure App Service (TLS terminé en amont, requête
 # transmise en HTTP interne), Starlette construit ses URLs absolues (url_for,
@@ -66,11 +66,10 @@ def _statut_chapitre(chap: Chapitre, faits: set[str], projet_ok: bool) -> str:
     return "non_commence"
 
 
-@app.get("/", response_class=HTMLResponse)
-async def index(request: Request) -> HTMLResponse:
-    chapitres, erreurs = content.charger_chapitres()
-    faits_par_chapitre = database.tous_exercices_faits()
-    projets_ok = database.tous_projets_faits()
+def _cartes_chapitres(cours_slug: str, chapitres: list[Chapitre]) -> list[dict]:
+    """Assemble les statuts partagés entre le hub et la page du cours."""
+    faits_par_chapitre = database.tous_exercices_faits(cours_slug)
+    projets_ok = database.tous_projets_faits(cours_slug)
 
     cartes = []
     for chap in chapitres:
@@ -90,29 +89,73 @@ async def index(request: Request) -> HTMLResponse:
                 "statut_label": STATUT_LABELS[statut],
             }
         )
+    return cartes
+
+
+def _cours_meta_ou_404(cours_slug: str) -> CoursMeta:
+    try:
+        meta = content.obtenir_cours_meta(cours_slug)
+    except content.ErreurContenu as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    if meta is None:
+        raise HTTPException(status_code=404, detail=f"Cours inconnu : {cours_slug}")
+    return meta
+
+
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request) -> HTMLResponse:
+    cours, erreurs = content.charger_cours()
+    cartes = []
+    for un_cours in cours:
+        chapitres = (
+            _cartes_chapitres(un_cours.slug, un_cours.chapitres)
+            if un_cours.meta.statut == "disponible"
+            else []
+        )
+        cartes.append(
+            {
+                "cours": un_cours,
+                "nb_termines": sum(c["statut"] == "termine" for c in chapitres),
+                "nb_total": len(un_cours.chapitres),
+                "a_progression": any(c["statut"] != "non_commence" for c in chapitres),
+            }
+        )
     return templates.TemplateResponse(
-        request, "index.html", {"cartes": cartes, "erreurs": erreurs}
+        request, "hub.html", {"cartes": cartes, "erreurs": erreurs}
     )
 
 
-@app.get("/chapitre/{slug}", response_class=HTMLResponse)
-async def page_chapitre(request: Request, slug: str) -> HTMLResponse:
-    try:
-        chap = content.obtenir_chapitre(slug)
-    except content.ErreurContenu as exc:
-        # Contenu présent mais invalide : erreur explicite pour l'auteur.
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
-    if chap is None:
-        raise HTTPException(status_code=404, detail=f"Chapitre inconnu : {slug}")
+@app.get("/cours/{cours_slug}", response_class=HTMLResponse)
+async def page_cours(request: Request, cours_slug: str) -> HTMLResponse:
+    cours_meta = _cours_meta_ou_404(cours_slug)
+    chapitres, erreurs = content.charger_chapitres(cours_slug)
+    return templates.TemplateResponse(
+        request,
+        "cours.html",
+        {
+            "cours_slug": cours_slug,
+            "cours_meta": cours_meta,
+            "cartes": _cartes_chapitres(cours_slug, chapitres),
+            "erreurs": erreurs,
+        },
+    )
+
+
+@app.get("/cours/{cours_slug}/chapitre/{slug}", response_class=HTMLResponse)
+async def page_chapitre(request: Request, cours_slug: str, slug: str) -> HTMLResponse:
+    cours_meta = _cours_meta_ou_404(cours_slug)
+    chap = _chapitre_ou_404(cours_slug, slug)
 
     ids = {e.id for e in chap.exercices}
-    faits = database.exercices_faits(slug) & ids
-    projet_ok = database.projet_fait(slug)
+    faits = database.exercices_faits(cours_slug, slug) & ids
+    projet_ok = database.projet_fait(cours_slug, slug)
     tous_faits = bool(ids) and faits == ids
     return templates.TemplateResponse(
         request,
         "chapitre.html",
         {
+            "cours_slug": cours_slug,
+            "cours_meta": cours_meta,
             "chap": chap,
             "faits": faits,
             "projet_ok": projet_ok,
@@ -121,9 +164,9 @@ async def page_chapitre(request: Request, slug: str) -> HTMLResponse:
     )
 
 
-def _chapitre_ou_404(slug: str) -> Chapitre:
+def _chapitre_ou_404(cours_slug: str, slug: str) -> Chapitre:
     try:
-        chap = content.obtenir_chapitre(slug)
+        chap = content.obtenir_chapitre(cours_slug, slug)
     except content.ErreurContenu as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     if chap is None:
@@ -133,14 +176,16 @@ def _chapitre_ou_404(slug: str) -> Chapitre:
 
 @app.post("/api/progress/exercice")
 async def maj_exercice(payload: ExerciceProgress) -> dict:
-    chap = _chapitre_ou_404(payload.chapitre)
+    chap = _chapitre_ou_404(payload.cours, payload.chapitre)
     ids = {e.id for e in chap.exercices}
     if payload.exercice_id not in ids:
         raise HTTPException(
             status_code=404, detail=f"Exercice inconnu : {payload.exercice_id}"
         )
-    database.set_exercice_fait(payload.chapitre, payload.exercice_id, payload.fait)
-    faits = database.exercices_faits(payload.chapitre) & ids
+    database.set_exercice_fait(
+        payload.cours, payload.chapitre, payload.exercice_id, payload.fait
+    )
+    faits = database.exercices_faits(payload.cours, payload.chapitre) & ids
     return {
         "ok": True,
         "faits": len(faits),
@@ -151,10 +196,10 @@ async def maj_exercice(payload: ExerciceProgress) -> dict:
 
 @app.post("/api/progress/projet")
 async def maj_projet(payload: ProjetProgress) -> dict:
-    chap = _chapitre_ou_404(payload.chapitre)
+    chap = _chapitre_ou_404(payload.cours, payload.chapitre)
     if chap.projet is None:
         raise HTTPException(
             status_code=404, detail=f"Pas de projet pour : {payload.chapitre}"
         )
-    database.set_projet_fait(payload.chapitre, payload.fait)
+    database.set_projet_fait(payload.cours, payload.chapitre, payload.fait)
     return {"ok": True, "fait": payload.fait}

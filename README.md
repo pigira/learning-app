@@ -1,8 +1,8 @@
-# Apprendre Python — application locale d'apprentissage
+# Hub Apprentissage — application locale multi-cours
 
-Application web locale (FastAPI + SQLite) structurée en 22 chapitres progressifs, dont la rédaction est en cours : théorie, exercices avec indices progressifs / ressources / correction commentée, et projet guidé de fin de chapitre. Du setup macOS au déploiement Docker avec intégration IA.
+Application web locale (FastAPI + SQLite) organisée en cours indépendants : théorie, exercices avec indices progressifs / ressources / correction commentée, et projet guidé de fin de chapitre. Le premier cours, **Apprendre Python**, comprend 22 chapitres progressifs, dont la rédaction est en cours, du setup macOS au déploiement Docker avec intégration IA. Les cours Microcontrôleurs & ESP32 et Impression 3D & Fusion 360 sont annoncés « bientôt disponible », sans contenu pour l'instant.
 
-Le moteur est **totalement agnostique du contenu** : les chapitres vivent en fichiers Markdown + JSON dans `app/content/`. Ajouter ou modifier un chapitre ne demande aucune modification de code — ni même de redémarrage du serveur (le contenu est relu à chaque requête).
+Le moteur est **totalement agnostique du contenu** : chaque cours vit dans `app/content/<cours>/`, avec ses chapitres en fichiers Markdown + JSON. Ajouter ou modifier un cours ou un chapitre ne demande aucune modification de code — ni même de redémarrage du serveur (le contenu est relu à chaque requête).
 
 ## Installation (macOS)
 
@@ -25,13 +25,20 @@ Puis ouvrir <http://127.0.0.1:8000>. `--reload` relance le serveur si le code Py
 
 ## Utilisation
 
-- **Accueil** : liste des chapitres avec statut (non commencé / en cours / terminé) et progression.
+- **Accueil** (`/`) : hub des cours disponibles et à venir ; résumé des chapitres terminés pour les cours commencés. Les cartes « bientôt disponible » ne sont pas cliquables.
+- **Page cours** (`/cours/python`, par exemple) : liste des chapitres avec statut (non commencé / en cours / terminé) et progression.
 - **Page chapitre** : théorie en haut, puis exercices — chaque exercice propose des boutons *Indice 1/2/3* (révélés un par un), *Ressources* (liens externes) et *Voir la correction*.
-- La progression se coche manuellement (checkbox « Terminé ») et est persistée dans `app/data/progress.db` (SQLite). Aucune vérification automatique du code : tu testes dans VS Code, tu coches quand c'est fait.
+- La progression se coche manuellement (checkbox « Terminé ») et est persistée par cours dans `app/data/progress.db` (SQLite). Aucune vérification automatique du code : tu testes dans VS Code, tu coches quand c'est fait.
 - Le **projet guidé** de fin de chapitre se déverrouille quand tous les exercices du chapitre sont cochés.
 - Réinitialiser la progression : supprimer `app/data/progress.db` (recréée au démarrage).
 
+Au premier démarrage de la V2, l'ancienne progression est automatiquement
+rattachée au cours `python`, sans perte des coches ni des dates. Cette migration
+est transactionnelle et ne se répète pas aux démarrages suivants.
+
 ## État du contenu
+
+Ce tableau concerne le cours Python, dans `app/content/python/`.
 
 **Les chapitres 1 et 2 sont les références abouties confirmées par l'utilisateur.**
 Le chapitre 3 a été rédigé avec l'agent à partir de ces références. Les autres
@@ -79,28 +86,39 @@ restent manuelles dans VS Code.
 Application de learning/
 ├── app/
 │   ├── main.py            # FastAPI : routes HTML + API de progression
-│   ├── content.py         # découverte/chargement/validation des chapitres
+│   ├── content.py         # découverte/chargement/validation des cours et chapitres
 │   ├── database.py        # SQLite : progression (exercices, projets)
 │   ├── models.py          # schéma Pydantic du contenu (contrat des JSON)
-│   ├── content/           # LE CONTENU — un dossier par chapitre
-│   │   └── chapitre_XX_slug/
-│   │       ├── chapitre.json     # métadonnées (obligatoire)
-│   │       ├── theorie.md        # théorie Markdown (optionnel)
-│   │       ├── exercices.json    # exercices (optionnel)
-│   │       └── projet.json       # projet guidé (optionnel)
-│   ├── templates/         # Jinja2 (base, index, chapitre)
+│   ├── content/           # LE CONTENU — un dossier par cours
+│   │   ├── python/
+│   │   │   ├── cours.json       # métadonnées du cours (obligatoire)
+│   │   │   └── chapitre_XX_slug/ # 22 dossiers, du chapitre 00 au 21
+│   │   │       ├── chapitre.json # métadonnées (obligatoire)
+│   │   │       ├── theorie.md    # théorie Markdown (optionnel)
+│   │   │       ├── exercices.json # exercices (optionnel)
+│   │   │       └── projet.json   # projet guidé (optionnel)
+│   │   ├── esp32-microcontroleurs/
+│   │   │   └── cours.json       # statut a_venir, sans chapitre
+│   │   └── impression-3d-fusion360/
+│   │       └── cours.json       # statut a_venir, sans chapitre
+│   ├── templates/         # Jinja2 (base, hub, cours, chapitre)
 │   ├── static/            # style.css, app.js (vanilla, zéro build)
 │   └── data/
 │       └── progress.db    # créée au premier lancement (gitignorée)
+├── tests/
+│   └── test_multi_cours.py # migration, découverte, routes et isolation des cours
 ├── requirements.txt
 └── README.md
 ```
 
 ## Ajouter ou compléter un chapitre
 
-1. Créer un dossier `app/content/chapitre_NN_mon_slug/` (le nom du dossier est le slug de l'URL).
+1. Dans un cours existant, créer un dossier `app/content/<cours>/chapitre_NN_mon_slug/` (le nom du dossier est le slug de l'URL, par exemple `/cours/python/chapitre/chapitre_01_fondamentaux`).
 2. Y déposer au minimum `chapitre.json` ; ajouter `theorie.md`, `exercices.json`, `projet.json` selon l'avancement.
-3. Recharger la page — c'est tout. Un fichier invalide n'empêche pas l'app de tourner : l'erreur est affichée sur la page d'accueil (et en détail sur la page du chapitre concerné).
+3. Recharger la page — c'est tout. Un fichier invalide n'empêche pas l'app de tourner : l'erreur est affichée sur le hub et la page du cours (et en détail sur la page du chapitre concerné).
+
+Le numéro du chapitre doit être unique **dans son cours**. Deux cours peuvent
+utiliser les mêmes numéros et slugs de chapitre sans partager leur progression.
 
 ### Schéma `chapitre.json`
 
@@ -133,7 +151,7 @@ Application de learning/
 ]
 ```
 
-Les `id` doivent être uniques **dans le chapitre** (la progression est indexée par `(chapitre, id)` — renommer un id réinitialise sa progression). Champs `indices`/`ressources`/`solution` optionnels : les boutons correspondants n'apparaissent pas s'ils sont vides.
+Les `id` doivent être uniques **dans le chapitre** (la progression est indexée par `(cours, chapitre, id)` — renommer un cours, un chapitre ou un id dissocie sa progression). Champs `indices`/`ressources`/`solution` optionnels : les boutons correspondants n'apparaissent pas s'ils sont vides.
 
 ### Schéma `projet.json`
 
@@ -150,7 +168,37 @@ Les `id` doivent être uniques **dans le chapitre** (la progression est indexée
 
 Tous les champs texte (consignes, indices, étapes, solutions, théorie) sont du **Markdown** rendu côté serveur (code clôturé et tableaux supportés).
 
+## Ajouter un cours
+
+1. Créer `app/content/<slug>/cours.json` (le nom du dossier est le slug ; aucun champ `slug` dans le JSON).
+2. Renseigner les métadonnées ci-dessous. Garder `statut: "a_venir"` tant qu'aucun chapitre n'existe : la carte est visible, atténuée et sans lien.
+3. Ajouter les dossiers de chapitre dans ce cours, puis passer le statut à `"disponible"` lorsqu'il est prêt à être ouvert.
+4. Recharger le hub : le cours est découvert automatiquement, sans modification de code ni redémarrage.
+
+```json
+{
+  "ordre": 4,
+  "titre": "Mon prochain cours",
+  "description": "Les compétences à acquérir.",
+  "icone": "📚",
+  "statut": "a_venir"
+}
+```
+
+`ordre` et `titre` sont obligatoires. Les cours sont triés par `ordre`.
+`description` vaut `""` par défaut, `icone` vaut `"📚"` et `statut` vaut
+`"disponible"` ; seuls `"disponible"` et `"a_venir"` sont acceptés.
+Un dossier sans `cours.json` est ignoré. Des métadonnées invalides sont
+signalées sur le hub sans empêcher les autres cours de s'afficher.
+
 ## Ajouter un chapitre via l'agent
+
+**Adaptation V2 encore nécessaire :** `agents/redacteur-chapitre.source.md`
+et les skills `theorie` / `exercice` / `projet` restent mono-cours et n'ont
+pas été modifiés ici. Avant de relancer la rédaction, il faudra leur apprendre
+les chemins `app/content/<cours>/...`, l'unicité du numéro par cours et la
+nouvelle commande du validateur. Les instructions d'agent ci-dessous décrivent
+donc le fonctionnement antérieur, à adapter avant de rédiger le prochain cours.
 
 L'agent **`redacteur-chapitre`** fonctionne dans Claude Code et GitHub Copilot
 dans VS Code. Il n'a besoin ni de Cowork ni d'un serveur MCP. Ouvrir la
@@ -254,9 +302,10 @@ Le contrôle éditorial est plus strict que les champs optionnels du moteur :
 exactes et unicité des IDs. Pour le relancer, avec le venv activé :
 
 ```bash
-python -m agents.validate_chapter chapitre_03_poo
+python -m agents.validate_chapter python chapitre_03_poo
 ```
 
+Les deux arguments positionnels sont le slug du cours puis celui du chapitre.
 Cette commande charge les documents avec les modèles Pydantic existants et
 le chargeur de l'application. Elle ne lance pas le code Markdown et ne remplace
 pas la relecture des prérequis, des résultats et de la progression pédagogique.
@@ -284,11 +333,16 @@ ni push n'est effectué automatiquement par l'agent.
 
 ## API (utilisée par le front)
 
-- `POST /api/progress/exercice` — corps `{"chapitre": "<slug>", "exercice_id": "ex01", "fait": true}`
-- `POST /api/progress/projet` — corps `{"chapitre": "<slug>", "fait": true}`
+- `POST /api/progress/exercice` — corps `{"cours": "python", "chapitre": "<slug>", "exercice_id": "ex01", "fait": true}`
+- `POST /api/progress/projet` — corps `{"cours": "python", "chapitre": "<slug>", "fait": true}`
 
 ## Notes techniques
 
 - Python ≥ 3.10, dépendances volontairement minimales : FastAPI, Uvicorn, Jinja2, Markdown.
 - Frontend vanilla (aucun framework JS, aucun build) ; le Markdown est rendu côté serveur.
 - La base SQLite ne stocke que la progression — la supprimer ne touche jamais au contenu.
+
+Les tests du moteur s'exécutent avec `python -m unittest discover -s tests -v`.
+Ils utilisent uniquement des contenus et bases temporaires, sans toucher à
+la progression locale ni exécuter le code pédagogique ; aucune dépendance
+de test supplémentaire n'est nécessaire.

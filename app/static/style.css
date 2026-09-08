@@ -1,4 +1,4 @@
-/* Apprendre Python — feuille de style unique. Sobre, lisible, sans framework. */
+/* Hub Apprentissage — feuille de style unique. Sobre, lisible, sans framework. */
 
 :root {
   --bleu: #2563eb;
@@ -78,7 +78,8 @@ h1 .numero { color: var(--texte-doux); font-weight: 400; margin-right: 0.25rem; 
   vertical-align: middle;
 }
 .badge-projet { background: #eef2ff; color: #4338ca; }
-.badge-squelette {
+.badge-disponible { background: var(--vert-fond); color: var(--vert); }
+.badge-squelette, .badge-a-venir {
   background: var(--blanc);
   color: var(--texte-doux);
   border: 1px dashed var(--texte-doux);
@@ -86,8 +87,8 @@ h1 .numero { color: var(--texte-doux); font-weight: 400; margin-right: 0.25rem; 
 }
 .badges { display: inline-flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
 
-/* ---------- Accueil : cartes chapitres ---------- */
-.liste-chapitres { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
+/* ---------- Hub et cours : cartes ---------- */
+.liste-chapitres, .liste-cours { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
 
 .carte {
   display: grid;
@@ -102,7 +103,9 @@ h1 .numero { color: var(--texte-doux); font-weight: 400; margin-right: 0.25rem; 
   text-decoration: none;
   color: inherit;
 }
-.carte:hover { border-color: var(--bleu); }
+a.carte:hover { border-color: var(--bleu); }
+.icone-cours { font-size: 1.8rem; text-align: center; }
+.carte-a-venir { background: var(--code-fond); color: var(--texte-doux); }
 .carte .numero {
   font-family: var(--mono);
   font-size: 1.2rem;

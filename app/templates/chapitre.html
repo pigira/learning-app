@@ -1,10 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}{{ "%02d" | format(chap.meta.numero) }} · {{ chap.meta.titre }} — Apprendre Python{% endblock %}
-{% block body_attrs %}data-chapitre="{{ chap.slug }}"{% endblock %}
+{% block title %}{{ "%02d" | format(chap.meta.numero) }} · {{ chap.meta.titre }} — {{ cours_meta.titre }}{% endblock %}
+{% block body_attrs %}data-chapitre="{{ chap.slug }}" data-cours="{{ cours_slug }}"{% endblock %}
 
 {% block content %}
-<nav class="fil-ariane"><a href="/">&larr; Tous les chapitres</a></nav>
+<nav class="fil-ariane" aria-label="Fil d'ariane">
+  <a href="/">Hub</a> &rarr;
+  <a href="/cours/{{ cours_slug }}">{{ cours_meta.titre }}</a> &rarr;
+  <span aria-current="page">{{ chap.meta.titre }}</span>
+</nav>
 
 <header class="entete-chapitre">
   <h1>

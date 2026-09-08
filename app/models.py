@@ -65,17 +65,37 @@ class Chapitre(BaseModel):
     projet: Optional[Projet] = None
 
 
+class CoursMeta(BaseModel):
+    """Métadonnées d'un cours (``cours.json``)."""
+
+    ordre: int
+    titre: str
+    description: str = ""
+    icone: str = "📚"
+    statut: Literal["disponible", "a_venir"] = "disponible"
+
+
+class Cours(BaseModel):
+    """Cours assemblé depuis un dossier de ``app/content/``."""
+
+    slug: str
+    meta: CoursMeta
+    chapitres: list[Chapitre] = Field(default_factory=list)
+
+
 # ---------------------------------------------------------------------------
 # Payloads de l'API de progression
 # ---------------------------------------------------------------------------
 
 
 class ExerciceProgress(BaseModel):
+    cours: str
     chapitre: str
     exercice_id: str
     fait: bool
 
 
 class ProjetProgress(BaseModel):
+    cours: str
     chapitre: str
     fait: bool
