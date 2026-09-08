@@ -1,6 +1,6 @@
 # Apprendre Python — application locale d'apprentissage
 
-Application web locale (FastAPI + SQLite) structurée en 22 chapitres progressifs : théorie courte, exercices avec indices progressifs / ressources / correction commentée, et projet guidé de fin de chapitre. Du setup macOS au déploiement Docker avec intégration IA.
+Application web locale (FastAPI + SQLite) structurée en 22 chapitres progressifs, dont la rédaction est en cours : théorie, exercices avec indices progressifs / ressources / correction commentée, et projet guidé de fin de chapitre. Du setup macOS au déploiement Docker avec intégration IA.
 
 Le moteur est **totalement agnostique du contenu** : les chapitres vivent en fichiers Markdown + JSON dans `app/content/`. Ajouter ou modifier un chapitre ne demande aucune modification de code — ni même de redémarrage du serveur (le contenu est relu à chaque requête).
 
@@ -33,36 +33,45 @@ Puis ouvrir <http://127.0.0.1:8000>. `--reload` relance le serveur si le code Py
 
 ## État du contenu
 
-**Les 22 chapitres (0 à 21) sont complets** : chacun a une théorie rédigée (`theorie.md`), 4 à 6 exercices détaillés (consigne + indices progressifs + ressources + correction commentée) et un projet guidé de fin de chapitre. Soit **104 exercices** au total.
+**Les chapitres 1 et 2 sont les références abouties confirmées par l'utilisateur.**
+Le chapitre 3 a été rédigé avec l'agent à partir de ces références. Les autres
+disposent déjà de contenu, mais restent à reprendre : la présence de quatre
+fichiers ou un ancien `statut: "complet"` ne garantit pas que la rédaction
+est aboutie. Les **22 chapitres (0 à 21)** contiennent
+actuellement **104 exercices**, y compris ceux à reprendre.
 
-| # | Chapitre | Ex. | Projet(s) cible |
-|---|---|---|---|
-| 0 | Setup de l'environnement (macOS) | 6 | Tous |
-| 1 | Fondamentaux Python | 6 | Tous |
-| 2 | Structures de données | 6 | Tous |
-| 3 | POO en Python | 6 | Tous |
-| 4 | Modules, exceptions et typing | 5 | Tous |
-| 5 | Fichiers, JSON et context managers | 5 | Tous |
-| 6 | SQLite avancé | 5 | Cuisine, Finance, Enduro |
-| 7 | Tests et qualité de code | 5 | Tous |
-| 8 | Async Python | 5 | Cuisine, Finance |
-| 9 | Consommation d'API REST | 5 | Cuisine, Finance |
-| 10 | Pandas | 5 | Finance, Enduro |
-| 11 | Séries temporelles avec Pandas | 5 | Finance, Enduro |
-| 12 | Visualisation de données | 4 | Finance, Enduro |
-| 13 | Streamlit | 4 | Finance, Enduro, Cuisine |
-| 14 | Configuration et secrets | 4 | Tous |
-| 15 | Tâches planifiées et background jobs | 4 | Finance, Cuisine |
-| 16 | Parsing de fichiers binaires (.fit) | 4 | Enduro |
-| 17 | Appels LLM et function calling | 4 | Cuisine |
-| 18 | Conception d'agents IA | 4 | Cuisine |
-| 19 | Sécurité applicative de base | 4 | Tous |
-| 20 | Packaging et Docker | 4 | Tous |
-| 21 | Projet final transverse | 4 | Synthèse des 3 projets |
+| # | Chapitre | Ex. | Projet(s) cible | État de rédaction |
+|---|---|---|---|---|
+| 0 | Setup de l'environnement (macOS) | 6 | Tous | À reprendre |
+| 1 | Fondamentaux Python | 6 | Tous | Référence utilisateur |
+| 2 | Structures de données | 6 | Tous | Référence utilisateur |
+| 3 | POO en Python | 6 | Tous | Rédigé par l'agent |
+| 4 | Modules, exceptions et typing | 5 | Tous | À reprendre |
+| 5 | Fichiers, JSON et context managers | 5 | Tous | À reprendre |
+| 6 | SQLite avancé | 5 | Cuisine, Finance, Enduro | À reprendre |
+| 7 | Tests et qualité de code | 5 | Tous | À reprendre |
+| 8 | Async Python | 5 | Cuisine, Finance | À reprendre |
+| 9 | Consommation d'API REST | 5 | Cuisine, Finance | À reprendre |
+| 10 | Pandas | 5 | Finance, Enduro | À reprendre |
+| 11 | Séries temporelles avec Pandas | 5 | Finance, Enduro | À reprendre |
+| 12 | Visualisation de données | 4 | Finance, Enduro | À reprendre |
+| 13 | Streamlit | 4 | Finance, Enduro, Cuisine | À reprendre |
+| 14 | Configuration et secrets | 4 | Tous | À reprendre |
+| 15 | Tâches planifiées et background jobs | 4 | Finance, Cuisine | À reprendre |
+| 16 | Parsing de fichiers binaires (.fit) | 4 | Enduro | À reprendre |
+| 17 | Appels LLM et function calling | 4 | Cuisine | À reprendre |
+| 18 | Conception d'agents IA | 4 | Cuisine | À reprendre |
+| 19 | Sécurité applicative de base | 4 | Tous | À reprendre |
+| 20 | Packaging et Docker | 4 | Tous | À reprendre |
+| 21 | Projet final transverse | 4 | Synthèse des 3 projets | À reprendre |
 
 Le contenu reste modifiable et extensible à tout moment : voir « Ajouter ou compléter un chapitre ». Le mécanisme de badge « squelette » subsiste dans l'interface pour tout nouveau chapitre créé au statut `squelette`.
 
-> Note : les exemples des chapitres purement Python (0-11) ont été exécutés et vérifiés. Ceux qui dépendent de services externes non disponibles hors ligne (IA/Azure OpenAI ch. 17-18, Docker ch. 20, vrais fichiers `.fit` ch. 16) suivent les API stables actuelles mais sont à valider à la première mise en pratique.
+L'état éditorial de ce tableau est distinct du badge technique `statut` :
+les anciens statuts restent inchangés tant que le chapitre n'est pas repris.
+L'agent fait une relecture pédagogique et une validation des documents, **pas
+d'exécution des exemples ou du code de l'apprenant**. Les mises en pratique
+restent manuelles dans VS Code.
 
 ## Structure du projet
 
@@ -107,7 +116,7 @@ Application de learning/
 }
 ```
 
-`statut` : `"complet"` ou `"squelette"` (badge dans l'interface). `points_theorie` sert de plan de rédaction : la page chapitre l'affiche tant que `theorie.md` est absent.
+`statut` : `"complet"` ou `"squelette"` (badge dans l'interface). `points_theorie` sert de plan de rédaction : la page chapitre l'affiche tant que `theorie.md` est absent. `projets_cibles` : sous-ensemble non vide de `["Cuisine", "Finance", "Enduro"]`, sans doublons, ou exclusivement `["Tous"]`.
 
 ### Schéma `exercices.json` (liste)
 
@@ -140,6 +149,138 @@ Les `id` doivent être uniques **dans le chapitre** (la progression est indexée
 ```
 
 Tous les champs texte (consignes, indices, étapes, solutions, théorie) sont du **Markdown** rendu côté serveur (code clôturé et tableaux supportés).
+
+## Ajouter un chapitre via l'agent
+
+L'agent **`redacteur-chapitre`** fonctionne dans Claude Code et GitHub Copilot
+dans VS Code. Il n'a besoin ni de Cowork ni d'un serveur MCP. Ouvrir la
+**racine du dépôt** et utiliser l'environnement Python de l'application
+(`source .venv/bin/activate`, Python ≥ 3.10, dépendances de `requirements.txt`).
+Les abonnements/modèles disponibles et les permissions restent ceux du client.
+
+### Source unique et adaptateurs
+
+```text
+.claude/skills/
+├── theorie/SKILL.md
+├── exercice/SKILL.md
+└── projet/SKILL.md
+.github/skills -> ../.claude/skills
+.claude/agents/redacteur-chapitre.md
+.github/agents/redacteur-chapitre.agent.md
+agents/
+├── redacteur-chapitre.source.md   # corps commun de l'orchestrateur
+├── sync_redacteur.py             # recopie le corps, préserve les frontmatters
+└── validate_chapter.py           # contrôle documentaire, sans exécution de code
+```
+
+Les skills sont les **mêmes fichiers**, via le lien symbolique. Ne crée pas
+de copies dans `.github/skills`. Les adaptateurs ne diffèrent que par leur
+frontmatter : Claude utilise `name`, `description`, `model`, `color` ;
+Copilot utilise `description`, `tools`, `model`, `target: vscode`.
+Claude hérite du modèle de la session. Copilot propose une liste de modèles
+par ordre de préférence ; adapte seulement ce champ à ceux de ton sélecteur,
+ou omets-le pour conserver le modèle sélectionné.
+
+Le frontmatter `allowed-tools` des skills appartient au format Agent Skills,
+mais son support est expérimental et ses noms d'outils ne sont pas universels.
+Ce n'est **pas** un contrôle de permissions commun aux deux clients.
+Copilot dispose des outils via son adaptateur ; les règles métier sont dans
+les skills. Si l'invocation native d'un skill n'est pas disponible dans un
+contexte d'agent, l'orchestrateur lit le même `SKILL.md` et l'applique.
+
+### Depuis Claude Code
+
+Après ajout des fichiers, redémarre la session si l'agent n'est pas découvert.
+Lance `claude --agent redacteur-chapitre`, ou demande dans une session :
+
+```text
+Utilise l'agent redacteur-chapitre pour reprendre le chapitre 4
+(chapitre_04_modules_exceptions_typing).
+Sujet : modules, exceptions et typing. Secteurs : Tous.
+Prends les chapitres 1 et 2 comme références de rédaction.
+Conserve le slug et tous les IDs d'exercices existants.
+```
+
+Pour ne reprendre qu'une partie : `/theorie chapitre_04_modules_exceptions_typing`,
+`/exercice chapitre_04_modules_exceptions_typing` ou
+`/projet chapitre_04_modules_exceptions_typing`. Un skill isolé ne déclare
+pas le chapitre complet ; demande l'orchestrateur pour la finalisation.
+
+### Depuis GitHub Copilot dans VS Code
+
+Utilise une version récente de VS Code et de Copilot prenant en charge les
+[agents personnalisés](https://code.visualstudio.com/docs/copilot/customization/custom-agents)
+et les [Agent Skills](https://code.visualstudio.com/docs/copilot/customization/agent-skills).
+Dans Chat, choisis **`redacteur-chapitre`** dans le sélecteur d'agents puis
+envoie le même texte que ci-dessus. Autorise la lecture, l'édition et les
+commandes Python de génération/validation quand le client le demande.
+Les skills sont aussi accessibles par `/theorie`, `/exercice`, `/projet`.
+
+Si rien n'apparaît, recharge la fenêtre, contrôle la découverte dans
+**Chat: Open Customizations**, les permissions du workspace et le lien :
+
+```bash
+readlink .github/skills
+# ../.claude/skills
+git ls-files -s .github/skills
+# le mode doit être 120000, pas 100644
+```
+
+macOS/Linux prennent en charge ce lien directement. Sous Windows, utilise
+WSL ou un checkout Git avec les liens symboliques activés (`core.symlinks=true`
+et droits nécessaires). Un fichier texte contenant le chemin n'est pas un
+lien exploitable. Les versions récentes de Copilot savent également découvrir
+`.claude/skills` directement ; le lien demandé reste conservé pour le chemin
+`.github/skills`, sans duplication.
+
+### Déroulement et garanties
+
+L'agent lit les métadonnées et les références abouties, passe le chapitre à
+`squelette`, puis applique `theorie` → `exercice` → `projet`. Il génère les JSON
+avec Python (`json.dump`, UTF-8, `ensure_ascii=False`, `indent=2`), relit chaque
+notion utilisée par rapport à la théorie et aux chapitres précédents, puis
+passe à `complet` et actualise le tableau de contenu. Les scripts temporaires
+de génération sont supprimés ; les Markdown/JSON restent la source du cours.
+
+Les IDs et le slug sont conservés : **une réécriture ne réinitialise pas la
+progression déjà cochée**. L'agent ne modifie ni le moteur ni la base SQLite.
+Il n'ajoute aucun champ aux modèles et n'exécute jamais les exemples,
+solutions ou programmes de l'apprenant. `solution` est le nom exact du champ
+JSON, même si l'interface parle de « correction ».
+
+Le contrôle éditorial est plus strict que les champs optionnels du moteur :
+4 à 6 exercices, 2 à 3 indices, ressources et solutions renseignées, clés
+exactes et unicité des IDs. Pour le relancer, avec le venv activé :
+
+```bash
+python -m agents.validate_chapter chapitre_03_poo
+```
+
+Cette commande charge les documents avec les modèles Pydantic existants et
+le chargeur de l'application. Elle ne lance pas le code Markdown et ne remplace
+pas la relecture des prérequis, des résultats et de la progression pédagogique.
+
+Le premier essai de rédaction a été réalisé sur **le chapitre 3**, avec
+`claude --agent redacteur-chapitre` et invocation native des trois skills,
+puis relecture éditoriale. Ses six IDs sont conservés. Cet essai porte sur
+Claude Code ; l'interface de sélection de l'agent dans VS Code n'a pas été
+exercée ici.
+
+### Faire évoluer l'agent
+
+Modifie uniquement les skills sous `.claude/skills/`. Pour les règles
+d'orchestration, modifie `agents/redacteur-chapitre.source.md`, puis :
+
+```bash
+python3 agents/sync_redacteur.py
+python3 agents/sync_redacteur.py --check
+```
+
+Le corps est recopié à l'identique dans les deux adaptateurs ; leurs
+frontmatters sont conservés. Versionne la source, les deux adaptateurs,
+les trois skills, les scripts et le lien symbolique ensemble. Aucun commit
+ni push n'est effectué automatiquement par l'agent.
 
 ## API (utilisée par le front)
 

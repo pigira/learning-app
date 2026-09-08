@@ -1,0 +1,46 @@
+"""Synchronize the shared agent body without changing client frontmatter."""
+
+import argparse
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parent.parent
+SOURCE = ROOT / "agents" / "redacteur-chapitre.source.md"
+ADAPTERS = (
+    ROOT / ".claude" / "agents" / "redacteur-chapitre.md",
+    ROOT / ".github" / "agents" / "redacteur-chapitre.agent.md",
+)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true")
+    args = parser.parse_args()
+    body = SOURCE.read_text(encoding="utf-8").strip() + "\n"
+    if not body.strip():
+        raise ValueError(f"Empty agent source: {SOURCE}")
+
+    updates = []
+    for path in ADAPTERS:
+        current = path.read_text(encoding="utf-8")
+        if not current.startswith("---\n"):
+            raise ValueError(f"Missing YAML frontmatter: {path}")
+        header, separator, _ = current[4:].partition("\n---\n")
+        if not separator:
+            raise ValueError(f"Unclosed YAML frontmatter: {path}")
+        expected = f"---\n{header}\n---\n\n{body}"
+        if current != expected:
+            updates.append((path, expected))
+
+    if args.check:
+        if updates:
+            parser.exit(1, "Agent bodies differ; run python3 agents/sync_redacteur.py\n")
+        print("Both adapter bodies match the shared source.")
+    else:
+        for path, expected in updates:
+            path.write_text(expected, encoding="utf-8")
+            print(f"Updated {path.relative_to(ROOT)}")
+
+
+if __name__ == "__main__":
+    main()
