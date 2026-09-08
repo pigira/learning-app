@@ -1,0 +1,26 @@
+{
+  "numero": 18,
+  "titre": "Altitude : la mise au propre — Rebase et historique local",
+  "description": "Avant la relecture, l'équipe clarifie une série de changements encore privés. Réorganiser des commits non partagés en expliquant les changements d'identité et les limites de la réécriture.",
+  "objectifs": [
+    "Distinguer modification d'un fichier et remplacement d'un commit.",
+    "Corriger un dernier commit local et préparer une série lisible.",
+    "Rebaser une branche non publiée sur une base actualisée.",
+    "Résoudre ou abandonner un rebase en contrôlant le graphe final.",
+    "Refuser une réécriture partagée non concertée et expliquer les limites de force-with-lease."
+  ],
+  "points_theorie": [
+    "Prérequis : graphe, conflits, remotes et workflow des chapitres 7 à 16 ; travail propre, branche de secours explicite et dépôt jetable pour l'apprentissage.",
+    "Un commit dépend de son contenu, de ses parents et de métadonnées ; amend ou rebase produit de nouveaux identifiants même si certaines lignes ne changent pas.",
+    "git commit --amend pour un dernier commit non publié : contrôler l'index et le message ; ne pas corriger silencieusement un commit déjà utilisé par d'autres.",
+    "git rebase d'une branche locale sur une base inspectée ; rejouer les différences versus conserver les parents par merge, risques si les changements ne sont pas indépendants.",
+    "Rebase interactif sur une plage locale bornée : pick, reword, squash, fixup et edit ; lire l'ordre, sauvegarder avant réorganisation et vérifier qu'aucun commit utile n'est omis.",
+    "Conflits pendant rebase : notion de ours/theirs dépendante de l'opération, résoudre puis --continue ou --abort ; --skip retire un changement et n'est pas une résolution universelle.",
+    "Après réécriture : comparer contenu et série avec git range-diff introduit ici, inspecter historique et branche de secours ; ne pas traiter l'égalité des fichiers comme preuve de bonne provenance.",
+    "Ne jamais réécrire main ni une branche partagée sans accord explicite, analyse des consommateurs et procédure ; --force-with-lease reste un écrasement conditionnel, pas une garantie de consentement ni de sauvegarde, et le fetch automatique peut affaiblir son attente implicite."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

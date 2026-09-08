@@ -9,7 +9,7 @@ allowed-tools: Read Grep Glob Edit Write
 ## Entrée et lectures obligatoires
 
 Travaille depuis la racine du dépôt. Reçois le dossier
-`app/content/chapitre_NN_slug/`, le sujet et les secteurs cibles. Lis son
+`app/content/<cours>/chapitre_NN_slug/`, le sujet et les secteurs cibles. Lis son
 `chapitre.json`, les fichiers déjà présents et le contrat dans `app/models.py`
 (lecture seule). Si les métadonnées manquent, fais d'abord effectuer leur création
 au statut `squelette` selon l'[orchestrateur](../../../agents/redacteur-chapitre.source.md).
@@ -17,12 +17,12 @@ au statut `squelette` selon l'[orchestrateur](../../../agents/redacteur-chapitre
 Avant d'écrire, lis intégralement au moins un chapitre réellement abouti
 (`chapitre.json`, `theorie.md`, `exercices.json`, `projet.json`), idéalement deux,
 dans le même secteur. Le README distingue les références abouties du contenu à
-reprendre : le seul champ `statut: complet` ne suffit pas. Les chapitres 1 et 2
+reprendre : le seul champ `statut: complet` ne suffit pas. Les chapitres 1 et 2 du cours `python`
 sont les références initiales confirmées par l'utilisateur et ciblent `Tous`.
 En l'absence de référence sectorielle aboutie, utilise-les ; ne présente pas
 les chapitres 10, 11, 16, 17 ou 18 comme validés par défaut.
 
-Lis également la théorie des chapitres antérieurs nécessaires : une notion ne
+Lis également la théorie des chapitres antérieurs nécessaires du même cours : une notion ne
 devient pas un prérequis parce qu'elle figure uniquement dans leur solution.
 
 ## Rédaction

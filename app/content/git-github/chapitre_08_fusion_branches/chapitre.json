@@ -1,0 +1,26 @@
+{
+  "numero": 8,
+  "titre": "Altitude : le rapprochement — Fusion de branches",
+  "description": "Les variantes validées du catalogue doivent rejoindre une version de référence commune. Intégrer une branche et distinguer avance rapide, commit de fusion et historique à deux parents.",
+  "objectifs": [
+    "Choisir et vérifier la branche de destination avant une fusion.",
+    "Prédire si une fusion peut être une avance rapide.",
+    "Réaliser une fusion simple et expliquer son graphe.",
+    "Lire les différences apportées par une branche avant de l'intégrer.",
+    "Arrêter proprement une fusion problématique sans improviser une suppression de fichiers."
+  ],
+  "points_theorie": [
+    "Prérequis : branches, HEAD et ancêtre commun du chapitre 7 ; diffs et instantanés du chapitre 4.",
+    "git merge lancé depuis la destination ; vérifier propreté du travail, branches et différences avant de modifier l'historique.",
+    "Avance rapide : destination ancêtre de la source et déplacement de référence ; --ff-only refuse une divergence au lieu de fabriquer une fusion.",
+    "Fusion à trois voies : ancêtre commun et deux extrémités, commit à deux parents ; conserver la provenance sans confondre parents et copie de fichiers.",
+    "--no-ff comme choix explicite de traçabilité, non règle universelle ; enregistrer un message de fusion pertinent et expliquer l'éditeur si celui-ci s'ouvre.",
+    "Diff entre extrémités versus changements depuis l'ancêtre commun avec la notation à trois points de git diff ; ne pas généraliser sa signification à toutes les commandes.",
+    "git merge --abort seulement lorsqu'une fusion est en cours ; partir d'un travail propre pour faciliter l'annulation, examiner status si une opération reste ouverte.",
+    "Contrôle du résultat, historique et intégration avant suppression de la branche locale ; les conflits véritables seront enseignés au chapitre suivant, pas requis pour la première fusion."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

@@ -8,10 +8,11 @@ allowed-tools: Read Grep Glob Edit Write Bash
 
 ## Préparation
 
+Reçois le dossier `app/content/<cours>/chapitre_NN_slug/`.
 Lis `chapitre.json`, `theorie.md`, `exercices.json`, le projet existant et
 `app/models.py` (lecture seule). Lis aussi le projet d'un chapitre réellement
 abouti identifié par le README, en privilégiant le même secteur. Les chapitres
-1 et 2 (`Tous`) sont les références initiales confirmées ; ne prends pas un
+1 et 2 du cours `python` (`Tous`) sont les références initiales confirmées ; ne prends pas un
 ancien statut `complet` comme preuve suffisante.
 
 Si la théorie ou les exercices manquent, fais d'abord appliquer `theorie`
@@ -62,7 +63,7 @@ Recharge le fichier avec `json.load`. Contrôle les clés exactes, les types,
 les étapes, les ressources et la présence d'une solution complète.
 Relis la matrice théorie/exercices/projet et les résultats attendus.
 Depuis la racine et avec l'environnement du projet, lance uniquement la
-validation documentaire : `python -m agents.validate_chapter <slug>`.
+validation documentaire : `python -m agents.validate_chapter <cours> <slug>`.
 Ce contrôle du JSON ne vérifie pas la cohérence pédagogique à ta place.
 
 ## Limites

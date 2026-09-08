@@ -1,0 +1,27 @@
+{
+  "numero": 24,
+  "titre": "Altitude : la médiathèque — Gros fichiers et clones ciblés",
+  "description": "Le volume des médias fictifs pousse l'équipe à choisir ce qui doit réellement rester dans Git. Comparer stockage externe, Git LFS, clones partiels et sparse-checkout en tenant compte de leurs limites.",
+  "objectifs": [
+    "Identifier les coûts historiques du versionnement de gros fichiers binaires.",
+    "Choisir entre fichiers Git ordinaires, LFS et références vers un stockage externe.",
+    "Expliquer pointeur LFS, objet distant et disponibilité hors ligne.",
+    "Distinguer clone superficiel, clone partiel et arborescence de travail partielle.",
+    "Prévoir une solution de repli gratuite sans migration forcée de l'historique."
+  ],
+  "points_theorie": [
+    "Prérequis : clone du chapitre 11, objets du chapitre 22 et .gitattributes du chapitre 23 ; petits fichiers synthétiques seulement.",
+    "Accumulation historique des versions binaires, contraintes d'hébergement et de bande passante ; vérifier les limites GitHub courantes plutôt que figer une taille ou un tarif dans le cours.",
+    "Git LFS comme extension optionnelle à installer uniquement pour cette variante : git lfs install, track, ls-files et pull introduits, règles .gitattributes partagées et contrôle des pointeurs.",
+    "Un pointeur est versionné dans Git mais le contenu vit dans un stockage LFS distinct ; clone ou bundle Git seul ne garantit pas sa sauvegarde, une archive peut ne pas contenir les objets attendus.",
+    "Quotas, facturation et permissions LFS à vérifier avant activation ; parcours obligatoire possible avec petites images fictives ordinaires, aucun achat de stockage imposé.",
+    "Migration d'anciens binaires vers LFS peut réécrire des commits : décision collective, sauvegardes et plan de coordination requis, jamais nettoyage automatique du dépôt partagé.",
+    "Clone --depth : historique limité et effets sur log, bisect et recherche d'ancêtres ; approfondissement ou récupération complète explicités avant diagnostic.",
+    "Clone partiel avec filtre d'objets versus sparse-checkout qui limite les chemins matérialisés ; compatibilité du serveur et accès réseau différé, définir un périmètre puis vérifier et rétablir l'arborescence complète.",
+    "Décision documentée selon taille, historique, collaboration et sauvegarde ; stockage externe avec droits et lien stable plutôt que promesse de synchronisation automatique."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

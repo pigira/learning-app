@@ -1,0 +1,26 @@
+{
+  "numero": 23,
+  "titre": "Altitude : les trois postes — Portabilité et attributs",
+  "description": "Les postes Windows, macOS et Linux de l'équipe doivent produire des changements comparables. Maîtriser fins de ligne, noms de fichiers et attributs partagés pour éviter les différences parasites.",
+  "objectifs": [
+    "Diagnostiquer un diff global provoqué par les fins de ligne ou l'encodage.",
+    "Définir des règles .gitattributes adaptées aux fichiers texte et binaires.",
+    "Réconcilier règles du dépôt et configuration locale sans imposer un réglage aveugle.",
+    "Prévenir les collisions de casse, chemins incompatibles et modes inattendus.",
+    "Planifier une normalisation isolée des changements fonctionnels."
+  ],
+  "points_theorie": [
+    "Prérequis : fichiers et systèmes des chapitres 0 et 1, diffs du chapitre 4, exclusions du chapitre 5 et objets du chapitre 22.",
+    "LF et CRLF, encodage UTF-8 et marqueur BOM ; examiner la source d'un changement massif avant de valider des milliers de lignes.",
+    ".gitattributes versionné : motifs, text, text=auto, eol=lf ou crlf selon besoin explicite et -text pour binaires ; différence avec .gitignore.",
+    "core.autocrlf et core.eol : configuration locale/globale et interactions avec les attributs ; expliquer le choix du dépôt et éviter une recette système unique.",
+    "git check-attr pour vérifier les règles effectives ; git add --renormalize uniquement après accord, travail propre et revue d'un commit de normalisation dédié.",
+    "Noms sensibles à la casse selon système, renommage par étape intermédiaire, noms réservés Windows, caractères et longueurs de chemins ; favoriser la portabilité à la source.",
+    "Modes exécutables, core.fileMode et liens symboliques : différences de système et de droits ; ne pas rendre leur usage obligatoire pour les documents du cours.",
+    "Ne pas masquer un conflit réel par un pilote de fusion automatique ; règle de lecture des changements de normalisation avant réintégration dans des branches actives."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

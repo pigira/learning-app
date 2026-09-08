@@ -1,0 +1,26 @@
+{
+  "numero": 5,
+  "titre": "Altitude : le tri — Fichiers suivis et exclusions",
+  "description": "L'équipe sépare les documents partageables des brouillons et exports locaux. Définir les règles d'exclusion et vérifier ce qu'un dépôt expose avant toute publication.",
+  "objectifs": [
+    "Écrire un .gitignore adapté aux fichiers générés et locaux.",
+    "Diagnostiquer pourquoi un fichier est ignoré ou continue d'être suivi.",
+    "Arrêter le suivi d'un fichier sans supprimer sa copie de travail.",
+    "Distinguer exclusion, confidentialité, sauvegarde et suppression de l'historique.",
+    "Effectuer une revue de contenu hors données réelles avant publication."
+  ],
+  "points_theorie": [
+    "Prérequis : sélection, commits et lecture des différences des chapitres 3 et 4.",
+    ".gitignore versionné : motifs, / initial, dossier terminé par /, *, ** et exceptions avec ! ; expliquer les limites de réinclusion sous un dossier ignoré.",
+    "Choix entre .gitignore partagé, .git/info/exclude local et exclusions globales ; ne pas imposer à l'équipe des préférences personnelles.",
+    "Fichiers non suivis versus déjà suivis ; git check-ignore -v et git ls-files pour diagnostiquer les règles et leur provenance.",
+    "git rm --cached sur un chemin précis : retirer de l'index en gardant le fichier local, vérifier le diff et enregistrer la décision ; copies déjà publiées inchangées.",
+    "Ne jamais suivre clés, mots de passe, journaux sensibles, données client, santé ou traces GPS réelles ; un dépôt privé et un fichier ignoré ne constituent pas un coffre à secrets.",
+    "Fichiers de configuration d'exemple avec valeurs manifestement fictives, politique de données synthétiques et revue des pièces jointes ; aucune vraie clé même pour illustrer une fuite.",
+    "En cas de secret déjà publié, arrêter sa diffusion et demander sa révocation immédiate ; un nouveau commit de suppression ne révoque rien et ne nettoie pas l'historique."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

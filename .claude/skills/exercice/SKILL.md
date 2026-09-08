@@ -8,9 +8,10 @@ allowed-tools: Read Grep Glob Edit Write Bash
 
 ## Avant d'écrire
 
+Reçois le dossier `app/content/<cours>/chapitre_NN_slug/`.
 Lis `chapitre.json`, toute la théorie du chapitre, les exercices et le projet
 existants, le contrat `app/models.py` (lecture seule), ainsi qu'un chapitre
-réellement abouti de référence identifié dans le README. Les chapitres 1 et 2
+réellement abouti de référence identifié dans le README. Les chapitres 1 et 2 du cours `python`
 sont les références initiales ; `statut: complet` seul ne prouve pas qu'un
 chapitre est abouti. Privilégie le même secteur, ou ces références `Tous`.
 Si `theorie.md` manque ou est insuffisant, utilise d'abord `theorie`.
@@ -83,7 +84,7 @@ contenu généré.
 Recharge le JSON avec `json.load`, contrôle ses clés, les types, les 4 à 6
 exercices, les 2 à 3 indices et l'unicité des IDs ; compare les IDs avec le
 relevé initial. La validation complète avec le modèle réel se fait via
-`python -m agents.validate_chapter <slug>` après le projet.
+`python -m agents.validate_chapter <cours> <slug>` après le projet.
 
 ## Limites
 

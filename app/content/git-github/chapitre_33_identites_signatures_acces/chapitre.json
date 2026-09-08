@@ -1,0 +1,27 @@
+{
+  "numero": 33,
+  "titre": "Altitude : les habilitations — Accès et signatures",
+  "description": "Les responsabilités de l'équipe évoluent et les preuves d'origine doivent être comprises sans ambiguïté. Gérer les identités d'accès et vérifier les signatures de commits en distinguant authenticité, confiance et droits.",
+  "objectifs": [
+    "Distinguer auteur déclaré, identité authentifiée et signature vérifiée.",
+    "Préparer une politique de droits minimaux et de départ d'un collaborateur.",
+    "Séparer plusieurs identités Git locales sans publier la mauvaise adresse.",
+    "Comparer les méthodes de signature et vérifier un commit signé.",
+    "Expliquer ce qu'un badge Verified atteste et ce qu'il n'atteste pas."
+  ],
+  "points_theorie": [
+    "Prérequis : configuration locale du chapitre 2, compte et SSH/HTTPS du chapitre 10, gouvernance du chapitre 16, objets du chapitre 22 et tags du chapitre 30.",
+    "Auteur et committer déclarés dans l'objet, compte utilisé pour pousser et signataire éventuel ; ces identités peuvent différer légitimement et n'attestent pas la qualité du changement.",
+    "Droits collaborateurs/équipes selon compte disponible, accès lecture/écriture/administration, revue périodique et départ ; conserver une procédure de récupération sans partager un compte.",
+    "Configuration par dépôt puis includeIf pour identités selon chemins si nécessaire ; lire --show-origin et vérifier user.email avant commit, pas de modification globale silencieuse.",
+    "Clé de connexion, clé de signature, jeton personnel et clé de déploiement : finalités et étendues distinctes ; expiration, révocation et récupération hors dépôt.",
+    "Signature SSH ou GPG : comparer exigences locales et support des versions, choisir une voie seulement ; création protégée, clé publique enregistrée comme clé de signature et empreinte vérifiée, aucun matériel spécifique requis.",
+    "Signature d'un commit ou tag futur et vérification avec les outils Git adaptés ; expliquer configuration de confiance locale, fichier de signataires autorisés si SSH et différence avec vérification GitHub.",
+    "Badge Verified : correspondance cryptographique selon les règles du service, pas absence de malware ni garantie d'autorisation métier ; ne pas réécrire les anciens commits partagés pour leur ajouter des signatures.",
+    "Signature facultative si environnement incompatible, grille de vérification documentaire en repli ; protections qui exigent une signature seulement si leur disponibilité et procédure d'équipe sont confirmées."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

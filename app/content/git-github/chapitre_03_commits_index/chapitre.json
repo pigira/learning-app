@@ -1,0 +1,26 @@
+{
+  "numero": 3,
+  "titre": "Altitude : les premières fiches — Index et commits",
+  "description": "L'équipe consigne les premières fiches fictives de son catalogue sportif. Sélectionner des changements et construire des commits cohérents dont le contenu est vérifié avant enregistrement.",
+  "objectifs": [
+    "Passer un fichier de non suivi à indexé puis enregistré dans un commit.",
+    "Comparer le fichier enregistré dans l'éditeur et sa version sélectionnée dans l'index.",
+    "Produire des commits atomiques avec un message expliquant l'intention.",
+    "Versionner une modification, un déplacement et une suppression de fichier fictif.",
+    "Retrouver les mêmes états dans l'interface de contrôle de source de VS Code."
+  ],
+  "points_theorie": [
+    "Prérequis : dépôt local et identité du chapitre 2 ; fichiers texte et terminal des chapitres 0 et 1.",
+    "git add avec chemins explicites et git commit -m ; expliquer le message, les guillemets et le commit initial sans parent.",
+    "États non suivi, suivi inchangé, modifié, indexé ; modifier à nouveau un fichier après git add produit deux états différents.",
+    "git diff pour les changements non indexés et git diff --staged pour la sélection ; inspection minimale obligatoire avant commit, approfondie au chapitre 4.",
+    "Commit atomique : une intention vérifiable, périmètre limité, message impératif descriptif et contexte utile ; éviter les lots opaques et les messages sans information.",
+    "Déplacements et suppressions depuis l'éditeur, puis sélection explicite ; git mv et git rm expliqués seulement sur fichiers fictifs, le déplacement étant détecté par similarité et non enregistré comme une opération spéciale.",
+    "Un commit enregistre un instantané et des métadonnées ; ni les fichiers ignorés ni les changements non sélectionnés n'y entrent.",
+    "VS Code : changements, changements indexés, diff et commit ; vérifier git status pour comprendre chaque action et ne pas employer encore synchronisation ou publication."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

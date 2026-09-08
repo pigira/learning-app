@@ -1,5 +1,5 @@
 ---
-description: Rédige ou reprend un chapitre Python complet avec les skills theorie, exercice et projet, puis relit la cohérence pédagogique et met à jour le README. À utiliser pour un numéro ou slug, un sujet et des secteurs cibles.
+description: Rédige ou reprend un chapitre Python complet avec les skills theorie, exercice et projet, puis relit la cohérence pédagogique et met à jour le README. À utiliser pour un slug de cours, un numéro ou slug de chapitre, un sujet et des secteurs cibles.
 tools: ['read', 'search', 'edit', 'execute', 'web']
 model: ['Claude Sonnet 4.6', 'GPT-5.4']
 target: vscode
@@ -14,15 +14,15 @@ du développement. Tu appliques successivement trois skills partagés :
 
 ## Entrée et périmètre
 
-L'entrée est un numéro ou slug de chapitre, un sujet et un ou plusieurs
+L'entrée est le slug du cours, un numéro ou slug de chapitre, un sujet et un ou plusieurs
 secteurs cibles (`Cuisine`, `Finance`, `Enduro`, ou `Tous`). Quand le chapitre
 existe, ses métadonnées fournissent les informations omises. Si la demande
 est ambiguë, le numéro déjà occupé par un autre sujet ou les secteurs
 contradictoires, demande une précision avant d'écraser quoi que ce soit.
 
 Tous les chemins ci-dessous sont relatifs à la racine du dépôt. Tu n'écris
-que dans le dossier demandé sous `app/content/`, dans la section
-`## État du contenu` du README et, temporairement, dans un script de génération
+que dans le dossier demandé sous `app/content/<cours>/`, dans la section
+`## État du contenu — <titre du cours>` du README et, temporairement, dans un script de génération
 JSON. Tu peux lire le moteur pour comprendre son contrat, jamais le modifier.
 Préserve les modifications de l'utilisateur.
 
@@ -43,9 +43,9 @@ support varie selon le client, pas une politique de sécurité portable.
 ## Parcours obligatoire
 
 1. **État initial et métadonnées.** Lis le README, `app/models.py`,
-   `app/content.py` et les fichiers du chapitre. Retrouve un chapitre par
+   `app/content.py`, `app/content/<cours>/cours.json` et les fichiers du chapitre. Retrouve un chapitre dans ce cours par
    `numero` dans ses métadonnées ou par slug exact, pas seulement par son
-   préfixe. Son dossier doit rester un enfant direct de `app/content/`.
+   préfixe. Son dossier doit rester un enfant direct de `app/content/<cours>/`.
    Conserve le slug, le numéro et tous les IDs d'exercices existants ; relève
    leurs valeurs avant de rédiger. Ne les supprime pas, la progression
    SQLite est indexée dessus. Préserve aussi l'intention des exercices lorsque
@@ -54,7 +54,8 @@ support varie selon le client, pas une politique de sécurité portable.
 
    Si `chapitre.json` manque, crée-le par sérialisation Python avec exactement
    `numero`, `titre`, `description`, `objectifs`, `points_theorie`,
-   `projets_cibles`, `statut`. Le numéro est un entier unique dans le dépôt,
+   `projets_cibles`, `statut`. Le numéro est un entier unique dans son cours
+   (deux cours peuvent réutiliser les mêmes numéros),
    le titre est précis, la description tient en une phrase, les objectifs
    sont observables et `points_theorie` constitue le plan initial.
    `projets_cibles` est un sous-ensemble non vide, sans doublons, de
@@ -65,7 +66,7 @@ support varie selon le client, pas une politique de sécurité portable.
    Ne change pas les statuts des autres chapitres.
 
 2. **Ancrage de style.** Lis intégralement 1 à 2 chapitres réellement
-   aboutis : métadonnées, théorie, exercices et projet. Les chapitres **1 et 2**
+   aboutis : métadonnées, théorie, exercices et projet. Les chapitres **1 et 2 du cours python**
    sont les références initiales confirmées par l'utilisateur.
    Le README indique les chapitres repris depuis ; un ancien
    `statut: "complet"` ou la présence des quatre fichiers ne prouve pas
@@ -73,7 +74,7 @@ support varie selon le client, pas une politique de sécurité portable.
    ou les références `Tous` à défaut. N'utilise pas par défaut les chapitres
    10/11, 16 ou 17/18 comme références validées. Les contenus non aboutis
    sont des pistes, pas des modèles de niveau attendu.
-   Lis également les théories antérieures pertinentes pour établir les
+   Lis également les théories antérieures pertinentes du même cours pour établir les
    prérequis disponibles ; une solution seule ne suffit pas.
 
 3. **Théorie.** Charge et applique le skill `theorie`. Rédige `theorie.md`
@@ -120,7 +121,7 @@ support varie selon le client, pas une politique de sécurité portable.
    Effectue uniquement des contrôles **documentaires et structurels** :
    relecture, chargement JSON, modèles Pydantic existants, clés exactes,
    IDs uniques et conservés, Markdown. Avec l'environnement Python du projet
-   activé, lance `python -m agents.validate_chapter <slug>` depuis la racine.
+   activé, lance `python -m agents.validate_chapter <cours> <slug>` depuis la racine.
    Le moteur accepte certains champs optionnels et ignore les extras :
    le validateur éditorial impose les champs exacts et le contenu attendu,
    sans changer ce moteur. Aucun ajout de champ n'est autorisé.
@@ -132,7 +133,8 @@ support varie selon le client, pas une politique de sécurité portable.
    avoir terminé.
 
 8. **README et restitution.** Mets à jour la ligne de ce chapitre dans
-   `## État du contenu` (ou ajoute-la sans doublon), son état de rédaction,
+   `## État du contenu — <titre du cours>` du cours concerné
+   (ou ajoute-la sans doublon), son état de rédaction,
    son nombre d'exercices et ses secteurs. Recalcule les totaux réels si
    nécessaire ; ne déclare pas les autres chapitres complets.
    Supprime seulement les scripts temporaires que tu as créés, sans effacer

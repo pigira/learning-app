@@ -1,0 +1,26 @@
+{
+  "numero": 4,
+  "titre": "Altitude : la traçabilité — Historique et différences",
+  "description": "Une relecture du catalogue oblige l'équipe à expliquer précisément ce qui a changé. Lire les commits, comparer des versions et rechercher une modification sans altérer les fichiers.",
+  "objectifs": [
+    "Retrouver un commit par message, auteur, date ou chemin.",
+    "Lire un diff ligne par ligne et distinguer changement réel et bruit.",
+    "Afficher le contenu d'un fichier à une révision passée sans changer de branche.",
+    "Comparer deux instantanés en justifiant leur ordre.",
+    "Sélectionner une portion de modification pour un commit cohérent."
+  ],
+  "points_theorie": [
+    "Prérequis : états du dépôt et premiers commits des chapitres 2 et 3 ; aucune branche multiple nécessaire.",
+    "git log, --oneline, --stat, --patch, filtres de message et de chemin ; identifiant abrégé, auteur, date et message ne suffisent pas isolément à prouver une origine.",
+    "HEAD comme position courante après un commit, parent avec HEAD~1 seulement s'il existe ; introduire ces références avant de les employer.",
+    "git show pour un commit ou un chemin à une révision ; séparer clairement consultation de contenu, restauration et changement de branche.",
+    "Diff unifié : anciens et nouveaux chemins, lignes retirées et ajoutées, contexte et blocs ; comparer travail/index, index/HEAD ou deux commits sans inverser la question.",
+    "Séparateur -- avant un chemin, guillemets selon le shell ; limiter les recherches et quitter le pager, sans supposer grep ni un pipe.",
+    "git add -p : lire les choix de sélection par bloc, scinder lorsque possible et renoncer si ambigu ; contrôler --staged après sélection, pas d'édition manuelle complexe de patch exigée.",
+    "Historique et comparaison VS Code ; expliquer la détection approximative des renommages et la faible lisibilité des différences de formats binaires."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

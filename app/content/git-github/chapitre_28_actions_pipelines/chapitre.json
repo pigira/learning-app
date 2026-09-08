@@ -1,0 +1,27 @@
+{
+  "numero": 28,
+  "titre": "Altitude : les contrôles croisés — Matrices, artefacts et caches",
+  "description": "Les mêmes documents doivent être contrôlés et retrouvés sur plusieurs environnements. Étendre une CI avec dépendances entre jobs et résultats consultables sans multiplier inutilement les exécutions.",
+  "objectifs": [
+    "Découper un workflow en jobs avec ordre et conditions explicites.",
+    "Construire une petite matrice multiplateforme et en mesurer le coût.",
+    "Produire un rapport de contrôle comme artefact sans inclure de données sensibles.",
+    "Distinguer artefact, cache et contenu publié.",
+    "Prévenir les contrôles bloqués ou trompeurs par une mauvaise configuration de déclenchement."
+  ],
+  "points_theorie": [
+    "Prérequis : YAML et shell du chapitre 26, workflow sûr du chapitre 27 ; aucune dépendance de langage ajoutée.",
+    "Jobs isolés, needs pour dépendances, identifiants de steps et de jobs ; sorties déclarées via les mécanismes GitHub documentés, en expliquant toutes les nouvelles syntaxes.",
+    "Expressions ${{ }} : contextes github, matrix et needs, booléens et conditions if ; distinguer évaluation par GitHub et variables du shell, données non fiables jamais interpolées directement dans run.",
+    "Matrice bornée Linux/Windows/macOS selon besoin, shell bash explicite lorsque disponible, fail-fast et continue-on-error avec effets sur le résultat ; alternative un seul runner plus vérification locale des autres systèmes.",
+    "Rapport textuel de contrôles déjà appris, upload/download d'artefacts avec actions officielles épinglées, noms uniques, rétention courte et chemins sélectionnés ; aucun dossier personnel ou secret.",
+    "Cache : accélération réutilisable et non livrable, clés liées aux entrées, restauration partielle et risques de contenu non fiable ; pas de cache sans dépendance coûteuse, le parcours documentaire peut légitimement s'en passer.",
+    "concurrency et annulation de versions dépassées, timeout-minutes et limites de matrice ; compter les jobs multipliés avant activation, vérifier quotas et désactiver ce qui n'est pas utile.",
+    "Filtres de branches/chemins, jobs ignorés et checks requis : expliquer les états pending/skipped et ne pas configurer une protection dont le contrôle ne démarre jamais.",
+    "Rapports et checks ne remplacent pas la revue sémantique ; échec intermittent, manque de permissions et erreur de fichier doivent conduire à des diagnostics distincts."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

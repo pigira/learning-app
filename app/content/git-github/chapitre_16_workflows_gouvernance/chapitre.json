@@ -1,0 +1,26 @@
+{
+  "numero": 16,
+  "titre": "Altitude : les règles communes — Workflows et gouvernance",
+  "description": "L'équipe fixe des règles proportionnées à son rythme de publication et à ses responsabilités. Choisir un workflow de branches et des règles de revue en distinguant protection technique et convention humaine.",
+  "objectifs": [
+    "Comparer GitHub Flow, trunk-based et Git Flow selon le contexte.",
+    "Choisir une stratégie de fusion et expliquer ses conséquences sur la traçabilité.",
+    "Définir droits minimaux, responsabilités de revue et règles de branche.",
+    "Rédiger une décision de workflow courte et vérifiable.",
+    "Prévoir une procédure manuelle lorsque les protections hébergées ne sont pas disponibles."
+  ],
+  "points_theorie": [
+    "Prérequis : branches, fusions, PR, suivi et forks des chapitres 7 à 15 ; les contrôles CI seront ajoutés après leur enseignement, pas exigés ici.",
+    "Comparer GitHub Flow à branches courtes, intégration fréquente de type trunk-based et Git Flow à branches de maintenance ; critères de choix : taille, cadence, versions simultanées et coût de coordination.",
+    "Choix initial justifié : branche main et petites branches de contribution ; Git Flow n'est pas une progression obligatoire vers une meilleure maîtrise.",
+    "Merge commit conserve les branches, squash produit un nouveau commit de synthèse, rebase-and-merge rejoue et modifie les identifiants ; distinguer la décision d'intégration de la réécriture locale enseignée au chapitre 18.",
+    "Règles main : revue avant intégration, résolution des discussions, interdiction des envois forcés et des suppressions non concertées ; appliquer à un dépôt d'essai selon les permissions disponibles.",
+    "Collaborateur, mainteneur, administrateur et séparation des responsabilités ; CODEOWNERS et ordre des motifs, demande de revue versus approbation effectivement obligatoire.",
+    "Rulesets et protections de branche : portée, contournements et dépendances au plan/à la visibilité ; vérifier la documentation actuelle, ne pas promettre leur disponibilité gratuite partout.",
+    "Décision d'architecture textuelle courte : contexte, option retenue, alternatives, conséquences et règle de révision ; repli gratuit sur checklist et revue manuelle sans prétendre une protection équivalente."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

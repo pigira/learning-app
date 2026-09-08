@@ -1,0 +1,26 @@
+{
+  "numero": 26,
+  "titre": "Altitude : la fiche de contrôle — YAML et vérifications shell",
+  "description": "L'équipe formalise de petits contrôles reproductibles pour ses documents. Apprendre le sous-ensemble de YAML et de shell nécessaire à une automatisation lisible sans prérequis de programmation.",
+  "objectifs": [
+    "Lire et écrire une configuration YAML simple sans erreurs d'indentation.",
+    "Expliquer variable, chaîne, condition et code de sortie dans un contrôle shell court.",
+    "Définir un contrôle documentaire déterministe avec un critère de réussite observable.",
+    "Protéger les chemins et séparer données reçues et commandes exécutées.",
+    "Distinguer contrôle local et future exécution sur un runner hébergé."
+  ],
+  "points_theorie": [
+    "Prérequis : terminal du chapitre 1, documents Markdown du chapitre 14 et différences multiplateformes du chapitre 23 ; aucune boucle ni connaissance d'un langage supposée.",
+    "YAML : paires clé/valeur, indentation par espaces, listes, chaînes citées, commentaires et bloc littéral | ; distinguer texte de configuration et programme exécuté.",
+    "Sous-ensemble shell bash introduit ici : variable, substitution simple explicitée, guillemets doubles, paramètres passés séparément, test de fichier et condition if ; pas de construction dynamique de commande.",
+    "Sortie standard, sortie d'erreur, codes 0 et non nul, exit et composition conditionnelle ; ne pas confondre affichage d'un message et échec du contrôle.",
+    "Petit contrôle sur documents fictifs : présence d'un fichier requis, présence d'un titre ou d'une section et absence d'erreur de whitespace via git diff --check ; expliquer chaque option réellement employée.",
+    "grep limité à une chaîne fixe avec code de sortie expliqué, printf pour un message ; entrée hostile gardée comme donnée citée, jamais eval ou commande construite à partir d'un titre d'issue.",
+    "Contrôle relançable et non destructif, sans réseau ni donnée réelle ; décrire cas accepté, cas rejeté et limites, sans transformer le chapitre en cours général de programmation.",
+    "Shell choisi explicitement : bash dans Git Bash/macOS/Linux pour cette petite vérification ; distinguer zsh interactif, PowerShell et bash, aucune équivalence implicite ; contrôles futurs toujours relus avant exécution par l'apprenant."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

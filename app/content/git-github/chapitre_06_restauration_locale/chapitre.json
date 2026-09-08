@@ -1,0 +1,26 @@
+{
+  "numero": 6,
+  "titre": "Altitude : la correction — Restaurer sans perdre le travail",
+  "description": "Une correction mal préparée impose à l'équipe de distinguer reprise et perte de travail. Désindexer ou restaurer un fichier en identifiant la source, la destination et les modifications qui seraient perdues.",
+  "objectifs": [
+    "Choisir entre désindexer et abandonner une modification locale.",
+    "Sauvegarder une copie de travail avant une restauration qui l'écrase.",
+    "Restaurer un chemin précis depuis un commit connu.",
+    "Vérifier les effets de la restauration dans l'index et le répertoire de travail.",
+    "Reconnaître les cas où il faut suspendre la manipulation plutôt que chercher une commande d'annulation universelle."
+  ],
+  "points_theorie": [
+    "Prérequis : trois états du dépôt aux chapitres 2 et 3, références et diffs au chapitre 4 ; utiliser un dépôt possédant au moins un commit.",
+    "Table de décision : fichier non enregistré dans l'éditeur, changement enregistré non indexé, changement indexé, changement committé ; chaque état demande une action différente.",
+    "git restore --staged -- chemin retire la sélection sans annuler l'édition ; source par défaut HEAD pour l'index, vérification avec status et les deux diffs.",
+    "git restore -- chemin remplace le travail par l'index ; avertir qu'une modification non enregistrée ailleurs peut être définitivement perdue.",
+    "Choisir --source avec un commit inspecté pour récupérer une version de fichier ; comprendre les cibles --worktree et --staged plutôt que les combiner aveuglément.",
+    "Sauvegarde explicite par copie hors dépôt ou commit temporaire adapté avant écrasement ; ne pas présenter Git comme capable de retrouver tout fichier non suivi.",
+    "Garde-fous des futures manipulations : chemins exacts, dépôt jetable, prévisualisation des différences, confirmation humaine ; ne pas recourir à reset --hard ou clean pour un problème d'index.",
+    "Boutons de désindexation et d'abandon dans VS Code : lire l'avertissement et comparer l'état au terminal ; restaurer du contenu n'efface pas un commit existant."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

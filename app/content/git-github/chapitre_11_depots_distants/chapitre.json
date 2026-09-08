@@ -1,0 +1,26 @@
+{
+  "numero": 11,
+  "titre": "Altitude : la passerelle — Dépôts distants, clone et push",
+  "description": "Les premiers documents de l'équipe rejoignent un dépôt partagé de démonstration. Relier un historique local à GitHub et comprendre les références locales et distantes.",
+  "objectifs": [
+    "Choisir entre cloner un dépôt existant et publier un dépôt local.",
+    "Configurer et vérifier un remote sans exposer d'identifiant.",
+    "Publier une branche avec un suivi explicite.",
+    "Distinguer origin, origin/main et la branche locale main.",
+    "Contrôler le contenu publié et diagnostiquer les erreurs initiales sans forcer l'envoi."
+  ],
+  "points_theorie": [
+    "Prérequis : branches du chapitre 7, authentification et visibilité du chapitre 10, revue des exclusions du chapitre 5.",
+    "Créer sur GitHub un dépôt de démonstration vide pour un historique local existant, ou cloner un dépôt déjà initialisé ; éviter deux historiques initiaux indépendants.",
+    "git clone : nouvelle copie du dépôt et de son historique, répertoire de travail et remote origin ; différence avec téléchargement ZIP, qui ne conserve pas .git.",
+    "git remote -v, add et set-url : vérifier hôte, propriétaire et nom ; une URL est une destination, pas une branche ; aucune clé intégrée dans l'URL.",
+    "git push -u origin avec branche explicite : envoi de commits et suivi amont ; définir branche locale, référence de suivi distant et branche sur le serveur.",
+    "origin n'est qu'un nom conventionnel ; origin/main est la dernière observation locale du serveur et non une connexion permanente.",
+    "Contrôler fichiers, commits, identité, branche par défaut et visibilité sur GitHub ; un push n'envoie pas les fichiers non committés.",
+    "Refus d'accès, remote erroné, branche sans commit et dépôt distant déjà initialisé : inspecter puis choisir la bonne origine ; ne pas utiliser force ou fusion d'historiques sans lien comme dépannage automatique."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

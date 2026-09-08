@@ -1,0 +1,26 @@
+{
+  "numero": 19,
+  "titre": "Altitude : le correctif ciblé — Cherry-pick et revert",
+  "description": "Un correctif doit rejoindre une version suivie tandis qu'un changement publié doit être annulé proprement. Transférer un changement choisi et annuler un commit partagé sans effacer son historique.",
+  "objectifs": [
+    "Choisir entre merge, cherry-pick et revert selon l'intention.",
+    "Reporter un commit autonome en conservant la référence à son origine.",
+    "Annuler un commit déjà partagé avec un nouveau commit traçable.",
+    "Expliquer les précautions particulières d'un revert de fusion.",
+    "Contrôler les dépendances et les effets sémantiques du changement final."
+  ],
+  "points_theorie": [
+    "Prérequis : commits et parents du chapitre 4, fusions et conflits des chapitres 8 et 9, réécriture du chapitre 18.",
+    "Merge intègre une histoire, cherry-pick rejoue un changement choisi, revert construit un changement inverse ; aucun n'est une copie magique d'une fonctionnalité complète.",
+    "Examiner git show, les commits dépendants et la branche cible avant cherry-pick ; -x pour mentionner l'origine lorsqu'elle est partageable, nouvel identifiant attendu.",
+    "Conflit cherry-pick : status, résolution, --continue ou --abort ; éviter les doublons si la branche d'origine est intégrée ensuite.",
+    "git revert sur un commit simple publié : conserver la traçabilité et relire l'inverse dans le contexte actuel ; comparer avec restore d'un fichier et reset d'une référence.",
+    "Revert de fusion : identifier les parents et le parent principal choisi avec -m, qui n'est pas un numéro de branche ; influence sur une future réintégration, décision concertée obligatoire.",
+    "Annuler un revert pour rétablir un changement si le contexte le permet ; ne pas déplacer les références partagées pour masquer une erreur.",
+    "Validation manuelle du contenu et PR de correctif documentée ; les mots hotfix et backport décrivent un usage, pas une stratégie de branches imposée."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

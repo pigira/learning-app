@@ -1,0 +1,26 @@
+{
+  "numero": 17,
+  "titre": "Altitude : l'interruption — Stash et worktrees",
+  "description": "Une urgence interrompt une amélioration en cours sans autoriser la perte des brouillons. Mettre temporairement un travail de côté ou ouvrir un contexte parallèle en contrôlant les fichiers conservés.",
+  "objectifs": [
+    "Choisir entre commit provisoire, stash et worktree selon la durée et le besoin.",
+    "Créer et inspecter un stash nommé en distinguant fichiers suivis et non suivis.",
+    "Réappliquer un stash sans le supprimer prématurément.",
+    "Créer un worktree sur une branche distincte et expliquer ce qui est partagé.",
+    "Nettoyer un contexte terminé seulement après vérification de son contenu."
+  ],
+  "points_theorie": [
+    "Prérequis : branches, restauration et conflits des chapitres 6 à 9 ; savoir identifier un répertoire de travail propre.",
+    "Interruption courte versus travail durable : commit sur branche dédiée, copie de sécurité, stash local ou second répertoire worktree ; le stash n'est pas une sauvegarde partagée.",
+    "git stash push avec message, list et show -p ; contenu par défaut suivi, option -u pour non suivis, distinction avec fichiers ignorés et danger d'inclure des secrets.",
+    "apply conserve l'entrée, pop tente de l'appliquer puis de la retirer en cas de succès ; inspecter et valider avant drop, ne pas recourir à clear comme nettoyage banal.",
+    "Restauration de l'index avec --index si nécessaire, conflits possibles lors de réapplication ; préserver la copie et résoudre sans confondre une opération stash avec une fusion de branches.",
+    "git worktree add et list : répertoires et index distincts, objets et références partagés ; une même branche ne se travaille pas simultanément dans deux worktrees ordinaires.",
+    "Ouvrir le bon dossier dans VS Code, contrôler branche et chemin avant toute commande ; limites pour fichiers non suivis et paramètres locaux au répertoire.",
+    "git worktree remove seulement après commit ou copie et contrôle de propreté ; pas de suppression forcée, ne pas effacer manuellement ses métadonnées."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

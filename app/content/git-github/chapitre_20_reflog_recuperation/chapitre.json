@@ -1,0 +1,26 @@
+{
+  "numero": 20,
+  "titre": "Altitude : le filet de secours — Reflog et récupération",
+  "description": "Une branche locale semble perdue et l'équipe prépare une récupération sans aggraver la situation. Retrouver des références locales et mesurer précisément les effets des différentes formes de reset.",
+  "objectifs": [
+    "Retrouver un ancien emplacement de branche dans le reflog.",
+    "Créer une branche de récupération avant toute nouvelle manipulation.",
+    "Distinguer reset soft, mixed et hard selon les trois états du dépôt.",
+    "Évaluer les données que Git ne peut pas récupérer.",
+    "Préparer une procédure de récupération limitée à un dépôt d'essai et non à un historique partagé."
+  ],
+  "points_theorie": [
+    "Prérequis : travail/index/commit des chapitres 2 et 3, branches du chapitre 7 et réécriture du chapitre 18 ; aucune manipulation destructive sur un projet réel.",
+    "Premiers réflexes : arrêter les modifications, copier le dépôt et le travail utile, noter les observations ; ne pas lancer nettoyage ou maintenance avant récupération.",
+    "git reflog : journal local des mouvements de références, différent de log et non transféré par push ; repérer un commit par contexte plutôt que par un indice supposé stable.",
+    "Créer une branche depuis l'identifiant retrouvé, inspecter les fichiers et comparer avant réintégration ; récupération d'un commit en HEAD détaché ou d'une branche supprimée.",
+    "git reset --soft déplace la référence, --mixed ajuste aussi l'index, --hard écrase aussi le travail suivi et peut enlever des fichiers non suivis gênants ; tableau des pertes potentielles, démonstrations futures uniquement jetables et sauvegardées.",
+    "Ne pas confondre reset de chemins et reset de branche ; privilégier restore --staged pour désindexer, et revert pour annuler un changement publié.",
+    "git clean : prévisualisation -n sur chemins strictement bornés, options qui incluent dossiers ou fichiers ignorés et risque de perte définitive ; aucune suppression forcée proposée hors bac à sable recréable.",
+    "Limites : expiration du reflog, objets devenus inaccessibles, fichiers jamais committés, secrets à révoquer plutôt qu'à récupérer ; absence de garantie de restauration, ne pas publier une réécriture comme solution collective."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

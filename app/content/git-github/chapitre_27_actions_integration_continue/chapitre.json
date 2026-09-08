@@ -1,0 +1,27 @@
+{
+  "numero": 27,
+  "titre": "Altitude : le contrôle automatique — Premiers workflows Actions",
+  "description": "Chaque proposition de l'équipe reçoit désormais le même contrôle documentaire. Construire une intégration continue minimale avec GitHub Actions en comprenant événements, jobs, runners et permissions.",
+  "objectifs": [
+    "Décrire le passage d'un événement GitHub à une exécution de workflow.",
+    "Configurer un workflow YAML de vérification documentaire sans secret.",
+    "Lire les journaux et distinguer échec du contrôle et erreur de configuration.",
+    "Limiter les permissions et la consommation avant le premier lancement.",
+    "Relier un statut de contrôle à une pull request sans le confondre avec une revue humaine."
+  ],
+  "points_theorie": [
+    "Prérequis : PR du chapitre 13, règles de collaboration du chapitre 16 et YAML/contrôles shell du chapitre 26.",
+    ".github/workflows et fichiers YAML : name, on, jobs, runs-on, steps, uses et run ; événement push, pull_request et lancement manuel workflow_dispatch avec portée expliquée.",
+    "Runner hébergé jetable versus ordinateur local, nouveau répertoire de travail et nécessité du checkout ; n'utiliser aucun runner auto-hébergé pour du contenu non fiable.",
+    "Première action de checkout issue d'une source officielle et épinglée sur un SHA complet vérifié au moment de la rédaction ; expliquer sa version lisible et comment maintenir l'épinglage.",
+    "Contrôles shell du chapitre 26, shell explicite, chemins relatifs après checkout ; aucun runtime Python, Node ou achat de service présumé.",
+    "Dès le premier workflow : permissions contents: read, aucun secret, pas de pull_request_target ni workflow_run privilégié, pas de contenu d'issue interpolé dans run et identifiants de checkout non persistés sans besoin.",
+    "GitHub Actions : exécutions, jobs, étapes, journaux et commit contrôlé ; corriger le fichier via commit/PR, comparer relance d'un même commit et exécution d'une nouvelle version.",
+    "Temps maximal, événements limités et annulation manuelle ; vérifier quotas et conditions des runners selon dépôt et compte, arrêt si coût possible, repli sur la vérification locale.",
+    "Pour une contribution de fork, permissions et secrets sont restreints et une approbation peut être requise ; conserver un workflow non privilégié, ne pas contourner ces protections pour obtenir un résultat vert."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

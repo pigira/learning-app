@@ -1,0 +1,26 @@
+{
+  "numero": 32,
+  "titre": "Altitude : le tableau de bord — GitHub CLI et API",
+  "description": "L'équipe veut consulter l'état de ses contributions sans multiplier les allers-retours dans le navigateur. Utiliser GitHub CLI et lire une réponse API structurée en maîtrisant authentification, pagination et portée des opérations.",
+  "objectifs": [
+    "Installer facultativement GitHub CLI puis vérifier le compte et le dépôt ciblés.",
+    "Consulter issues, pull requests et contrôles depuis le terminal.",
+    "Distinguer opération Git locale, opération GitHub et requête HTTP.",
+    "Lire des champs JSON et une pagination sans présumer Python ni jq.",
+    "Éviter écritures involontaires, exposition de jetons et dépassement de limites API."
+  ],
+  "points_theorie": [
+    "Prérequis : terminal du chapitre 1, authentification du chapitre 10, PR/issues des chapitres 13 et 14, sécurité CI du chapitre 29 ; outil gh optionnel distinct de git.",
+    "Installation officielle Windows/macOS/Linux seulement si la variante CLI est choisie ; mêmes opérations possibles dans l'interface web sans achat.",
+    "gh auth login et status, hôte, compte actif et portée du jeton ; gestionnaire sûr, aucune sortie de token dans les journaux et révocation de l'accès si nécessaire.",
+    "gh repo view, issue list/view, pr list/view/checks et choix explicite du dépôt ; lire --help et repérer les commandes qui modifient des données avant usage.",
+    "JSON introduit localement : objet, liste, clé, chaîne, nombre, booléen et null ; --json avec champs ciblés, lecture directe sans langage de script ni filtre jq requis.",
+    "HTTP et REST : méthode GET, chemin de ressource, paramètres, en-têtes, statut et corps ; gh api avec GET explicitement choisi, ajout d'un champ pouvant changer la méthode par défaut expliqué.",
+    "Pagination, nombre d'éléments retournés et gh api --paginate sur une lecture bornée ; limites API, 401/403/404/429, permissions ou rate limit selon message et en-têtes, pas de boucle de relance agressive.",
+    "Les méthodes d'écriture et commandes create/edit/merge demandent vérification du dépôt, de la cible et des effets ; parcours de base en lecture seule, GitHub Apps et GraphQL sont des pistes non requises."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

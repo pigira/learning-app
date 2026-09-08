@@ -1,0 +1,26 @@
+{
+  "numero": 30,
+  "titre": "Altitude : la sortie de saison — Tags et releases",
+  "description": "Altitude Sports veut désigner une version précise de ses documents diffusables. Préparer une version identifiable, des notes de publication et un correctif sans déplacer un repère partagé.",
+  "objectifs": [
+    "Différencier branche, tag léger, tag annoté et release GitHub.",
+    "Choisir un numéro de version selon une convention de compatibilité explicitée.",
+    "Associer une release à un commit validé et à des notes traçables.",
+    "Publier seulement les références et fichiers prévus.",
+    "Planifier un correctif ou un retrait sans réécrire silencieusement un tag partagé."
+  ],
+  "points_theorie": [
+    "Prérequis : remotes du chapitre 11, PR du chapitre 13, correctifs du chapitre 19, objets du chapitre 22 et validation CI des chapitres 27 à 29.",
+    "Tag comme repère stable, léger versus annoté avec métadonnées ; git tag, show et création sur un commit explicitement vérifié, sans supposer que HEAD est la bonne version.",
+    "Convention de version : majeur/mineur/correctif quand un contrat de compatibilité existe, préversion et limites de SemVer pour des documents ; choisir plutôt que prétendre une signification universelle.",
+    "git push du tag précis, différence avec --tags qui publie plusieurs références ; permissions et protections de tags si disponibles, jamais déplacement d'un tag public pour corriger une erreur discrètement.",
+    "Release GitHub : page liée à un tag, brouillon, préversion, notes et pièces jointes ; elle ne constitue ni une branche ni un déploiement.",
+    "Notes issues des changements et PR, portée de comparaison entre tags, incompatibilités et vérifications ; archives générées versus fichiers ajoutés, vérifier ce qui est réellement inclus.",
+    "Contrôles documentaires et provenance du commit avant diffusion ; automatisation seulement depuis une référence approuvée avec permissions bornées, sinon publication manuelle gratuite.",
+    "Correctif via branche et PR, nouveau numéro de version ; retrait documenté d'une release erronée sans garantie de supprimer les copies téléchargées, distinguer retrait, revert et nouveau tag."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

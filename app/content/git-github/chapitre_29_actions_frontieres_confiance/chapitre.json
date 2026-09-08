@@ -1,0 +1,27 @@
+{
+  "numero": 29,
+  "titre": "Altitude : la zone protégée — Sécurité des automatisations",
+  "description": "L'équipe veut accepter des contributions externes sans leur ouvrir ses accès de publication. Tracer les frontières de confiance entre événements, code, jetons, dépendances et résultats de workflows.",
+  "objectifs": [
+    "Identifier les entrées non fiables d'une pull request et les capacités du runner.",
+    "Comparer pull_request, pull_request_target et workflow_run selon leur contexte de privilèges.",
+    "Appliquer des permissions minimales par job et séparer validation et publication.",
+    "Évaluer le risque d'une action tierce, d'un artefact ou d'un cache.",
+    "Concevoir un chemin de validation sans secrets et un chemin de publication contrôlé."
+  ],
+  "points_theorie": [
+    "Prérequis : forks et droits du chapitre 15, workflows, expressions et artefacts des chapitres 27 et 28 ; reprendre les garde-fous déjà appliqués, ne pas attendre ce chapitre pour sécuriser la première CI.",
+    "Modèle de confiance : code d'une branche externe, titre de PR, commentaire, nom de branche, contenu d'artefact et cache sont des données contrôlables par un tiers.",
+    "GITHUB_TOKEN temporaire et permissions de workflow/job, restrictions des forks ; permissions minimales et aucun secret dans les jobs exécutant du contenu non relu.",
+    "pull_request valide sans privilège ; pull_request_target s'exécute dans un contexte de base potentiellement privilégié : ne jamais y récupérer et exécuter le code de tête non fiable.",
+    "workflow_run peut ouvrir un contexte plus privilégié : contrôler provenance, dépôt, branche, événement et commit ; ne pas télécharger puis exécuter aveuglément un artefact produit par une PR.",
+    "Injection dans run : données via variables d'environnement citées plutôt qu'expressions insérées dans le script, validation des valeurs et absence de commandes construites dynamiquement.",
+    "Actions et workflows réutilisables épinglés à des commits examinés, mises à jour revues, permissions et identifiants de checkout limités ; cache et artefact ne sont pas une preuve de confiance.",
+    "Runners hébergés isolés pour contenu externe, pas de runner auto-hébergé exposé ; logs sans secret, masquage insuffisant pour garantir l'absence de fuite.",
+    "Séparer validation non privilégiée et publication depuis une référence protégée ou une approbation disponible ; expliquer permissions temporaires id-token pour une fédération future sans fournisseur cloud requis, et repli manuel si les protections nécessaires sont indisponibles."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

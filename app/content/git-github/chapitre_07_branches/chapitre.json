@@ -1,0 +1,26 @@
+{
+  "numero": 7,
+  "titre": "Altitude : les variantes — Branches et HEAD",
+  "description": "L'équipe explore une variante de catalogue sans interrompre la version de référence. Créer des branches, changer de contexte et visualiser leurs relations avec les commits.",
+  "objectifs": [
+    "Créer une branche à partir d'un point identifié et vérifier la branche active.",
+    "Expliquer pourquoi deux branches peuvent désigner le même commit.",
+    "Lire un graphe simple de divergence entre branches.",
+    "Prévenir le transport involontaire de modifications non committées entre branches.",
+    "Renommer ou supprimer une branche locale devenue inutile en contrôlant son intégration."
+  ],
+  "points_theorie": [
+    "Prérequis : historique et HEAD du chapitre 4, restauration prudente du chapitre 6 ; utiliser des fichiers fictifs déjà committés.",
+    "Branche comme référence mobile vers un commit, HEAD généralement attaché à une branche ; une branche n'est pas une copie complète du dossier.",
+    "git branch et git switch -c, choix du point de départ ; différence entre créer une référence et changer le répertoire de travail.",
+    "git switch et refus d'écraser certaines modifications ; status puis commit cohérent ou copie de sécurité avant changement, sans supposer encore stash.",
+    "git log --graph --oneline --decorate --all : commits communs et divergents ; introduire ancêtre commun avec un dessin simple.",
+    "Noms de branches lisibles sans espace, sens de main comme convention et non contrainte de Git ; branche active dans VS Code.",
+    "Renommer une branche locale avec -m et supprimer avec -d après contrôle des commits ; ne pas utiliser -D comme solution à un refus, aucune suppression distante ici.",
+    "HEAD détaché lors d'une consultation par commit : repérer l'état, éviter d'y travailler par accident et créer une branche si de nouveaux commits doivent être conservés."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}
