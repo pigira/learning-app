@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 
+{% block title %}{{ cours_meta.titre }} — Hub Apprentissage{% endblock %}
+
 {% block content %}
+<nav class="fil-ariane"><a href="/">&larr; Hub</a></nav>
+
 <section class="intro">
-  <h1>Parcours</h1>
+  <h1>{{ cours_meta.titre }}</h1>
   <p>Chapitres progressifs : théorie courte, exercices avec indices et corrections,
      projet guidé de fin de chapitre. La progression est enregistrée localement.</p>
 </section>
@@ -18,7 +22,7 @@
 
 <section class="liste-chapitres">
   {% for carte in cartes %}
-  <a class="carte statut-{{ carte.statut }}" href="/chapitre/{{ carte.chap.slug }}">
+  <a class="carte statut-{{ carte.statut }}" href="/cours/{{ cours_slug }}/chapitre/{{ carte.chap.slug }}">
     <span class="numero">{{ "%02d" | format(carte.chap.meta.numero) }}</span>
     <span class="carte-corps">
       <span class="carte-titre">
@@ -45,6 +49,8 @@
       </span>
     </span>
   </a>
+  {% else %}
+  <p class="note-squelette">Aucun chapitre publié pour le moment.</p>
   {% endfor %}
 </section>
 {% endblock %}

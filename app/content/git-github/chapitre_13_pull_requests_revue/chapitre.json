@@ -1,0 +1,26 @@
+{
+  "numero": 13,
+  "titre": "Altitude : la table de relecture — Pull requests",
+  "description": "L'équipe soumet ses changements à une relecture avant d'actualiser la référence commune. Préparer, examiner et intégrer une pull request avec une discussion traçable.",
+  "objectifs": [
+    "Ouvrir une pull request depuis une branche de travail vers la bonne base.",
+    "Rédiger une description permettant une revue indépendante.",
+    "Relire le diff et formuler des commentaires précis et respectueux.",
+    "Mettre à jour une pull request avec des commits supplémentaires et traiter les retours.",
+    "Distinguer approbation, discussion résolue et intégration effective."
+  ],
+  "points_theorie": [
+    "Prérequis : branches, push et synchronisation des chapitres 7, 11 et 12 ; conflits du chapitre 9.",
+    "Pull request versus pull Git : proposition d'intégration hébergée, branche source, branche cible et diff depuis leur ancêtre commun ; vérifier les dépôts et branches avant ouverture.",
+    "Titre, intention, périmètre, vérifications manuelles et limites connues ; draft, ready for review et liens vers contexte, sans présumer des contrôles automatisés encore non introduits.",
+    "Onglets fichiers et commits, commentaires de ligne, suggestion et discussion ; distinguer commentaire, approbation et demande de changements.",
+    "Ajouter des commits à la même branche actualise la proposition ; répondre avant de résoudre un fil, conserver la justification et vérifier le résultat après modification.",
+    "Mettre à jour la branche avec une fusion si nécessaire ; vérifier que le diff n'inclut pas des changements étrangers au sujet.",
+    "Première intégration par merge commit déjà enseigné ; reconnaître les options squash et rebase proposées sans les employer à l'aveugle, leurs effets seront étudiés aux chapitres 16 et 18.",
+    "Après fusion : vérifier main, synchroniser localement et nettoyer une branche intégrée ; en solo, auto-relecture documentée ne vaut pas approbation indépendante et aucun compte supplémentaire n'est exigé."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

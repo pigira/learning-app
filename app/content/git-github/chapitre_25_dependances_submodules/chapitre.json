@@ -1,0 +1,26 @@
+{
+  "numero": 25,
+  "titre": "Altitude : le kit partagé — Dépendances et submodules",
+  "description": "Plusieurs documents de l'équipe réutilisent un même kit documentaire fictif. Évaluer la séparation en dépôts et gérer une dépendance Git explicitement épinglée lorsque ce choix est justifié.",
+  "objectifs": [
+    "Comparer dépôt unique, copie attribuée, submodule et intégration par subtree.",
+    "Identifier le commit exact d'une dépendance versionnée par submodule.",
+    "Cloner et initialiser un dépôt comportant un submodule.",
+    "Mettre à jour une dépendance via une modification relisible.",
+    "Expliquer les contraintes de disponibilité, de permissions et de sauvegarde de chaque dépôt."
+  ],
+  "points_theorie": [
+    "Prérequis : remotes, forks et droits des chapitres 11 et 15, commits et objets du chapitre 22 ; dépendance fictive et autorisée, sans bibliothèque ni langage requis.",
+    "Choisir d'abord le besoin : contenu évoluant ensemble dans un dépôt unique, copie explicitement attribuée, dépôt indépendant ; ne pas ajouter de submodule pour un simple dossier.",
+    "Submodule : dépôt distinct et commit épinglé dans le parent, .gitmodules pour chemin et URL ; une URL de branche ne remplace pas l'identifiant enregistré.",
+    "git submodule add dans un dépôt d'essai et clone --recurse-submodules ou submodule update --init --recursive ; vérifier les URL avant toute récupération de contenu externe.",
+    "État souvent en HEAD détaché dans le submodule, status à deux niveaux ; publier le commit du sous-dépôt avant de publier sa référence dans le parent.",
+    "Mise à jour volontaire d'un identifiant, lecture du diff de dépendance et PR ; ne pas interpréter --remote comme garantie de stabilité ni faire suivre une branche sans contrôle.",
+    "Subtree comme alternative intégrant des fichiers dans l'historique parent : comparer duplication, provenance et mises à jour, pas de commande subtree exigée sans introduction locale complète.",
+    "Suppression ou déplacement planifié avec sauvegarde et contrôle des deux dépôts ; permissions de lecture, disponibilité hors ligne et sauvegarde séparée des contenus LFS éventuels."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

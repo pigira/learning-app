@@ -1,0 +1,26 @@
+{
+  "numero": 9,
+  "titre": "Altitude : le désaccord — Résolution des conflits",
+  "description": "Deux mises à jour concurrentes de la même fiche obligent l'équipe à trancher ensemble. Résoudre les conflits textuels et les conflits de structure en vérifiant le sens du résultat fusionné.",
+  "objectifs": [
+    "Identifier les fichiers conflictuels et les versions en présence.",
+    "Résoudre un conflit textuel avec l'éditeur ou l'outil de fusion de VS Code.",
+    "Traiter un conflit modification/suppression sans perdre arbitrairement une version.",
+    "Terminer ou abandonner la fusion puis contrôler l'historique.",
+    "Détecter une incohérence métier même quand Git n'annonce aucun conflit."
+  ],
+  "points_theorie": [
+    "Prérequis : états de fichiers, diffs et fusion des chapitres 3, 4 et 8 ; première pratique uniquement dans un dépôt jetable.",
+    "Cause du conflit : modifications incompatibles depuis un ancêtre commun ; Git ne peut pas décider de l'intention métier.",
+    "git status, marqueurs de conflit, version courante et entrante dans le contexte précis d'une fusion ; comparer les trois versions avant de choisir.",
+    "Éditeur de fusion VS Code : bases, deux entrées et résultat ; ne pas cliquer systématiquement sur accepter les deux, vérifier l'absence de marqueurs résiduels.",
+    "Modifier le résultat, sélectionner avec git add et terminer le commit de fusion ; lire les messages pour ne pas confondre résolution du fichier et fin de l'opération.",
+    "Conflits modification/suppression et renommage : choisir explicitement le chemin et le contenu conservés avec l'accord des responsables ; binaires non fusionnables automatiquement.",
+    "Annulation avec git merge --abort et limites si du travail local existait avant la fusion ; ne pas remplacer l'annulation par une suppression de .git.",
+    "Relecture sémantique, cohérence des liens et valeurs fictives ; prévention par petites branches, communication et fichiers structurés, sans prétendre éliminer tous les conflits."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

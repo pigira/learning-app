@@ -1,0 +1,29 @@
+{
+  "numero": 36,
+  "titre": "Altitude : la saison complète — Projet final transverse",
+  "description": "Altitude Sports clôt sa saison fictive avec une livraison documentée, relue et transmissible. Réemployer les acquis du parcours pour conduire un changement de la demande initiale à une version vérifiable et à sa reprise après incident.",
+  "objectifs": [
+    "Conduire un cycle complet issue, branche, commits, revue, contrôles et release sur un dépôt de démonstration.",
+    "Justifier le workflow, les droits, le stockage des fichiers et les méthodes d'intégration choisis.",
+    "Traiter une divergence, un conflit et un correctif publié sans perte de traçabilité.",
+    "Présenter une documentation, une preuve de contrôle et une sauvegarde restaurable fondées sur les notions déjà enseignées.",
+    "Démontrer un diagnostic et une réaction à un incident fictif dans un espace isolé.",
+    "Évaluer les options avancées sans les activer inutilement ni dépendre d'une offre payante."
+  ],
+  "points_theorie": [
+    "Prérequis : chapitres 0 à 35 ; synthèse exclusivement, aucun nouveau langage, service, format, commande ou fonctionnalité ne doit apparaître comme exigence du projet.",
+    "Cadrage déjà appris aux chapitres 14 et 16 : dossier documentaire synthétique d'équipements et de services sportifs, critères de validation, workflow motivé et périmètre sans données réelles.",
+    "Socle des chapitres 0 à 12 : installation documentée, terminal/VS Code, identité, commits cohérents, diffs, exclusions, restauration prudente, branches, conflit puis synchronisation contrôlée.",
+    "Collaboration des chapitres 13 à 16 : issue, tableau ou équivalent Markdown, contribution via PR/fork simulable en solo, revue explicite, rôles et décision de fusion justifiée.",
+    "Opérations des chapitres 17 à 22 : choisir stash ou worktree pour une interruption, préparer l'historique seulement avant partage, reporter un correctif, revert publié, diagnostic blame/bisect et récupération locale ; expliquer les objets et références observés.",
+    "Portabilité et structure des chapitres 23 à 25 : règles d'attributs, analyse de taille, comparaison LFS/clones ciblés et dépendances ; variantes isolées si utiles, justification d'un refus préférable à un usage artificiel.",
+    "Qualité des chapitres 26 à 29 : contrôles documentaires déjà enseignés, CI minimale ou repli local, résultat interprété, matrice bornée et artefact si retenus, cache justifié ou écarté, contributions non fiables sans secret ni privilège.",
+    "Diffusion des chapitres 30 à 32 : version et notes, documentation navigable avec Pages facultatif, consultation des PR et contrôles par CLI/API ou interface web ; aucune publication externe imposée.",
+    "Confiance et continuité des chapitres 33 à 35 : revue d'accès, interprétation de signature si disponible, alerte simulée sans secret, limites des contrôles, sauvegarde restaurée et stratégie de migration expliquée.",
+    "Bilan observable : historique et liens retraçant les décisions, résultat des contrôles, état final propre, procédure de reprise et limites connues ; vérification manuelle par l'apprenant, sans exécution de ses contenus par l'agent."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

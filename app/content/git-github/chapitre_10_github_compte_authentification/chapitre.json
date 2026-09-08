@@ -1,0 +1,26 @@
+{
+  "numero": 10,
+  "titre": "Altitude : le point de rencontre — GitHub et authentification",
+  "description": "Altitude Sports ouvre un espace de collaboration pour partager ses documents fictifs. Préparer un compte GitHub protégé et choisir une méthode d'authentification adaptée sans exposer d'identifiants.",
+  "objectifs": [
+    "Distinguer compte personnel, organisation, dépôt public et dépôt privé.",
+    "Configurer la protection du compte et une identité de commit compatible avec la confidentialité souhaitée.",
+    "Comparer HTTPS avec gestionnaire d'identifiants et SSH.",
+    "Diagnostiquer un défaut d'authentification sans publier de jeton ni désactiver la sécurité réseau.",
+    "Vérifier les fonctionnalités gratuites disponibles avant de choisir un environnement de collaboration."
+  ],
+  "points_theorie": [
+    "Prérequis : identité locale du chapitre 2 et règles de confidentialité du chapitre 5 ; navigateur et connexion Internet requis, aucun abonnement payant.",
+    "Créer ou utiliser un compte personnel autorisé ; expliquer organisation, propriétaire et collaborateurs, sans exiger une organisation ni un second compte.",
+    "Public, privé et visibilité des forks, profils, commits et pièces jointes ; ne publier que des données synthétiques, un dépôt privé reste accessible aux personnes autorisées.",
+    "Protection du compte : authentification multifacteur, moyens de récupération hors dépôt et confidentialité de l'adresse de commit ; attribution par adresse versus droit d'accès.",
+    "HTTPS : gestionnaire d'identifiants reconnu et connexion navigateur ; jeton seulement si nécessaire, permissions minimales, durée limitée et stockage sûr ; jamais de secret dans URL, commande affichée, capture ou historique shell.",
+    "SSH comme alternative : clé publique versus privée, phrase secrète, agent et vérification de l'empreinte du serveur depuis une source officielle ; ne jamais désactiver la vérification d'hôte.",
+    "Choisir une seule voie fonctionnelle avant de poursuivre ; diagnostic permission refusée, mauvaise identité, réseau ou proxy d'entreprise avec l'administrateur, sans désactiver TLS.",
+    "Parcours avec offre gratuite ; droits, quotas et fonctions varient selon compte, visibilité et date ; vérifier la documentation courante, proposer une simulation locale si l'accès réseau est indisponible."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

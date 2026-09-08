@@ -1,0 +1,26 @@
+{
+  "numero": 0,
+  "titre": "Altitude : l'accueil — Installation et orientation",
+  "description": "L'équipe d'Altitude Sports accueille une nouvelle recrue pour préparer sa prochaine saison. Installer Git et VS Code selon son système et distinguer fichiers, terminal, versionnement local et hébergement GitHub.",
+  "objectifs": [
+    "Identifier son système et choisir une procédure d'installation officielle adaptée à Windows, macOS ou Linux.",
+    "Vérifier la disponibilité de Git et de VS Code sans supposer une connaissance préalable du terminal.",
+    "Distinguer Git, GitHub, VS Code, un dossier local et une sauvegarde.",
+    "Préparer un dossier d'apprentissage indépendant contenant uniquement des documents fictifs.",
+    "Repérer les réglages de confiance et refuser l'exécution automatique d'un projet inconnu."
+  ],
+  "points_theorie": [
+    "Prérequis : aucun bagage en programmation, Python, C/C++, shell ou Git ; définir fichier, extension, dossier, application et navigateur.",
+    "Utilité professionnelle du versionnement : retrouver une version, comprendre une modification, travailler à plusieurs ; limites pour la sauvegarde et les fichiers bureautiques binaires.",
+    "Git local et distribué versus service GitHub ; VS Code est un éditeur, le terminal une interface, le shell l'interpréteur des commandes.",
+    "Installation future par l'apprenant : Git for Windows avec Git Bash ; macOS avec outils officiels ou méthode documentée ; Linux avec le gestionnaire de sa distribution ; VS Code depuis la source officielle.",
+    "Ouvrir un terminal et lire git --version ; expliquer commande, option, invite non recopiée et résultat ; rouvrir le terminal après installation et diagnostiquer une commande introuvable sans modifier aveuglément PATH.",
+    "VS Code : ouvrir un dossier, créer et enregistrer un fichier texte UTF-8, afficher extensions et fichiers cachés, ouvrir le terminal intégré ; aucune extension payante nécessaire.",
+    "Mode restreint de VS Code, confiance explicite, tâches et extensions inconnues ; ne pas exécuter du code d'un dépôt découvert en ligne.",
+    "Préparer un bac à sable hors dossier de travail réel et hors synchronisation cloud automatique ; aucune donnée client, médicale, trajet GPS réel, clé ou achat matériel ; GitHub sera configuré au chapitre 10, pas requis ici."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

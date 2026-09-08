@@ -1,0 +1,26 @@
+{
+  "numero": 21,
+  "titre": "Altitude : l'enquête — Blame, recherche et bisect",
+  "description": "L'équipe recherche quand une incohérence s'est glissée dans sa documentation. Localiser l'origine d'une régression à l'aide de recherches d'historique et d'un critère manuel reproductible.",
+  "objectifs": [
+    "Relier une ligne à son contexte historique sans attribuer une faute à une personne.",
+    "Rechercher l'ajout ou la disparition d'un texte dans les commits.",
+    "Définir un critère de bon et mauvais état avant une bissection.",
+    "Conduire un bisect manuel et revenir à l'état initial.",
+    "Expliquer les limites d'une recherche sur des versions non évaluables."
+  ],
+  "points_theorie": [
+    "Prérequis : lecture d'historique du chapitre 4, HEAD détaché du chapitre 7 et récupération du chapitre 20 ; aucun programme de test supposé.",
+    "git blame et plages de lignes : dernier changement attribué, pas responsabilité métier ni preuve d'auteur ; poursuivre avec show, PR et intention documentée.",
+    "git log --follow sur un fichier, limites autour des renommages ; recherches -S d'une variation de nombre d'occurrences et -G d'un diff correspondant à une expression expliquée.",
+    "git grep pour rechercher dans les fichiers suivis ou une révision, syntaxe minimale et séparation -- des chemins ; ne pas supposer grep système ni expressions régulières avancées.",
+    "Critère observable manuel sur un document fictif, deux commits connus bon et mauvais, propriété suffisamment stable pour une recherche dichotomique ; travailler dans une copie ou un worktree isolé.",
+    "git bisect start, good, bad, vérification à chaque étape et bisect reset ; noter le diagnostic, ne jamais marquer mauvais seulement parce qu'une version est difficile à ouvrir.",
+    "skip pour un état non évaluable et possibilité de plusieurs candidats ; dépendances externes ou critères changeants peuvent invalider la conclusion.",
+    "Conserver le journal de raisonnement et proposer un correctif via PR ; bisect run reste facultatif et aucun script inconnu n'est exécuté pour accélérer l'enquête."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

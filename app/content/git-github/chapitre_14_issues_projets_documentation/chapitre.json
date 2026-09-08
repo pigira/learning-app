@@ -1,0 +1,26 @@
+{
+  "numero": 14,
+  "titre": "Altitude : le planning — Issues et organisation du travail",
+  "description": "Altitude Sports transforme les retours de saison en travail visible et priorisé. Relier documentation, issues, jalons et tableaux GitHub pour suivre un changement de sa demande à sa livraison.",
+  "objectifs": [
+    "Rédiger une issue avec contexte, résultat attendu et critères vérifiables.",
+    "Structurer un README et des liens Markdown compréhensibles.",
+    "Organiser le travail avec labels, responsables et milestones.",
+    "Relier une pull request à une issue sans fermeture accidentelle.",
+    "Construire un tableau de suivi simple ou son équivalent textuel gratuit."
+  ],
+  "points_theorie": [
+    "Prérequis : publication et pull requests des chapitres 11 et 13 ; aucune syntaxe Markdown supposée.",
+    "Markdown introduit localement : titres, paragraphes, listes, cases à cocher, liens relatifs et liens externes ; afficher l'aperçu et vérifier les chemins sur GitHub.",
+    "README : but, contenu, procédure de contribution et critères de validation ; séparer documentation d'usage, décisions et suivi du travail.",
+    "Issue : besoin ou anomalie, contexte reproductible avec données fictives, résultat attendu, périmètre et critères d'acceptation ; ne pas y joindre de données privées.",
+    "Labels pour catégoriser, assignation et milestones pour regrouper ; convention légère adaptée à une petite équipe plutôt qu'un catalogue de statuts.",
+    "Références croisées, liaison PR/issue et mots de fermeture tels que Closes avec leurs conditions liées à la branche par défaut ; distinguer mention et fermeture automatique.",
+    "GitHub Projects : tableau, éléments, champs, vues et statut ; comprendre que statut du tableau, état de l'issue et fusion d'une PR sont distincts.",
+    "Vue gratuite selon les fonctions du compte ; repli sur issues, labels et tableau Markdown si Projects indisponible ; définir qui priorise et ce qui prouve qu'un élément est terminé."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

@@ -1,0 +1,26 @@
+{
+  "numero": 1,
+  "titre": "Altitude : le casier — Terminal et chemins de fichiers",
+  "description": "La recrue range les premiers documents de l'équipe dans un espace de travail séparé. Naviguer dans des dossiers, manipuler du texte et interpréter une commande simple avec les différences de shell explicites.",
+  "objectifs": [
+    "Retrouver le répertoire courant et atteindre un dossier sans agir sur un projet réel.",
+    "Créer, lire et déplacer un fichier de démonstration au terminal ou dans VS Code.",
+    "Reconnaître chemins absolus, relatifs, espaces et fichiers cachés.",
+    "Distinguer les commandes Git portables des commandes propres au shell.",
+    "Lire un message d'erreur et interrompre une commande ou quitter un afficheur sans supprimer de données."
+  ],
+  "points_theorie": [
+    "Prérequis : installation, terminal intégré et dossier isolé du chapitre 0 ; rappeler enregistrement d'un fichier et rôle du répertoire courant.",
+    "Parcours principal : Git Bash sous Windows, zsh sous macOS, bash sous Linux ; fournir les équivalents PowerShell nécessaires sans mélanger leurs syntaxes ni imposer WSL.",
+    "Navigation : pwd, ls, cd et mkdir ; équivalents Get-Location, Get-ChildItem, Set-Location et New-Item dans PowerShell ; vérifier le chemin avant toute opération.",
+    "Chemins absolus et relatifs, point et double point, répertoire personnel, séparateurs et lettres de lecteur ; protéger les espaces par des guillemets et distinguer nom réel et exemple à remplacer.",
+    "Création et modification dans VS Code, lecture avec cat ou Get-Content, copie et déplacement avec confirmation de destination ; pas de suppression récursive ni de privilèges administrateur pour les activités.",
+    "Anatomie d'une commande : programme, sous-commande, option, argument ; expliquer les conventions des aides sans recopier les chevrons ni l'invite ; introduire git help et l'aide courte.",
+    "Messages standards et erreurs, code de sortie comme indicateur de réussite, commande terminée versus encore active, Ctrl+C ; quitter le pager avec q et utiliser git --no-pager.",
+    "Fichiers cachés et dossier .git à ne pas éditer manuellement ; noms simples compatibles entre systèmes, encodage UTF-8 et sauvegarde explicite avant de comparer un fichier."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

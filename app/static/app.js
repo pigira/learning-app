@@ -1,6 +1,6 @@
 "use strict";
 
-/* Apprendre Python — interactions côté client.
+/* Hub Apprentissage — interactions côté client.
  * Aucune dépendance, aucun build. Trois responsabilités :
  *   1. révélation progressive des indices,
  *   2. affichage/masquage des corrections,
@@ -39,6 +39,7 @@ document.querySelectorAll("button[data-role='solution']").forEach((btn) => {
 // 3. Progression (uniquement sur les pages chapitre)
 // ---------------------------------------------------------------------------
 const slug = document.body.dataset.chapitre;
+const cours = document.body.dataset.cours;
 
 async function envoyer(url, payload) {
   const reponse = await fetch(url, {
@@ -68,6 +69,7 @@ if (slug) {
     cb.addEventListener("change", async () => {
       try {
         const data = await envoyer("/api/progress/exercice", {
+          cours,
           chapitre: slug,
           exercice_id: cb.dataset.exerciceId,
           fait: cb.checked,
@@ -85,7 +87,7 @@ if (slug) {
   if (cbProjet) {
     cbProjet.addEventListener("change", async () => {
       try {
-        await envoyer("/api/progress/projet", { chapitre: slug, fait: cbProjet.checked });
+        await envoyer("/api/progress/projet", { cours, chapitre: slug, fait: cbProjet.checked });
       } catch (err) {
         cbProjet.checked = !cbProjet.checked;
         alert(`Enregistrement impossible (${err.message}). Le serveur tourne-t-il ?`);

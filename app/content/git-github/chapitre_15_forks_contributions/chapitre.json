@@ -1,0 +1,26 @@
+{
+  "numero": 15,
+  "titre": "Altitude : les partenaires — Forks et contributions externes",
+  "description": "Un partenaire fictif propose une amélioration sans recevoir l'accès d'écriture au dépôt de l'équipe. Contribuer par fork, synchroniser avec le dépôt source et respecter les frontières de confiance.",
+  "objectifs": [
+    "Distinguer clone, fork et branche en termes d'hébergement et de permissions.",
+    "Configurer origin et upstream en vérifiant chaque destination.",
+    "Préparer une contribution entre deux dépôts et sélectionner la bonne base.",
+    "Synchroniser un fork sans écraser ses changements.",
+    "Évaluer les droits, licences et risques avant d'utiliser une contribution extérieure."
+  ],
+  "points_theorie": [
+    "Prérequis : remotes, synchronisation, PR et Markdown des chapitres 11 à 14 ; aucun second compte requis.",
+    "Fork comme dépôt lié hébergé avec ses propres droits, clone comme copie locale, branche comme référence interne ; restrictions possibles selon visibilité et politique du propriétaire.",
+    "origin vers son fork, upstream vers la source ; git remote add upstream, fetch séparés et vérification avant push pour éviter le mauvais dépôt.",
+    "Mettre à jour la branche de référence du fork par avance rapide ou intégration examinée, puis créer une branche de contribution ; ne pas forcer la synchronisation si elle écrase du travail.",
+    "PR inter-dépôts : propriétaire et branche de base, propriétaire et branche source, droit éventuel du mainteneur de modifier la branche ; lire les conséquences avant de l'autoriser.",
+    "CONTRIBUTING, licence, attribution, droits sur textes et images ; absence de licence ne vaut pas autorisation générale, ne pas copier des contenus protégés.",
+    "Cloner du contenu non fiable n'autorise pas à le lancer ; mode restreint, inspection des scripts et futures automatisations, pas de secret donné à une contribution inconnue.",
+    "Pratique future sur dépôt de démonstration explicitement autorisé ou simulation de deux remotes ; pas de PR de test ni de messages envoyés à un projet réel non consentant."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

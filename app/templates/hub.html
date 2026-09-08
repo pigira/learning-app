@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="intro">
+  <h1>Choisir un cours</h1>
+  <p>Apprends à ton rythme : théorie, exercices avec indices et corrections,
+     puis projets guidés. Chaque cours conserve sa propre progression.</p>
+</section>
+
+{% if erreurs %}
+<div class="alerte">
+  <strong>Contenus ignorés (contenu invalide) :</strong>
+  <ul>
+    {% for e in erreurs %}<li>{{ e }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<section class="liste-cours">
+  {% for carte in cartes %}
+  {% if carte.cours.meta.statut == "disponible" %}
+  <a class="carte carte-cours" href="/cours/{{ carte.cours.slug }}">
+  {% else %}
+  <article class="carte carte-cours carte-a-venir">
+  {% endif %}
+    <span class="icone-cours" aria-hidden="true">{{ carte.cours.meta.icone }}</span>
+    <span class="carte-corps">
+      <span class="carte-titre">{{ carte.cours.meta.titre }}</span>
+      {% if carte.cours.meta.description %}
+      <span class="carte-description">{{ carte.cours.meta.description }}</span>
+      {% endif %}
+    </span>
+    <span class="carte-progression">
+      {% if carte.cours.meta.statut == "disponible" %}
+      <span class="badge badge-disponible">disponible</span>
+      {% if carte.a_progression %}
+      <span class="detail-progression">{{ carte.nb_termines }}/{{ carte.nb_total }} chapitres terminés</span>
+      {% endif %}
+      {% else %}
+      <span class="badge badge-a-venir">bientôt disponible</span>
+      {% endif %}
+    </span>
+  {% if carte.cours.meta.statut == "disponible" %}
+  </a>
+  {% else %}
+  </article>
+  {% endif %}
+  {% else %}
+  <p class="note-squelette">Aucun cours publié pour le moment.</p>
+  {% endfor %}
+</section>
+{% endblock %}

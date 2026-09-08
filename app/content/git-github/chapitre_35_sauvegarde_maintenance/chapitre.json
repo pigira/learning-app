@@ -1,0 +1,27 @@
+{
+  "numero": 35,
+  "titre": "Altitude : la continuité — Sauvegarde et maintenance",
+  "description": "L'équipe prépare la transmission de son travail et sa capacité à repartir d'une copie vérifiée. Définir une sauvegarde complète, diagnostiquer l'état d'un dépôt et préparer une migration sans écrasement involontaire.",
+  "objectifs": [
+    "Inventorier ce que Git, GitHub, LFS et les outils locaux conservent séparément.",
+    "Produire une sauvegarde Git transportable et en vérifier la restauration isolée.",
+    "Distinguer clone de travail, dépôt bare et miroir.",
+    "Choisir une maintenance adaptée sans supprimer prématurément des objets récupérables.",
+    "Préparer une migration avec contrôles de références, de droits et de liens."
+  ],
+  "points_theorie": [
+    "Prérequis : remotes du chapitre 11, reflog du chapitre 20, objets du chapitre 22, LFS/submodules des chapitres 24 et 25, releases et accès des chapitres 30 et 33.",
+    "Sauvegarde versus synchronisation : push ne conserve pas tous les états ni la suppression accidentelle ; inventorier commits, branches, tags, travail non committé, fichiers ignorés et paramètres locaux autorisés.",
+    "git bundle create avec références explicites ou --all expliqué, bundle verify et restauration dans un nouveau dossier ; pas de reflogs, LFS ou métadonnées GitHub automatiquement inclus.",
+    "Dépôt bare sans répertoire de travail, clone --mirror pour les références et configuration de miroir ; expliquer que push --mirror peut écraser ou supprimer des références distantes et ne convient jamais à une destination partagée sans migration planifiée.",
+    "LFS à sauvegarder séparément, submodules à la révision requise, issues/PR/Projects, releases et paramètres d'accès selon export/API disponible ; secrets réels dans leur coffre et non dans une archive pédagogique.",
+    "Vérifier restauration, branches, tags, accès aux dépendances et contenu documentaire ; une archive créée sans test de lecture n'est pas une preuve de reprise possible.",
+    "Diagnostic en lecture avec git count-objects et git fsck : tailles, objets inaccessibles et corruption ne sont pas synonymes ; conserver une copie avant tentative de réparation.",
+    "Maintenance automatique, gc et expiration du reflog : comprendre accessibilité et rétention, ne pas lancer prune immédiat ou optimisation agressive pendant une récupération.",
+    "Migration ou changement de propriétaire : autorisations, gel concerté si nécessaire, destination vide, comparaison des références, remotes et liens de documentation, droits CI/Pages à recontrôler ; repli sur simulation locale et aucun transfert réel non autorisé."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

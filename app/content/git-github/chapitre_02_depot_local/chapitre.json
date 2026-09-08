@@ -1,0 +1,26 @@
+{
+  "numero": 2,
+  "titre": "Altitude : le registre — Premier dépôt local",
+  "description": "Altitude Sports remplace ses dossiers de versions manuelles par un registre de travail unique. Créer un dépôt isolé et expliquer le rôle du répertoire de travail, de l'index, des commits et de la configuration locale.",
+  "objectifs": [
+    "Initialiser un dépôt vide dans le dossier prévu et vérifier sa racine.",
+    "Configurer une identité d'auteur fictive au niveau du dépôt sans modifier inutilement la configuration globale.",
+    "Distinguer répertoire de travail, index et historique avec un schéma d'états.",
+    "Interpréter git status avant le premier commit.",
+    "Expliquer pourquoi un dépôt local n'est ni un compte GitHub ni une sauvegarde distante."
+  ],
+  "points_theorie": [
+    "Prérequis : chapitres 0 et 1 ; savoir naviguer, éditer du texte et lire une aide, sans connaître de langage de programmation.",
+    "Dépôt et racine, rôle de .git, historique local indépendant du réseau ; éviter les dépôts imbriqués accidentels et l'initialisation dans le dossier personnel.",
+    "git init avec branche initiale explicitement nommée main ; vérifier la version de Git et expliquer les anciens noms par défaut sans les supposer.",
+    "git config : portées système, globale et locale, priorité et lecture avec --show-origin ; définir user.name et user.email localement et distinguer identité déclarée et authentification.",
+    "Identité pédagogique fictive pour le dépôt hors ligne ; avant publication, choisir une identité autorisée et une adresse de confidentialité GitHub, sans publier de données personnelles par défaut.",
+    "Répertoire de travail, index comme sélection du prochain instantané, commit comme instantané enregistré ; un enregistrement VS Code n'est pas un commit.",
+    "git status : branche sans commit, fichiers non suivis et absence de modifications sélectionnées ; vérifier la racine avec git rev-parse --show-toplevel en expliquant cette inspection.",
+    "Deux copies portant le même nom ne partagent pas automatiquement leur historique ; définir la copie de référence et réserver les manipulations à un dépôt d'apprentissage."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

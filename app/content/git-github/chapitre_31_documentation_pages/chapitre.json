@@ -1,0 +1,26 @@
+{
+  "numero": 31,
+  "titre": "Altitude : la vitrine — Documentation et GitHub Pages",
+  "description": "L'équipe prépare une vitrine documentaire fictive à partir d'une version relue. Organiser et publier une documentation statique en contrôlant chemins, visibilité et source de publication.",
+  "objectifs": [
+    "Structurer une documentation navigable avec README et liens relatifs.",
+    "Distinguer contenu du dépôt, release et site publié.",
+    "Préparer une page statique minimale sans environnement de développement supplémentaire.",
+    "Vérifier les contraintes de visibilité et d'offre avant activation de Pages.",
+    "Diagnostiquer une publication ou un lien incorrect et prévoir un repli non publié."
+  ],
+  "points_theorie": [
+    "Prérequis : Markdown du chapitre 14, portabilité du chapitre 23, publication contrôlée du chapitre 29 et versions du chapitre 30.",
+    "Documentation d'accueil versus pages détaillées, navigation et liens relatifs ; chemins sensibles à la casse et URL de dépôt différentes de celles d'un site.",
+    "Site statique expliqué sans présumer HTML/CSS : introduire localement le document HTML minimal, titre, paragraphe, lien et encodage uniquement si nécessaires à la voie retenue ; aucun JavaScript ni framework.",
+    "GitHub Pages : site de compte versus site de projet, branche et dossier source de publication, page d'entrée ; expliciter le rôle de .nojekyll si un site sans générateur est choisi.",
+    "Choix pédagogique d'une publication depuis une branche/dossier connu ou d'une simple navigation GitHub ; voie Actions seulement si tous ses mécanismes ont déjà été enseignés et autorisés.",
+    "Disponibilité selon offre et visibilité, caractère potentiellement public du site même quand le dépôt est privé ; vérifier les paramètres courants avant activation, aucune donnée réelle ni domaine payant requis.",
+    "Inspecter la source et les droits de publication, attendre le résultat puis vérifier URL, liens et contenu ; distinguer 404, mauvais chemin, erreur de build et délai de cache.",
+    "Documenter une version publiée et son retrait possible ; repli gratuit sur README/Markdown et aperçu local si Pages n'est pas disponible, ne pas simuler une garantie de confidentialité."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

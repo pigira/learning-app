@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Apprendre Python{% endblock %}</title>
+  <title>{% block title %}Hub Apprentissage{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
 </head>
 <body {% block body_attrs %}{% endblock %}>
   <header class="topbar">
-    <a class="brand" href="/">Apprendre Python</a>
-    <span class="sous-titre">du setup macOS au déploiement Docker + IA</span>
+    <a class="brand" href="/">Hub Apprentissage</a>
+    <span class="sous-titre">des cours, des exercices et des projets guidés</span>
   </header>
   <main>
     {% block content %}{% endblock %}

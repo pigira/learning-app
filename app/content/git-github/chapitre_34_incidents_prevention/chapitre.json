@@ -1,0 +1,27 @@
+{
+  "numero": 34,
+  "titre": "Altitude : l'alerte — Prévention et réponse aux incidents",
+  "description": "Une alerte fictive pousse l'équipe à vérifier sa procédure de confinement et de signalement. Prévenir la diffusion de secrets et traiter une exposition simulée sans croire qu'un simple commit de suppression suffit.",
+  "objectifs": [
+    "Distinguer prévention locale, contrôle serveur et réaction à une exposition.",
+    "Définir un ordre de réponse donnant priorité à la révocation et au confinement.",
+    "Évaluer les fonctions de sécurité GitHub sans supposer un abonnement.",
+    "Repérer les limites des hooks locaux et des mises à jour automatiques de dépendances.",
+    "Documenter une procédure de nettoyage concertée sans réécriture pédagogique d'un dépôt réel."
+  ],
+  "points_theorie": [
+    "Prérequis : exclusions du chapitre 5, réécriture et récupération des chapitres 18 à 20, sécurité Actions du chapitre 29 et accès/signatures du chapitre 33.",
+    "Scénario exclusivement simulé avec marqueur inerte, jamais jeton utilisable ni données personnelles ; revue avant commit, avant push et dans les journaux et artefacts.",
+    "Hooks Git : déclencheurs locaux, .git/hooks et core.hooksPath, installation explicite et scripts à examiner ; non distribués automatiquement par clone, contournables et jamais barrière de sécurité unique.",
+    "Secret scanning, push protection et alertes selon visibilité et offre ; vérifier la documentation, ne pas promettre détection exhaustive ni disponibilité gratuite universelle ; checklist manuelle maintenue.",
+    "Dependabot pour les références d'actions déjà utilisées : introduire son fichier YAML, fréquence limitée et revue des mises à jour ; ne pas imposer un écosystème Python/Node, pas de fusion automatique de changements privilégiés.",
+    "Réponse : arrêter la diffusion, révoquer ou faire tourner l'identifiant auprès du fournisseur, limiter les accès, examiner les journaux autorisés et informer les responsables ; ne pas publier le secret dans l'issue de suivi.",
+    "Suppression du fichier courant insuffisante : historique, forks, clones, PR, caches, artefacts, releases et Pages peuvent conserver des copies ; nettoyage ne garantit pas leur disparition.",
+    "Réécriture historique exceptionnelle seulement après sauvegarde, accord des responsables, inventaire des consommateurs et procédure de resynchronisation ; consulter les recommandations officielles et l'assistance si nécessaire, aucune commande de réécriture massive exigée.",
+    "Signalement privé via le canal prévu, analyse factuelle sans culpabilisation, mesures de prévention et contrôle d'efficacité ; données d'enquête réelles hors dépôt pédagogique."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

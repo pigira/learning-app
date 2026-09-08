@@ -1,0 +1,26 @@
+{
+  "numero": 12,
+  "titre": "Altitude : les échanges — Fetch, pull et divergence",
+  "description": "Deux postes de travail de l'équipe font évoluer le même dossier partagé. Synchroniser des copies en séparant observation distante, intégration locale et publication.",
+  "objectifs": [
+    "Utiliser fetch pour observer le serveur sans fusionner le travail.",
+    "Identifier des commits en avance, en retard et divergents.",
+    "Choisir une intégration explicite avant de republier.",
+    "Expliquer ce que fait pull et pourquoi une stratégie implicite est risquée.",
+    "Résoudre un refus non-fast-forward sans écraser le travail d'autrui."
+  ],
+  "points_theorie": [
+    "Prérequis : fusions et conflits des chapitres 8 et 9, remotes et suivi du chapitre 11 ; simulations autorisées avec deux clones et un seul compte.",
+    "git fetch origin : objets et références de suivi mis à jour sans modifier la branche active ; réseau requis seulement pour les échanges.",
+    "git status -sb, suivi amont et graphe --all pour distinguer avance, retard et divergence ; une information locale peut être périmée avant fetch.",
+    "Comparer branche locale et suivi distant avec diff et log ; apprendre la notation A..B de log comme commits accessibles depuis B mais pas A, distincte de git diff.",
+    "git pull équivaut à fetch puis intégration selon la stratégie ; --ff-only comme garde-fou initial, expliquer le refus en cas de divergence.",
+    "En cas de divergence, fetch puis merge explicite de la branche distante inspectée, résolution des conflits et push normal ; rebase non nécessaire à cette étape.",
+    "Refus non-fast-forward : protéger les commits distants, inspecter l'amont et intégrer ; pas de push forcé ni de reset pour faire disparaître le message.",
+    "Synchroniser dans VS Code peut enchaîner plusieurs opérations ; préférer les actions distinctes tant que leurs effets ne sont pas compris et vérifier les suppressions distantes avant tout nettoyage."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

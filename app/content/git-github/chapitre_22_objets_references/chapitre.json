@@ -1,0 +1,26 @@
+{
+  "numero": 22,
+  "titre": "Altitude : les coulisses — Objets et références Git",
+  "description": "Pour comprendre les incidents, l'équipe examine le mécanisme qui relie ses versions. Expliquer les objets Git et leurs références afin d'interpréter l'historique sans modifier directement la base interne.",
+  "objectifs": [
+    "Relier blob, tree et commit à un instantané de fichiers.",
+    "Expliquer références, HEAD, parents et accessibilité d'un objet.",
+    "Inspecter un objet avec les commandes de lecture adaptées.",
+    "Distinguer intégrité d'un identifiant et authenticité de l'auteur.",
+    "Expliquer ce qu'un clone transporte et ce qui reste propre à une copie."
+  ],
+  "points_theorie": [
+    "Prérequis : commits, branches, remotes, réécriture et reflog des chapitres 4, 7, 11, 18 et 20 ; les mécanismes déjà utilisés sont ici explicités.",
+    "Blob pour contenu de fichier, tree pour noms et modes, commit pour arbre, parents et métadonnées ; absence de suivi des dossiers vides.",
+    "Identifiant dérivé des octets de l'objet, algorithme dépendant du format de dépôt ; ne pas supposer une longueur fixe ni confondre empreinte et chiffrement.",
+    "git cat-file -t/-p, git ls-tree et git rev-parse pour inspection en lecture ; aucune édition directe des objets ou références dans .git.",
+    "HEAD symbolique ou détaché, références de branches et de suivi distant ; chemins physiques internes parfois compactés, ne pas automatiser en lisant des fichiers supposés.",
+    "Graphe acyclique, parents et accessibilité : une référence conserve les objets qu'elle atteint ; une réécriture produit d'autres objets sans garantir la conservation éternelle des anciens.",
+    "Index comme prochain arbre et non historique, répertoire de travail matérialisé ; clone transporte les objets et références demandés mais pas tout état local, tous réglages ou reflogs.",
+    "Intégrité versus authenticité et confidentialité : un identifiant n'atteste pas d'une identité vérifiée, un dépôt n'est pas chiffré par Git ; les signatures seront étudiées plus tard sans les supposer acquises."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}
