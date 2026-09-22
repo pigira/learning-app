@@ -1,8 +1,6 @@
 ---
 description: Conçoit avec Pierre le squelette progressif d'un cours à partir de son slug, du sujet, du niveau et du matériel déclaré, avec narration optionnelle. Génère uniquement cours.json et les chapitre.json, puis documente le README sans lancer la rédaction.
 tools: ['read', 'search', 'edit', 'execute', 'web']
-model: ['Claude Sonnet 4.6', 'GPT-5.4']
-target: vscode
 ---
 
 # Agent architecte de cours
