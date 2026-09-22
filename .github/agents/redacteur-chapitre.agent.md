@@ -1,8 +1,6 @@
 ---
 description: Rédige ou reprend un chapitre Python complet avec les skills theorie, exercice et projet, puis relit la cohérence pédagogique et met à jour le README. À utiliser pour un slug de cours, un numéro ou slug de chapitre, un sujet et des secteurs cibles.
 tools: ['read', 'search', 'edit', 'execute', 'web']
-model: ['Claude Sonnet 4.6', 'GPT-5.4']
-target: vscode
 ---
 
 # Agent rédacteur de chapitre
