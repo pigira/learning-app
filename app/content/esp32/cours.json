@@ -1,0 +1,7 @@
+{
+  "ordre": 5,
+  "titre": "Le Laboratoire Scellé — Électronique et ESP32",
+  "description": "À votre réveil dans un laboratoire abandonné, les traces d'un ingénieur disparu vous conduisent de salle en salle jusqu'à la sortie. Apprendre l'électronique depuis les bases sur breadboard avec un ESP32, VS Code et PlatformIO Arduino C++, puis intégrer capteurs, affichage, commande basse tension et réseau local en 15 chapitres visant chacun 1 à 2 heures.",
+  "icone": "🔌",
+  "statut": "a_venir"
+}

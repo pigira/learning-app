@@ -1,0 +1,28 @@
+{
+  "numero": 6,
+  "titre": "Salle 06 : le passage — Capteur IR et interruptions",
+  "description": "Un détecteur de passage manque des événements pendant les cycles du laboratoire. Lire le module IR et comparer scrutation et interruption en séparant capture d'événement et traitement principal.",
+  "objectifs": [
+    "Identifier alimentation, sortie et polarité active du module IR avant son raccordement.",
+    "Comparer détection de niveau, détection de front et comptage d'un passage.",
+    "Configurer une interruption GPIO avec une routine courte et un transfert de données protégé.",
+    "Filtrer les événements parasites sans transformer l'ISR en traitement bloquant.",
+    "Présenter les limites d'un compteur de passages démontré sur table."
+  ],
+  "points_theorie": [
+    "Prérequis : entrée et anti-rebond du chapitre 02, ordonnancement du chapitre 05 ; introduire interruption matérielle, événement asynchrone et contexte ISR avant toute API d'attachement.",
+    "Module IR obstacle : émission/réflexion, influence de la surface, de l'angle et de la lumière ambiante ; ce module n'est pas une barrière métrologique ni un dispositif de sécurité.",
+    "Contrôle préalable documenté : référence ou circuit identifiable, pinout, alimentation autorisée, niveau et type de sortie, pull-up éventuel ; pas de sortie 5 V sur GPIO, doute non levé = module non branché.",
+    "Montage réel : module IR validé, LED avec résistance et ESP32 reliés via la breadboard ; si identification insuffisante, conserver le montage bouton du chapitre 02 pour l'apprentissage des interruptions et signaler le blocage IR.",
+    "Observer par scrutation avec digitalRead() avant interruption ; niveau actif, fronts RISING/FALLING/CHANGE, un passage n'est pas nécessairement un seul front électrique.",
+    "Introduire digitalPinToInterrupt(), attachInterrupt(), detachInterrupt() et IRAM_ATTR selon Arduino-ESP32 2.0.17 ; choisir un GPIO d'entrée adapté et une politique explicite d'activation.",
+    "ISR minimale : mémoriser un drapeau ou un compteur, jamais Serial, delay(), Wi-Fi, I2C, allocation dynamique ou logique d'affichage ; exécuter le filtrage et les sorties dans loop().",
+    "Partage ISR/loop : volatile n'assure pas l'atomicité d'une opération composée ; introduire et expliquer portMUX_TYPE, portMUX_INITIALIZER_UNLOCKED et les sections critiques tâche/ISR pour copier et réinitialiser sans perte.",
+    "Filtrage temporel et réarmement non bloquants après retour à l'état libre ; choisir délibérément entre conserver tous les fronts et compter un événement stable, avec saturation ou bornage du compteur.",
+    "Validation Enduro sur table : passages lents et rapprochés, obstacle maintenu, perturbation lumineuse et retour à zéro ; aucune fixation à un véhicule, mesure de vitesse certifiée ou fonction protectrice."
+  ],
+  "projets_cibles": [
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

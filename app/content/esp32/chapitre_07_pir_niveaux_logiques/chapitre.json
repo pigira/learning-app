@@ -1,0 +1,28 @@
+{
+  "numero": 7,
+  "titre": "Salle 07 : la veille — PIR et niveaux logiques",
+  "description": "Une veilleuse s'active au mauvais moment dans la salle silencieuse. Comprendre le PIR HC-SR501, distinguer son alimentation de sa sortie et gérer ses délais sans bloquer l'ESP32.",
+  "objectifs": [
+    "Distinguer tension d'alimentation, tension de sortie et seuil logique admissible d'un module.",
+    "Déterminer si le rail USB/VIN peut alimenter le PIR sur la carte exacte et avec le budget disponible.",
+    "Interpréter stabilisation, temporisation et réarmement du HC-SR501.",
+    "Piloter une indication lumineuse non bloquante à partir d'un PIR documenté.",
+    "Expliquer pourquoi l'absence de mouvement détecté ne prouve pas l'absence d'une personne."
+  ],
+  "points_theorie": [
+    "Prérequis : GPIO du chapitre 01, millis() du chapitre 05, identification des sorties et fronts du chapitre 06 ; introduire ici domaines d'alimentation et référence de masse.",
+    "HC-SR501 : détection de variations infrarouges, champ de vision, objets immobiles non détectés et faux déclenchements ; observation pédagogique, pas d'alarme de sécurité.",
+    "Identifier le pinout, la plage d'alimentation, les réglages et le niveau maximal de OUT sur le module réel ; ne pas transformer la déclaration de compatibilité du kit en vérification documentaire.",
+    "Module alimenté en 5 V uniquement si la fonction de sortie du rail USB/VIN et sa capacité sont établies pour cette carte, avec bilan carte plus module ; une mention générique 5–12 V n'autorise aucune alimentation improvisée.",
+    "Source unique micro-USB, aucune alimentation externe ni injection sur VIN, pas de retour d'alimentation ; GPIO non tolérants à 5 V, masse de référence commune pour une sortie non isolée et contrôle des chemins de courant.",
+    "Montage réel conditionné à ces vérifications : HC-SR501 et LED avec résistance sur la breadboard, sortie uniquement si admissible en 3,3 V ; si alimentation ou niveau incertains, ne pas brancher et signaler le blocage, sans achat de substitution.",
+    "Stabilisation après alimentation, délai de maintien, modes réarmable/non réarmable et réglages physiques selon documentation ; distinguer temporisation interne du PIR et temporisation logicielle de l'indicateur.",
+    "Lecture avec digitalRead() et suivi par millis() déjà introduits ; journaliser les transitions plutôt que chaque tour de boucle, ne pas ajouter une interruption sans utilité.",
+    "Validation manuelle : démarrage, mouvement, immobilité, maintien et retour au repos ; comparer observations aux délais documentés sans certifier portée ou précision.",
+    "Contrôle visuel hors tension et bilan sur documents ne remplacent pas une mesure électrique ; arrêter en présence d'une donnée critique manquante et garder une trace de cette limite dans le diagnostic."
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "squelette"
+}

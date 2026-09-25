@@ -1,0 +1,33 @@
+{
+  "numero": 14,
+  "titre": "Salle 14 : la sortie — Projet intégrateur transverse",
+  "description": "Les traces de l'ingénieur convergent vers un dernier pupitre dont la remise en service ouvre symboliquement la sortie. Intégrer plusieurs capteurs, l'OLED et une commande relais basse tension, puis réemployer les autres acquis par variantes successives avec le seul kit disponible.",
+  "objectifs": [
+    "Concevoir une base cohérente à plusieurs entrées, avec OLED et relais commandant uniquement une LED résistive.",
+    "Établir un bilan réel des composants, GPIO, résistances, courants et fils par type avant chaque configuration.",
+    "Intégrer acquisition, validation, machine à états et sorties non bloquantes sans nouvelle API imposée.",
+    "Démontrer les usages Cuisine, Finance et Enduro au moyen de données et scénarios pédagogiques.",
+    "Réemployer les composants dans des extensions successives au lieu d'exiger tous les montages simultanément.",
+    "Documenter les limites, les blocages matériels éventuels et les résultats de vérifications manuelles."
+  ],
+  "points_theorie": [
+    "Prérequis : chapitres 00 à 13 du même cours ; synthèse uniquement, réutiliser leurs API et bibliothèques expliquées, sans exiger de nouveau langage, composant, service ou protocole.",
+    "Base intégrée visée sur breadboard : une carte, DHT11 et module IR comme deux entrées capteurs, un OLED SSD1306, un canal du relais deux canaux et une LED avec résistance comme seule charge ; réutiliser les identifications électriques validées, le second canal doit rester inactif.",
+    "Bilan matériel réel avant assemblage : compter chaque résistance par valeur constatée, chaque GPIO exposé, les lignes ADC1/I2C, les entrées relais et les rails requis ; une seule carte, un écran et une breadboard, jamais de composants empruntés à un ancien montage laissé en place.",
+    "Bilan de câblage à établir sur la connectique effective : recenser chaque liaison, y compris alimentation, masse, contacts de relais, rappels et éventuels ponts de rails ; plafonds stricts de 10 F-M, 10 F-F et 10 M-M, sans rallonges ou adaptateurs inventés, carte hors breadboard si nécessaire.",
+    "Bilan électrique documenté : courant USB total, marge radio, capacités 3V3 et USB/VIN de la carte exacte, consommation OLED/capteurs, bobine active et LED ; aucune alimentation 5 V présumée, aucune broche exposée à 5 V, aucune bobine commandée directement.",
+    "Architecture acquise : acquisition DHT11 cadencée et valide, événements IR via ISR minimale puis traitement dans loop(), FSM avec défaut et repos, affichage OLED rafraîchi sans blocage ; commande du relais uniquement par décision locale indépendante des requêtes réseau.",
+    "Transversalité de la base : observation température/humidité Cuisine sans garantie alimentaire, comptage de passages sur table Enduro, réception navigateur d'une valeur Finance fictive par Wi-Fi local et affichage OLED, jamais d'API externe ni de secret réel.",
+    "Extensions successives hors tension : remplacer une entrée par PIR ou potentiomètre ADC1/module photorésistance AO ou DO identifié, puis bouton avec anti-rebond ; vérifier les fonctions de chaque capteur sans maintenir tous les capteurs en parallèle.",
+    "Extensions de sortie successives : remplacer l'indicateur simple par RGB avec une résistance par couleur, puis buzzer actif ou passif seulement si admissible, en réutilisant PWM et minuteurs ; recalculer les budgets et conserver le relais hors commande distante.",
+    "Variante sommeil finale : démonter hors tension les modules incompatibles avec un repos garanti, réutiliser le montage bouton RTC/minuterie du chapitre 13 et réinitialiser la FSM au réveil ; ne pas promettre une faible consommation mesurée de la base complète.",
+    "Vérification manuelle incrémentale : chaque sous-ensemble puis la base, valeurs invalides ou périmées, événement maintenu, expiration, requête mal formée, perte Wi-Fi, reset et réveil ; modifications de câblage uniquement débranchées, un doute électrique bloque la variante et n'est jamais contourné par un achat.",
+    "Livrable d'autonomie : nomenclature et budgets par configuration, table des connexions et transitions, versions figées, observations et limites ; réutiliser les sous-ensembles déjà maîtrisés pour viser 1 à 2 heures d'intégration, signaler séparément tout temps de diagnostic et ne pas présenter une base sans relais validé comme un objectif entièrement atteint."
+  ],
+  "projets_cibles": [
+    "Cuisine",
+    "Finance",
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

@@ -1,0 +1,28 @@
+{
+  "numero": 4,
+  "titre": "Salle 04 : les balises — PWM, RGB et buzzers",
+  "description": "Les balises lumineuses et sonores doivent retrouver un langage lisible avant de poursuivre l'exploration. Produire une modulation PWM avec LEDC, limiter le courant d'une LED RGB et distinguer les commandes des buzzers actif et passif.",
+  "objectifs": [
+    "Relier fréquence, résolution et rapport cyclique d'une PWM à l'effet observé sur une LED.",
+    "Configurer LEDC sans mélanger les API Arduino-ESP32 2.x et 3.x.",
+    "Identifier la LED RGB et calculer une résistance série distincte par couleur.",
+    "Distinguer buzzer actif et passif et décider si leur commande est réalisable avec les caractéristiques documentées du kit.",
+    "Réutiliser les composants dans des montages successifs respectant le budget de courant et de fils."
+  ],
+  "points_theorie": [
+    "Prérequis : courant et résistances du chapitre 01, commande numérique du chapitre 02, potentiomètre et normalisation du chapitre 03 ; introduire PWM avant les fonctions LEDC.",
+    "PWM versus vraie tension analogique : fréquence, période, rapport cyclique, résolution et compromis fréquence/résolution ; scintillement et perception de luminosité, sans faire de l'ADC un oscilloscope.",
+    "API fixée à Arduino-ESP32 2.0.17 : introduire ledcSetup(), ledcAttachPin(), ledcWrite(), ledcWriteTone() et ledcDetachPin(), canaux et minuteries partagées ; ne pas employer ledcAttach() ni la sémantique par broche de la version 3.x.",
+    "Montage réel de base : LED et résistance série sur breadboard, luminosité ajustée par le potentiomètre ; bornage du duty cycle et extinction explicite à l'initialisation.",
+    "Identifier la LED RGB : anode ou cathode commune et brochage documentés avant branchement ; trois résistances série calculées, une par couleur, quantités à relever dans les 30 résistances sans supposer trois exemplaires d'une valeur.",
+    "Montage RGB successif au montage LED simple : inversion éventuelle du rapport cyclique, mélange des couleurs et plafond de courant cumulé conservateur, sans exiger l'allumage maximal simultané des trois voies.",
+    "Buzzers : actif avec oscillateur interne versus passif nécessitant une excitation périodique ; identification de tension, courant, polarité et nature de la charge avant de promettre une commande GPIO.",
+    "Montage buzzer successif seulement si tension, courant et entrée éventuelle de commande permettent le raccordement avec le matériel présent ; jamais de bobine brute ni de commande directe supposée, aucun transistor ou composant de protection inventé.",
+    "Répartition des canaux LEDC pour ne pas modifier la fréquence des couleurs lors d'une tonalité ; arrêt du son, durée courte et niveau sonore modéré, sans employer une bibliothèque ou une API non introduite.",
+    "Validation : observer plusieurs luminosités et couleurs puis, si admissible, distinguer allumage d'un buzzer actif et tonalité du passif ; la LED assure la pratique PWM même si un buzzer est bloqué, et ce blocage reste explicitement signalé."
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "squelette"
+}

@@ -1,0 +1,27 @@
+{
+  "numero": 1,
+  "titre": "Salle 01 : le signal — GPIO et loi d'Ohm",
+  "description": "Le premier signal rétabli révèle le passage vers les autres salles du laboratoire. Calculer une résistance de LED et commander une sortie numérique en respectant le brochage et les limites électriques de l'ESP32.",
+  "objectifs": [
+    "Calculer le courant d'une LED et choisir une résistance réellement disponible avec une marge conservatrice.",
+    "Relier une broche sérigraphiée à son numéro GPIO et justifier son aptitude comme sortie.",
+    "Commander une LED externe avec pinMode() et digitalWrite() en imposant un état initial défini.",
+    "Distinguer limite électrique d'une broche, budget cumulé des GPIO et capacité de l'alimentation."
+  ],
+  "points_theorie": [
+    "Prérequis : alimentation USB, breadboard, LED série et chaîne de compilation du chapitre 00 ; introduire ici GPIO, niveau logique, mode de broche et état de haute impédance au reset.",
+    "Tension, intensité, résistance et puissance : unités, loi d'Ohm, chute directe de LED issue de ses caractéristiques et calcul de résistance série ; choisir une valeur supérieure disponible plutôt qu'un courant maximal théorique.",
+    "Inventaire des résistances : 30 au total parmi 220 Ω, 1 kΩ et 10 kΩ, sans répartition connue ; lire les marquages ou codes couleur, établir les quantités, ne pas confondre hypothèse de calcul et mesure absente.",
+    "ESP32 classique 30 broches : éviter les strapping GPIO0/2/5/12/15, ne pas utiliser GPIO6 à 11 liés à la flash, réserver UART0 à la console ; GPIO34 à 39 sont uniquement des entrées sans pulls internes et ne sont pas tous exposés.",
+    "Établir une table GPIO utilisables à partir de la carte documentée ; distinguer numéro GPIO et position sur le connecteur, ne pas généraliser un pinout ESP32-S2/S3/C3 à l'ESP32-WROOM32.",
+    "Introduire pinMode(), OUTPUT, digitalWrite(), HIGH et LOW ; initialisation de la sortie et courant source ou absorbé, LED éteinte à la mise sous tension et comportement pendant le téléversement.",
+    "Montage réel : LED rouge avec résistance série calculée sur breadboard, sortie GPIO documentée et masse commune ; ne jamais connecter une LED directement ni essayer une valeur inconnue sous tension.",
+    "Introduire delay() uniquement pour une première observation lente et en expliciter le blocage ; la temporisation non bloquante sera construite aux chapitres 02 et 05, elle n'est pas un prérequis caché.",
+    "Budget conservateur : courant de la LED, puissance dissipée dans sa résistance, limites recommandées par broche et cumulées, réserve pour la carte ; ne pas prendre une valeur maximale absolue pour un courant de fonctionnement.",
+    "Diagnostic manuel : polarité, placement breadboard, masse, numéro GPIO et valeur de résistance, toujours hors tension avant correction ; reconnaître ce qui demeure invérifiable sans documentation ou instrument."
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "squelette"
+}

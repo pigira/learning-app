@@ -1,0 +1,29 @@
+{
+  "numero": 5,
+  "titre": "Salle 05 : l'horloge — Temporisations non bloquantes",
+  "description": "L'horloge centrale s'arrête dès qu'une autre commande réclame son attention. Ordonner plusieurs tâches avec millis() et construire un minuteur réactif sans bloquer les entrées ni surcharger les sorties.",
+  "objectifs": [
+    "Faire évoluer simultanément un minuteur, un bouton et un indicateur sans delay() dans la boucle principale.",
+    "Choisir entre période depuis la dernière exécution et échéances régulières avec rattrapage borné.",
+    "Justifier une comparaison temporelle compatible avec le débordement de millis().",
+    "Limiter les activations simultanées selon le budget électrique du montage.",
+    "Transposer une minuterie à la cuisine ou à des intervalles d'entraînement sur table."
+  ],
+  "points_theorie": [
+    "Prérequis : anti-rebond et première utilisation de millis() au chapitre 02, sorties PWM et buzzers conditionnels au chapitre 04 ; aucun ordonnanceur externe ou RTOS requis.",
+    "Montage réel : bouton, LED avec résistance et potentiomètre sur breadboard ; buzzer en variante uniquement après validation électrique du chapitre 04, jamais indispensable au fonctionnement du minuteur.",
+    "Reprendre millis(), uint32_t, soustraction non signée et rollover après environ 49,7 jours ; borner les durées et la fréquence d'observation, ne pas comparer naïvement maintenant à début plus durée.",
+    "Ordonnancement coopératif : lire, mettre à jour, agir, journaliser ; une tâche doit rendre la main rapidement, fréquence du moniteur série limitée et aucune attente active.",
+    "Comparer déclenchement après une durée et échéancier périodique ; expliquer dérive, dépassement, période manquée et politique de rattrapage bornée sans boucle de rattrapage infinie.",
+    "Représenter marche, pause et fin avec des variables explicitement expliquées ; la formalisation générale en machine à états appartient au chapitre 11 et n'est pas supposée acquise.",
+    "Introduire séparation acquisition/temporisation/sortie, filtrage du réglage analogique et anti-rebond réutilisé ; pas de nouvelle bibliothèque pour une simple minuterie.",
+    "Budget électrique de chaque phase : courant des LED ou du buzzer validé, marge de l'alimentation USB et du régulateur documentés, extinction avant changement de mode et absence de charge cumulée non prévue.",
+    "Applications alternatives : minuteur de préparation Cuisine ou périodes effort/repos Enduro, avec unités et bornes explicites ; démonstrations sur table, aucune commande de chauffage ni utilisation sur véhicule.",
+    "Validation manuelle : entrée encore réactive pendant le décompte, pause/reprise, réglage extrême, annulation et raisonnement sur un rollover fictif ; ne pas attendre 49 jours ni demander à l'agent d'exécuter le firmware."
+  ],
+  "projets_cibles": [
+    "Cuisine",
+    "Enduro"
+  ],
+  "statut": "squelette"
+}

@@ -1,0 +1,30 @@
+{
+  "numero": 12,
+  "titre": "Salle 12 : la liaison — Wi-Fi et serveur web local",
+  "description": "Un terminal isolé peut enfin transmettre au pupitre les dernières données fictives de l'ingénieur. Créer un serveur HTTP local pour recevoir une valeur de démonstration, l'afficher sur OLED et piloter un indicateur lumineux sans commander le relais à distance.",
+  "objectifs": [
+    "Établir une liaison locale en Wi-Fi 2,4 GHz ou en point d'accès ESP32 authentifié sans Internet.",
+    "Expliquer adresse IP, client navigateur, requête HTTP et réponse d'un serveur minimal.",
+    "Recevoir et borner une valeur Finance fictive par formulaire sans API externe.",
+    "Maintenir acquisition ADC1 et affichage ou signalisation pendant le traitement réseau.",
+    "Limiter le réseau à la consultation et à une LED, avec relais exclu de toute commande distante."
+  ],
+  "points_theorie": [
+    "Prérequis : ADC1 du chapitre 03, PWM du chapitre 04, ordonnancement du chapitre 05, OLED du chapitre 09 et FSM du chapitre 11 ; introduire réseau local, Wi-Fi, adresse IP et HTTP ici, sans Python ni JavaScript requis.",
+    "Montage réel : potentiomètre sur ADC1, OLED et LED avec résistance sur breadboard ; la RGB peut remplacer la LED en variante avec trois résistances et budget vérifié, mais n'est pas exigée simultanément avec tous les capteurs.",
+    "Électronique en activité radio : surcroît et pointes de courant, marge USB/régulateur documentée, stabilité de l'alimentation et conflits de broches ; ADC2 indisponible avec Wi-Fi sur ESP32 classique, ADC1 retenu dès le chapitre 03.",
+    "Introduire WiFi.h, mode station, WiFi.begin(), WiFi.status(), WiFi.localIP() et délai de connexion borné ; réseau 2,4 GHz seulement s'il existe et si Pierre est autorisé à l'utiliser, aucun routeur ni smartphone imposé.",
+    "Alternative locale sans routeur : WiFi.mode(), WiFi.softAP() et WiFi.softAPIP() avec authentification WPA2 et mot de passe choisi localement ; connecter le navigateur de l'ordinateur à ce réseau, sans Internet, compte, API ni abonnement.",
+    "Vérifier la possibilité de liaison Wi-Fi de l'ordinateur sans supposer un adaptateur supplémentaire ; si elle manque, signaler ce blocage réseau, une réception série locale explicitement étiquetée peut préparer les données sans être présentée comme une réussite Wi-Fi.",
+    "Introduire WebServer.h, instance, routes, begin(), handleClient(), méthode GET pour statut et POST pour formulaire, hasArg(), arg() et send() ; expliquer le minimum de HTML nécessaire dans une page locale sans service distant.",
+    "Réception Finance : montant ou indice strictement fictif envoyé par le navigateur, chaîne de longueur bornée, conversion numérique contrôlée avec API C++ expliquée, valeurs finies et plage autorisée ; refuser entrées absentes, mal formées ou trop grandes.",
+    "Réutiliser affichage OLED et seuil lumineux/RGB ; publier âge et validité, traiter requêtes brièvement et régulièrement, ne pas bloquer le bouton local ou l'acquisition analogique, aucun appel Wi-Fi en ISR.",
+    "Sécurité réseau : HTTP sans confidentialité applicative, authentification Wi-Fi ne protégeant pas de tous les clients du réseau ; aucune donnée financière réelle ni secret stocké dans les contenus, pas d'exposition Internet ou de redirection de port.",
+    "Périmètre distant limité au statut, aux valeurs fictives et à l'indicateur LED ; relais exclu des routes et non actionné indirectement par les données reçues, aucune requête distante pour une charge ou une fonction de sécurité.",
+    "Validation manuelle : accès depuis le navigateur, valeur valide, rejet d'une valeur invalide, déconnexion et reconnexion avec délai borné ; le mode AP assure l'usage local sans Internet une fois outils et bibliothèques installés."
+  ],
+  "projets_cibles": [
+    "Finance"
+  ],
+  "statut": "squelette"
+}

@@ -1,0 +1,28 @@
+{
+  "numero": 3,
+  "titre": "Salle 03 : la jauge — ADC et diviseurs de tension",
+  "description": "Une jauge obscurcie donne des valeurs incohérentes sur le pupitre de contrôle. Lire le potentiomètre avec l'ADC et distinguer une sortie analogique d'un seuil numérique sur le module photorésistance.",
+  "objectifs": [
+    "Expliquer et calculer le rapport d'un diviseur de tension simple.",
+    "Câbler le potentiomètre 10 kΩ entre 3,3 V et GND et lire son curseur sur une entrée ADC1 exposée.",
+    "Relier résolution, atténuation, saturation et bruit aux limites d'une conversion ADC.",
+    "Identifier AO et DO sur le module photorésistance sans présenter une sortie numérique comme une mesure d'éclairement.",
+    "Présenter une grandeur normalisée et ses limites sans annoncer une mesure en lux non étalonnée."
+  ],
+  "points_theorie": [
+    "Prérequis : loi d'Ohm et GPIO du chapitre 01, lecture numérique et échantillonnage minimal du chapitre 02 ; introduire analogique, conversion et diviseur avant analogRead().",
+    "Diviseur résistif : relation entre résistances, tension d'entrée et tension de sortie, effet d'une charge ; potentiomètre comme diviseur ajustable, curseur et extrémités à identifier hors tension.",
+    "Montage réel garanti par l'inventaire : potentiomètre 10 kΩ sur breadboard, extrémités 3,3 V/GND et curseur sur ADC1 ; vérifier la plage admissible et accepter une saturation en butée, sans jamais appliquer 5 V.",
+    "Choisir ADC1 à partir du brochage ESP32 classique vérifié ; réserver ADC2 aux explications de sa concurrence avec le Wi-Fi, ne pas construire une dépendance future à ADC2.",
+    "Introduire analogRead(), analogReadResolution() et analogSetPinAttenuation() avec les constantes de l'Arduino-ESP32 2.0.17 figé ; plage recommandée selon l'atténuation, non-linéarité et absence de précision métrologique.",
+    "Résolution en bits, valeur brute, normalisation, bornage, moyenne de quelques lectures et fréquence raisonnable de journalisation ; ne pas déduire une tension précise d'une simple règle de trois.",
+    "Identifier le module photorésistance réel avant branchement : alimentation, masse, pinout, présence de AO, DO ou des deux, comparateur éventuel, niveau maximal de sortie et compatibilité 3,3 V à documenter.",
+    "Montage de comparaison démontable : si AO est présente et électriquement admissible, observer sa tendance à la lumière ; si seule DO existe, lire uniquement un franchissement de seuil avec digitalRead() et garder le potentiomètre pour la pratique ADC.",
+    "Alimentation du module à 3,3 V seulement si documentée ; une sortie ou un pull-up à 5 V n'est jamais raccordé directement, un diviseur éventuel doit être calculé et justifié pour le signal réel avec les seules résistances identifiées.",
+    "Validation : variations, valeurs aux extrêmes, bruit et effet d'un seuil, unités explicites ; sans capteur étalonné ni instrument, ne pas promettre lux ou tension exacte, et signaler un blocage si les caractéristiques du module restent inconnues."
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "squelette"
+}

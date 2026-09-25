@@ -1,0 +1,30 @@
+{
+  "numero": 9,
+  "titre": "Salle 09 : le pupitre — Bus I2C et écran OLED",
+  "description": "Le pupitre effacé doit rendre lisibles les relevés et les messages retrouvés dans le laboratoire. Initialiser l'OLED SSD1306 I2C et afficher des données bornées avec un statut de validité explicite.",
+  "objectifs": [
+    "Identifier GND, VDD, SCK et SDA de l'OLED confirmé à quatre broches.",
+    "Expliquer lignes à drain ouvert, résistances de rappel, adresse et acquittement I2C.",
+    "Initialiser Wire et une bibliothèque SSD1306 compatible avec un écran 128×64.",
+    "Afficher valeur, unité et état de mesure sans bloquer l'acquisition.",
+    "Distinguer une donnée locale fictive d'une donnée reçue par réseau, non encore introduit."
+  ],
+  "points_theorie": [
+    "Prérequis : pull-up du chapitre 02, ordonnancement du chapitre 05, validité des mesures du chapitre 08 ; introduire I2C sans supposer SPI ni un autre écran.",
+    "Matériel confirmé : un OLED SSD1306 0,96 pouce, 128×64, quatre broches GND VDD SCK SDA ; SCK est ici l'horloge SCL du bus I2C, aucun câblage SPI ou fil de reset supplémentaire à inventer.",
+    "Contrôle préalable : plage d'alimentation du module, rails de ses pull-up, niveau SDA/SCL et brochage exact ; privilégier une alimentation 3,3 V documentée, ne jamais laisser les lignes rappelées à 5 V.",
+    "I2C : maître et périphérique, adresse 7 bits, START/STOP, acquittement, drain ouvert et rappel ; plusieurs résistances en parallèle réduisent la résistance équivalente, ne pas ajouter systématiquement des pull-up au module.",
+    "Montage réel : OLED unique relié à la carte via la breadboard, lignes SDA/SCL sur deux GPIO compatibles documentés et masse commune ; ajouter le DHT11 seulement après validation du montage écran et comptage des fils.",
+    "Introduire Wire.h, Wire.begin() avec GPIO explicites, cadence prudente documentée, beginTransmission() et endTransmission() pour un diagnostic d'adresse I2C ; ne pas garantir une adresse uniquement d'après la famille SSD1306.",
+    "Choisir et figer les versions réelles des bibliothèques SSD1306 et graphique nécessaires dans lib_deps ; expliquer en-têtes, dimensions, initialisation, tampon d'image, positionnement du texte et envoi effectif à l'écran.",
+    "Présenter les fonctions réellement utilisées pour effacer, écrire et rafraîchir, leur résultat d'initialisation et le coût mémoire du tampon ; pas de grande interface graphique ni de bibliothèque implicite.",
+    "Rafraîchissement limité avec millis(), formatage borné, unités, état invalide ou périmé, diagnostic écran absent dans la console ; aucun transfert I2C en ISR.",
+    "Applications alternatives : température/humidité Cuisine déjà acquises ou montant Finance strictement fictif défini localement ; la réception Wi-Fi appartient au chapitre 12 et n'est pas requise ici.",
+    "Validation manuelle : adresse trouvée, texte lisible, absence d'écran traitée et acquisition toujours cadencée ; distinguer problème de bus, d'adresse et de rendu sans effectuer de mesure électrique imaginaire."
+  ],
+  "projets_cibles": [
+    "Cuisine",
+    "Finance"
+  ],
+  "statut": "squelette"
+}

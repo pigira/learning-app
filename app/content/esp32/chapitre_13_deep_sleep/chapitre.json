@@ -1,0 +1,28 @@
+{
+  "numero": 13,
+  "titre": "Salle 13 : le silence — Deep sleep et réveil",
+  "description": "La salle silencieuse ne doit se réveiller qu'au moment prévu sans réactiver les anciens défauts. Explorer le deep sleep, les sources de réveil RTC et l'état électrique des GPIO tout en distinguant consommation de puce et de carte.",
+  "objectifs": [
+    "Distinguer exécution active, deep sleep, reset et reprise par setup().",
+    "Configurer séparément un réveil par minuterie et un réveil par bouton sur GPIO RTC adapté.",
+    "Préparer un état de repos compatible avec la haute impédance possible des GPIO.",
+    "Expliquer les limites d'une estimation de consommation avec une carte USB et sans instrument.",
+    "Réinitialiser proprement acquisition, affichage et réseau après réveil."
+  ],
+  "points_theorie": [
+    "Prérequis : rappels et bouton du chapitre 02, millis() du chapitre 05, état au repos du relais au chapitre 10, FSM du chapitre 11 et Wi-Fi du chapitre 12 ; introduire domaines RTC et redémarrage de l'application après deep sleep.",
+    "Montage réel minimal : bouton avec rappel externe de 10 kΩ si requis et LED avec résistance sur breadboard ; identifier un GPIO RTC exposé, non strapping et adapté au réveil sur l'ESP32 classique.",
+    "Ne pas confondre réveil sur niveau RTC et interruption sur front du chapitre 06 ; vérifier les pulls disponibles pendant le sommeil, notamment absence de pulls internes sur GPIO34 à 39, et éviter un réveil immédiat si le bouton reste actif.",
+    "Introduire esp_sleep.h, esp_sleep_enable_timer_wakeup(), esp_sleep_enable_ext0_wakeup(), esp_sleep_get_wakeup_cause() et esp_deep_sleep_start() ; deux variantes successives simples, unités microsecondes et calcul 64 bits sans débordement.",
+    "Extinction ordonnée des sorties, arrêt des activités réseau par API expliquée et préparation des niveaux ; un GPIO peut devenir haute impédance, ne pas supposer la conservation d'un signal actif ni l'usage d'un maintien non enseigné.",
+    "Commande de relais non incluse dans le montage de sommeil de base ; toute variante exige un repos matériel documenté au reset et pendant le sommeil, faute de quoi le relais est démonté hors tension et le blocage noté.",
+    "Réveil relançant setup(), réinitialisation des périphériques et des horodatages millis(), cause du réveil affichée en console ; état perdu par défaut, conservation RTC_DATA_ATTR introduite seulement pour un compteur borné sans promesse de persistance après coupure USB.",
+    "Consommation : distinguer puce, régulateur de carte, LED d'alimentation, CP2102 et modules restés alimentés ; aucun chiffre de microampères mesuré ou promis pour l'ensemble USB sans appareil de mesure.",
+    "Les rails USB/3V3 et les périphériques ne s'éteignent pas automatiquement parce que le cœur dort ; aucun circuit de coupure, batterie, transistor ou composant supplémentaire n'est supposé.",
+    "Validation fonctionnelle manuelle : séquence veille/réveil, bouton maintenu puis relâché, retour à un état initial inactif et reconnexion éventuelle ; le succès fonctionnel ne constitue pas une mesure d'économie d'énergie."
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "squelette"
+}

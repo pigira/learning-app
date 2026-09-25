@@ -1,0 +1,30 @@
+{
+  "numero": 0,
+  "titre": "Salle 00 : le réveil — Setup et premier circuit",
+  "description": "Un voyant éteint et une console muette sont les premières traces laissées par l'ingénieur disparu. Installer la chaîne Arduino C++ dans VS Code et réaliser un premier circuit LED basse tension sur breadboard, sans prérequis électronique.",
+  "objectifs": [
+    "Identifier la carte ESP32-WROOM32 à 30 broches, son interface CP2102 et les connexions de la breadboard.",
+    "Préparer VS Code et PlatformIO selon Windows, macOS ou Linux et consigner les versions effectivement utilisées.",
+    "Distinguer alimentation 3,3 V, masse, polarité, circuit fermé et limitation du courant avant tout branchement.",
+    "Assembler hors tension une LED avec une résistance de 1 kΩ puis observer son allumage sous alimentation USB unique.",
+    "Compiler, téléverser et lire un message série par les outils PlatformIO, manuellement et sans apprentissage préalable de Python."
+  ],
+  "points_theorie": [
+    "Prérequis : C/C++ et algorithmique déjà maîtrisés, aucune pratique électronique supposée ; introduire microcontrôleur, firmware, alimentation, périphérique et différence entre compilation hôte et cible.",
+    "Installation guidée alternative Windows/macOS/Linux : VS Code, extension PlatformIO, outils téléchargés ou déjà mis en cache, pilote officiel CP2102 si nécessaire, port série et permissions Linux sans contournement global des protections.",
+    "Chaîne figée : platformio/espressif32@6.9.0, framework Arduino-ESP32 2.0.17, paquet platformio/framework-arduinoespressif32@3.20017.0 ; expliquer platformio.ini et vérifier les versions résolues sans mélange avec Arduino-ESP32 3.x.",
+    "Identifier le profil PlatformIO correspondant à l'ESP32 classique et vérifier ses paramètres contre la carte réelle ; ESP32-WROOM32 n'identifie pas à lui seul le fabricant, le régulateur, la capacité flash ou le routage VIN.",
+    "Lecture du brochage : utiliser sérigraphie et documentation ESP32 classique, pas les positions physiques de la photo annotée ; D14 désigne GPIO14, GPIO26 correspond à DAC2, les annotations ADC et touch de la photo ne sont pas une référence.",
+    "Notions locales avant montage : tension entre deux points, courant dans une boucle, résistance en série limitant le courant, masse de référence, anode/cathode de LED et court-circuit ; expliquer pourquoi 1 kΩ limite à moins de 3,3 mA sous 3,3 V sans attendre le chapitre 01.",
+    "Breadboard 830 points : groupes de contacts, rainure centrale, rails éventuellement interrompus ; repérer leur organisation documentée, éviter de supposer des rails reliés, garder la carte hors de la plaque si sa largeur masque les contacts.",
+    "Montage réel minimal : une LED rouge et une résistance identifiée de 1 kΩ sur breadboard, alimentées par 3V3 et GND de la carte avec deux Dupont F-M si la connectique le permet ; vérifier les composants et l'implantation hors tension avant branchement du seul câble micro-USB.",
+    "Sécurité initiale : logique ESP32 3,3 V non tolérante à 5 V, aucune source externe ni retour d'alimentation ; ne rien déduire de VIN avant documentation ; le contrôle visuel sans multimètre ne prouve ni tension ni courant ; doute sur une connexion ou une valeur = arrêt.",
+    "Introduire Arduino.h, setup(), loop(), Serial.begin(), Serial.println(), le débit du moniteur et USB-série ; programme minimal de console sans GPIO piloté, utilisation manuelle des commandes PlatformIO Build, Upload et Monitor.",
+    "Diagnostic borné : distinguer erreur de compilation, câble sans données, port occupé, problème de permission et séquence BOOT/EN documentée ; UART0 réservé à la console, pas de périphérique externe sur ces lignes.",
+    "Validation sur table : voyant visible et message lisible, nomenclature réellement consommée, débranchement avant démontage ; une seule carte, une seule breadboard et réutilisation des composants dans tous les chapitres."
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "squelette"
+}

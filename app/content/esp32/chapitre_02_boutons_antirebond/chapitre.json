@@ -1,0 +1,27 @@
+{
+  "numero": 2,
+  "titre": "Salle 02 : le clavier — Entrées et anti-rebond",
+  "description": "Le clavier d'accès multiplie les impulsions à chaque pression et brouille les notes de l'ingénieur. Construire une entrée stable avec bouton et résistance de rappel, puis distinguer anti-rebond logiciel et filtrage matériel.",
+  "objectifs": [
+    "Identifier les contacts d'un bouton et expliquer une entrée flottante.",
+    "Comparer pull-up, pull-down et rappels internes ou externes selon le GPIO choisi.",
+    "Compter un seul événement par pression stable avec une temporisation non bloquante.",
+    "Expliquer pourquoi une résistance de rappel seule ne supprime pas le rebond mécanique et pourquoi le filtre RC reste théorique avec ce kit."
+  ],
+  "points_theorie": [
+    "Prérequis : GPIO, LED et loi d'Ohm du chapitre 01, console du chapitre 00 ; introduire circuit ouvert/fermé, contacts d'un bouton à quatre pattes et lecture d'une entrée avant tout comptage.",
+    "Montage réel progressif : un bouton sur breadboard et une LED avec sa résistance série ; utiliser une entrée appropriée, comparer un rappel interne et un rappel externe de 10 kΩ disponible, en recâblant hors tension.",
+    "Introduire pinMode(INPUT), INPUT_PULLUP, INPUT_PULLDOWN, digitalRead(), logique active à LOW et différence entre niveau lu et événement de pression.",
+    "Entrée flottante, bruit et courant traversant le rappel quand le bouton est fermé ; pulls internes approximatifs, GPIO34 à 39 sans pulls internes, rappel externe si une telle entrée est retenue.",
+    "Rebond mécanique : succession de fronts sur une pression ou un relâchement, distinction avec bouton maintenu et double pression réelle ; la console montre des symptômes sans remplacer un oscilloscope.",
+    "Introduire localement millis(), types entiers non signés, état brut, état candidat, état validé et délai de stabilité ; comparer une différence de temps non signée à une durée pour tolérer le rollover.",
+    "Détection de transition stable et comptage à la pression uniquement ; un compteur et un indicateur suffisent, pas d'interruption ni de machine à états formalisée exigée avant leur introduction.",
+    "Anti-rebond matériel en théorie seulement : constante de temps R×C, charge/décharge, seuils et besoin éventuel d'une entrée à hystérésis ; aucun condensateur dans le kit, donc aucun montage RC à réaliser ni achat à prévoir.",
+    "Distinguer explicitement résistance de rappel et anti-rebond matériel ; ne pas promettre qu'un pull-up ou pull-down élimine le rebond et ne pas remplacer un composant manquant par un accessoire supposé.",
+    "Validation manuelle : pression brève, longue, relâchement et pressions successives, une incrémentation par pression stable ; ne pas multiplier les boutons ou les résistances au-delà de l'inventaire constaté."
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "squelette"
+}

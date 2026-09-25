@@ -131,6 +131,39 @@ Aucune théorie, aucun exercice et aucun projet guidé ne sont encore rédigés.
 | 35 | Altitude : la continuité — Sauvegarde et maintenance | 0 | Enduro | À rédiger |
 | 36 | Altitude : la saison complète — Projet final transverse | 0 | Enduro | À rédiger |
 
+## État du contenu — Le Laboratoire Scellé — Électronique et ESP32
+
+Ce tableau concerne le nouveau cours `esp32`, dans `app/content/esp32/`,
+distinct du cours `esp32-microcontroleurs` qui reste inchangé.
+Les **15 chapitres (0 à 14)** sont au statut `squelette` et le cours reste
+`a_venir`, en attente de validation du plan par Pierre puis de rédaction.
+Le parcours vise **1 à 2 heures par chapitre**, de l'initiation électronique
+aux montages intégrés, avec VS Code, PlatformIO et Arduino C++ sur
+Windows, macOS ou Linux, sans prérequis Python.
+Chaque chapitre prévoit un montage réel sur breadboard ; le kit unique est
+démonté et réutilisé entre les réalisations. La compatibilité déclarée du kit
+ne remplace pas les vérifications électriques préalables, détaillées avec le
+fil conducteur dans la [bible du cours](agents/narrations/esp32.md).
+Aucune théorie, aucun exercice et aucun projet guidé ne sont encore rédigés.
+
+| # | Chapitre | Ex. | Projet(s) cible | État de rédaction |
+|---|---|---|---|---|
+| 0 | Salle 00 : le réveil — Setup et premier circuit | 0 | Tous | À rédiger |
+| 1 | Salle 01 : le signal — GPIO et loi d'Ohm | 0 | Tous | À rédiger |
+| 2 | Salle 02 : le clavier — Entrées et anti-rebond | 0 | Tous | À rédiger |
+| 3 | Salle 03 : la jauge — ADC et diviseurs de tension | 0 | Tous | À rédiger |
+| 4 | Salle 04 : les balises — PWM, RGB et buzzers | 0 | Tous | À rédiger |
+| 5 | Salle 05 : l'horloge — Temporisations non bloquantes | 0 | Cuisine, Enduro | À rédiger |
+| 6 | Salle 06 : le passage — Capteur IR et interruptions | 0 | Enduro | À rédiger |
+| 7 | Salle 07 : la veille — PIR et niveaux logiques | 0 | Tous | À rédiger |
+| 8 | Salle 08 : l'atmosphère — DHT11 et mesures valides | 0 | Cuisine | À rédiger |
+| 9 | Salle 09 : le pupitre — Bus I2C et écran OLED | 0 | Cuisine, Finance | À rédiger |
+| 10 | Salle 10 : la commande — Relais et charge basse tension | 0 | Tous | À rédiger |
+| 11 | Salle 11 : la logique — Machines à états et repos sûr | 0 | Tous | À rédiger |
+| 12 | Salle 12 : la liaison — Wi-Fi et serveur web local | 0 | Finance | À rédiger |
+| 13 | Salle 13 : le silence — Deep sleep et réveil | 0 | Tous | À rédiger |
+| 14 | Salle 14 : la sortie — Projet intégrateur transverse | 0 | Cuisine, Finance, Enduro | À rédiger |
+
 ## Structure du projet
 
 ```

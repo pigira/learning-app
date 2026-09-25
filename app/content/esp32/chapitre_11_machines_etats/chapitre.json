@@ -1,0 +1,28 @@
+{
+  "numero": 11,
+  "titre": "Salle 11 : la logique — Machines à états et repos sûr",
+  "description": "Les dispositifs réparés obéissent encore à des règles contradictoires dans le poste de coordination. Formaliser une machine à états qui arbitre entrées, temporisations et sorties en gérant explicitement les défauts.",
+  "objectifs": [
+    "Définir états, événements, gardes, transitions et actions d'une machine à états finie.",
+    "Séparer acquisition, décision et commande dans un programme Arduino non bloquant.",
+    "Associer une valeur périmée ou invalide à un état explicite plutôt qu'à une décision silencieuse.",
+    "Imposer une politique de repos des sorties lors d'un défaut ou d'une réinitialisation.",
+    "Vérifier manuellement une table de transitions sur un montage réel réduit."
+  ],
+  "points_theorie": [
+    "Prérequis : bouton et anti-rebond du chapitre 02, millis() du chapitre 05, erreurs DHT11 du chapitre 08, OLED du chapitre 09 et commande au repos du chapitre 10 ; aucune bibliothèque FSM à ajouter.",
+    "Montage réel minimal : bouton et LED avec résistance sur breadboard ; extension démontable avec DHT11 puis OLED ou relais validé, sans imposer tous les modules simultanément.",
+    "Notion électronique centrale : tension d'entrée indéterminée, donnée périmée et sortie en haute impédance sont des situations différentes ; un état logiciel de défaut ne remplace pas un rappel électrique ni une vérification de compatibilité.",
+    "Définir un ensemble borné d'états, les événements, gardes, actions d'entrée/sortie et transitions ; formaliser les drapeaux simples utilisés au chapitre 05 sans enseigner à nouveau le langage C++.",
+    "Introduire enum class et switch seulement comme représentation embarquée de notions C++ connues ; horodatage d'entrée d'état, temporisation sans delay(), actions répétables et absence d'effet parasite à chaque tour.",
+    "Séparer données brutes, valeurs validées, modèle d'état et sorties ; collecter dans loop() les événements capturés par l'ISR du chapitre 06, jamais d'I2C ou de commande complexe dans l'ISR.",
+    "Définir une priorité déterministe entre arrêt local, défaut de capteur, échéance et demande d'activation ; bornage des seuils et petite hystérésis expliquée pour éviter des changements rapides autour d'une limite.",
+    "Repos au démarrage, au reset et en défaut : extinction LED/buzzer, relais inactif selon le niveau réel, pas de restauration automatique d'une commande de charge ; distinguer intention logicielle et garantie matérielle documentée.",
+    "Scénarios transversaux alternatifs : minuteur Cuisine, compteur ou intervalles Enduro, seuil Finance sur donnée fictive locale ; seuil alimentaire ou financier non assimilé à une décision réelle.",
+    "Validation manuelle : table état/événement/état attendu/sorties, transitions interdites, événements simultanés et délai expiré ; défauts simulés logiquement ou recâblés uniquement hors tension, aucune simulation ne certifie la sécurité d'un appareil."
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "squelette"
+}

@@ -1,0 +1,29 @@
+{
+  "numero": 10,
+  "titre": "Salle 10 : la commande — Relais et charge basse tension",
+  "description": "Une commande séparée du pupitre doit retrouver un état de repos fiable. Comprendre le module relais 5 V à deux canaux et commuter uniquement une LED résistive basse tension après vérification électrique.",
+  "objectifs": [
+    "Distinguer circuit de commande, bobine, contacts COM/NO/NC et circuit de charge.",
+    "Établir les conditions documentaires permettant l'alimentation et la commande du module réel.",
+    "Calculer le budget de courant avec un seul canal activé et l'autre maintenu inactif.",
+    "Prévoir le repos au démarrage, pendant un reset et en cas d'erreur.",
+    "Commander une charge LED avec résistance sans secteur, équipement réel ni fonction de sécurité."
+  ],
+  "points_theorie": [
+    "Prérequis : courants et GPIO du chapitre 01, bouton anti-rebond du chapitre 02, temporisation du chapitre 05 et rail USB/VIN du chapitre 07 ; introduire électroaimant, contacts et séparation commande/charge.",
+    "Identifier le module relais 5 V deux canaux réel : VCC/JD-VCC s'ils existent, GND, IN1/IN2, niveau actif, seuils d'entrée, courant demandé, étage de commande et protection intégrée ; ne supposer ni optocoupleur ni isolation galvanique effective.",
+    "Compatibilité déclarée par Pierre retenue pour le plan, pas preuve électrique ; l'annonce inaccessible n'atteste rien, toute caractéristique critique manquante bloque le branchement plutôt que de justifier un essai sous tension.",
+    "Alimentation 5 V depuis USB/VIN seulement si la carte exacte autorise ce rail en sortie et si le budget inclut ESP32, module, une bobine active et marge ; aucune alimentation externe supposée, aucun retour vers USB, aucune déduction à partir d'une fiche générique.",
+    "Commande depuis GPIO uniquement si niveaux, courants et états au reset sont compatibles et documentés, sans tension 5 V sur le GPIO ; masse de référence adaptée au circuit réel, ni bobine brute ni transistor ou diode supplémentaires supposés.",
+    "Contacts COM, NO et NC : position au repos et en travail, différence avec niveau actif de l'entrée ; bornes de charge distinctes de l'alimentation du module, connectique Dupont à vérifier pour un maintien fiable hors tension.",
+    "Montage réel sur breadboard : un bouton, un canal relais et une LED avec résistance série calculée alimentée en basse tension par la carte ; second canal explicitement inactif, aucune charge autre que LED dans le socle.",
+    "Budgets séparés : courant de bobine sur 5 V, consommation de commande, courant de LED et total USB ; prévoir le rappel d'entrée compatible si nécessaire avec les résistances réellement disponibles, sinon signaler le blocage.",
+    "Initialisation et repos : état des GPIO en haute impédance au reset, logique active LOW éventuelle, rappel documenté, transitions temporisées et limitation des commutations ; un état logiciel seul ne garantit pas le repos avant setup().",
+    "Interdiction explicite de tout 230 V et de toute tension secteur, serrure réelle, chauffage, appareil, véhicule ou produit de sécurité ; un contact marqué haute tension n'autorise pas son utilisation dans ce cours.",
+    "Validation manuelle sur table : LED au repos puis commandée, absence de commutation intempestive attendue documentée, retour au repos ; le clic du relais ne prouve ni bon câblage ni isolation, et aucune vérification électrique n'est prétendue sans instrument."
+  ],
+  "projets_cibles": [
+    "Tous"
+  ],
+  "statut": "squelette"
+}

@@ -1,0 +1,28 @@
+{
+  "numero": 8,
+  "titre": "Salle 08 : l'atmosphère — DHT11 et mesures valides",
+  "description": "Les relevés d'atmosphère laissés par l'ingénieur contiennent des valeurs manquantes. Acquérir température et humidité avec le DHT11 en respectant son protocole, sa cadence et ses limites de précision.",
+  "objectifs": [
+    "Identifier le brochage et les conditions électriques du module DHT11 avant alimentation.",
+    "Distinguer le protocole spécifique DHT11 du bus Dallas OneWire.",
+    "Intégrer une bibliothèque Arduino adaptée avec dépendances et versions explicites dans PlatformIO.",
+    "Séparer une mesure valide, une mesure périmée et une erreur de lecture.",
+    "Présenter un suivi pédagogique de température et d'humidité sans conclusion de sécurité alimentaire."
+  ],
+  "points_theorie": [
+    "Prérequis : rappels du chapitre 02, ordonnancement du chapitre 05, alimentation et niveaux logiques du chapitre 07 ; introduire ici protocole temporel sur une ligne de données.",
+    "Module DHT11 versus capteur nu : repérer alimentation, masse, DATA, résistance de rappel éventuelle et tension vers laquelle elle tire la ligne ; ne pas supposer un pull-up supplémentaire nécessaire ou un ordre de broches standard.",
+    "Montage réel sur breadboard : module DHT11, ESP32 et LED avec résistance comme indicateur de validité ; alimentation et DATA compatibles 3,3 V à établir par documentation, pas de pull-up DATA à 5 V vers l'ESP32.",
+    "Principe du protocole DHT11 : requête, réponse, trame temporisée et contrôle d'intégrité, sans exiger une implémentation bit à bit ; une seule ligne DATA ne signifie pas Dallas OneWire, bibliothèque OneWire non requise.",
+    "Introduire la bibliothèque Arduino DHT retenue, ses en-têtes, classe, type DHT11, initialisation et méthodes de lecture ; figer dans lib_deps une version réelle compatible Arduino-ESP32 2.0.17 et expliquer toute dépendance transitive.",
+    "Période minimale de lecture et temps de stabilisation tirés de la documentation du module et de la bibliothèque ; programmer une acquisition espacée avec millis(), distinguer attente non bloquante entre mesures et durée bloquante interne d'une lecture.",
+    "Valeur invalide, absence de réponse et contrôle d'erreur : introduire isnan() et son en-tête si l'API renvoie NaN, ne pas confondre erreur et zéro, mémoriser séparément dernière valeur valide et âge.",
+    "Unités °C et pourcentage d'humidité relative, résolution, plage et incertitudes du DHT11 ; ne pas inventer de décimales significatives ni de calibration sans instrument de référence.",
+    "Suivi Cuisine de conditions ambiantes près d'une préparation ou d'une fermentation, capteur sec sans contact alimentaire ; observation pédagogique seulement, aucune certification de conservation, de salubrité ou commande de chauffage.",
+    "Validation sur table : valeurs plausibles, cadence respectée et erreur détectée ; débrancher l'USB avant toute modification de câblage, un statut invalide simulé par une valeur fictive n'autorise pas un branchement risqué."
+  ],
+  "projets_cibles": [
+    "Cuisine"
+  ],
+  "statut": "squelette"
+}
